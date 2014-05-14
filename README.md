@@ -1,7 +1,7 @@
 Structure software in OpenCL
 ==================
 This is the structure software. The purpose of this project is
-to rewrite it so that it runs on GPUs using OpenCL. It is done as a project for Nýsköpunarsjóður Námsmanna, a research fund for university students administered by Rannsóknarmiðstöð Íslandsm, under the guidance of Páll Melsteð.
+to rewrite it so that it runs on GPUs using OpenCL. It is done as a project for Nýsköpunarsjóður Námsmanna, a research fund for university students administered by Rannsóknarmiðstöð Íslands, under the guidance of Páll Melsteð.
 
 The structure software website can be found at:
 http://pritchardlab.stanford.edu/structure.html
