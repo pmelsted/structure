@@ -51,7 +51,7 @@ clean:
 	@rm -f *.o structure
 
 test: structure
-	./structure  -m testdata/mainparams -i testdata/testdata1.str -o testdata1.out
+	./structure -S -m testdata/mainparams -i testdata/testdata1.str -o testdata1.out
 
 cleanTest:
 	rm -f testdata1.out_f

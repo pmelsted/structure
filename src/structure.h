@@ -112,6 +112,9 @@ int PRINTLOCPRIOR;
 /* seed parameter, melissa added 1/8/08 */
 int SEED;
 
+/* Flag whether to print output, Matthias Pall Gissurarson 2014-05-21 */
+int PRINTOUTPUT;
+
 /* options hidden by user but still used by program*/
 int NOQS, POSTERIOR,PICTUREFILE,INDIVIDUALR;
 
