@@ -10,6 +10,7 @@ all: target
 
 target: structure 
 
+
 #valgrind: OPT = -g -O1
 #valgrind: CFLAGS += -g
 #valgrind: clean
@@ -48,3 +49,10 @@ mymath.o: mymath.c
 	$(CC) -c mymath.c $(OPT) $(CFLAGS)
 clean:
 	@rm -f *.o structure
+
+test: structure
+	./structure  -m testdata/mainparams -i testdata/testdata1.str -o testdata1.out
+
+cleanTest:
+	rm -f testdata1.out_f
+
