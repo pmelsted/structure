@@ -2,7 +2,7 @@ OPT = -O3
 #OPT = -O3 -m64 -static
 #OPT = -Wall -g 
 
-CFLAGS = -Wall -pedantic -pg
+CFLAGS = -Wall -pedantic
 CC = gcc
 LIBS = -lm
 
@@ -16,13 +16,17 @@ target: structure
 #valgrind: clean
 #valgrind: target
 
+prof: CFLAGS += -g
+prof: CFLAGS += -pg
+prof: target
+
 #debug: OPT = -g -O1
 #debug: CFLAGS += -g
 #debug: clean
 #debug: target
 
 structure: structure.o params.o datain.o output.o ran.o mymath.o
-	$(CC) -o structure structure.o params.o datain.o output.o ran.o mymath.o $(OPT) $(LIBS)
+	$(CC) -o structure structure.o params.o datain.o output.o ran.o mymath.o $(OPT) $(LIBS) $(CFLAGS)
 
 #STRAT: STRAT.o params.o datain.o ran.o mymath.o
 #	$(CC) -o STRAT STRAT.o params.o datain.o ran.o mymath.o $(OPT) $(LIBS)
@@ -53,6 +57,8 @@ clean:
 test: structure
 	./structure -m testdata/mainparams -i testdata/testdata1.str -o testdata1.out
 
+callgrind: prof structure
+	valgrind --tool=callgrind ./structure -m testdata/mainparams -i testdata/testdata1.str -o testdata1.out
 
 cleanTest:
 	rm -f testdata1.out_f
