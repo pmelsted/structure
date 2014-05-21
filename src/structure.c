@@ -125,7 +125,7 @@ void CheckParamCombinations()
       printf("Warning: Seed from parameter file will not be used as RANDOMIZE is set to 1.  SEED in output file will be random seed drawn from time\n");
       }*/  /* modified by JKP */
 
-  if (RANDOMIZE && PRINTOUTPUT)
+  if (RANDOMIZE)
     printf("Note: RANDOMIZE is set to 1. The random number generator will be initialized using the system clock, ignoring any specified value of SEED.\n");
 
 }
@@ -3159,10 +3159,8 @@ int main (int argc, char *argv[])
 
 
   /*=====Code for getting started=============================*/
-  
-  if (PRINTOUTPUT){
-    Welcome (stdout);             /*welcome */
-  }
+
+  Welcome (stdout);             /*welcome */
   GetParams (0,argc,argv);      /*read in parameter values */
 
   CheckParamCombinations();     /*check that some parameter combinations are valid*/
@@ -3306,11 +3304,9 @@ int main (int argc, char *argv[])
                   Fst, PSum, Q, QSum, SiteBySiteSum, FstSum, AncestDist, UsePopProbs, Alpha,
                   sumAlpha, sumR, varR, &sumlikes, &sumsqlikes, &savefreq, R, lambda,
                   sumlambda,Phase,Recessive, LocPrior, sumLocPrior, LocPriorLen, sumIndLikes, indLikesNorm);
-  if (PRINTOUTPUT){
-      printf ("\n\n--------------------------------------\n\n");
-      printf ("Finished initialization; starting MCMC \n");
-      printf ("%d iterations + %d burnin\n\n", NUMREPS, BURNIN);
-  }
+  printf ("\n\n--------------------------------------\n\n");
+  printf ("Finished initialization; starting MCMC \n");
+  printf ("%d iterations + %d burnin\n\n", NUMREPS, BURNIN);
   /*=====Main MCMC loop=======================================*/
 
   for (rep = 0; rep < (NUMREPS + BURNIN); rep++) {
@@ -3374,38 +3370,35 @@ int main (int argc, char *argv[])
                       &sumlikes, &sumsqlikes, R, Epsilon,SumEpsilon,recomblikelihood,
                       lambda, sumlambda, Recessive, LocPrior, sumLocPrior, LocPriorLen, sumIndLikes, indLikesNorm, rep);
     }
-    if (PRINTOUTPUT){ 
-        if ((savefreq) && ((rep + 1) > BURNIN) && (((rep + 1 - BURNIN) % savefreq) == 0)
-            && ((rep + 1) != NUMREPS + BURNIN)) {
-          OutPutResults (Geno, rep + 1, savefreq, Individual, PSum, QSum,
-                         SiteBySiteSum, FstSum, AncestDist, UsePopProbs, sumlikes,
-                         sumsqlikes, sumAlpha, sumR, varR,
-                         NumAlleles, Translation, 0, Markername, R,
-                         SumEpsilon,
-                         lambda,sumlambda,sumLocPrior, LocPriorLen,
-                         sumIndLikes, indLikesNorm, argc,argv);
-        }
+    
+    if ((savefreq) && ((rep + 1) > BURNIN) && (((rep + 1 - BURNIN) % savefreq) == 0)
+        && ((rep + 1) != NUMREPS + BURNIN)) {
+      OutPutResults (Geno, rep + 1, savefreq, Individual, PSum, QSum,
+                     SiteBySiteSum, FstSum, AncestDist, UsePopProbs, sumlikes,
+                     sumsqlikes, sumAlpha, sumR, varR,
+                     NumAlleles, Translation, 0, Markername, R,
+                     SumEpsilon,
+                     lambda,sumlambda,sumLocPrior, LocPriorLen,
+                     sumIndLikes, indLikesNorm, argc,argv);
+    }
 
 
-        if (PRINTLIKES) {
-          PrintLike (like, rep, Geno, PreGeno, Q, P,recomblikelihood);
-        }
-        
-        if (((rep + 1) % UPDATEFREQ) == 0) {
-          PrintUpdate (rep + 1, Geno, PreGeno, Alpha, Fst, P, Q, like,
-                       sumlikes, sumsqlikes, NumAlleles, R, lambda,Individual,
-                       recomblikelihood, Recessive, LocPrior, LocPriorLen);
-        }
+    if (PRINTLIKES) {
+      PrintLike (like, rep, Geno, PreGeno, Q, P,recomblikelihood);
+    }
+    
+    if (((rep + 1) % UPDATEFREQ) == 0) {
+      PrintUpdate (rep + 1, Geno, PreGeno, Alpha, Fst, P, Q, like,
+                   sumlikes, sumsqlikes, NumAlleles, R, lambda,Individual,
+                   recomblikelihood, Recessive, LocPrior, LocPriorLen);
     }
   }
 
-  if (PRINTOUTPUT){
-      /*====final book-keeping====================================*/
-      if ((rep % UPDATEFREQ) != 0) {
-        PrintUpdate (rep, Geno, PreGeno, Alpha, Fst, P, Q, like, sumlikes,
-                     sumsqlikes, NumAlleles,R, lambda, Individual,recomblikelihood,
-                     Recessive, LocPrior, LocPriorLen);
-      }
+  /*====final book-keeping====================================*/
+  if ((rep % UPDATEFREQ) != 0) {
+    PrintUpdate (rep, Geno, PreGeno, Alpha, Fst, P, Q, like, sumlikes,
+                 sumsqlikes, NumAlleles,R, lambda, Individual,recomblikelihood,
+                 Recessive, LocPrior, LocPriorLen);
   }
 
   OutPutResults (Geno, rep, savefreq, Individual, PSum, QSum,

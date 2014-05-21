@@ -87,14 +87,12 @@ void CommandLineValues(int argc, char *argv[])
   char value[100];
   int i;
   int CommandLineInts(char *value, char parameter[100]);
-  PRINTOUTPUT = 1;
   /*
 -i input file 
 -o output file
 -K MAXPOPS 
 -L NUMLOCI
 -N NUMINDS
--S Silent
   */
 
   for (i=0; i<argc-1; i++)
@@ -112,9 +110,7 @@ void CommandLineValues(int argc, char *argv[])
       else if (strcmp(argv[i],"-c")==0)  
 	{sprintf (value,"%s",argv[i+1]); PHENOTYPECOL = CommandLineInts(value,"PHENOTYPECOL");}
       else if (strcmp(argv[i], "-D")==0) 
-      { SEED = atoi(argv[++i]);}
-      else if (strcmp(argv[i], "-S")==0) 
-      {sprintf (value,"%s",argv[i+1]); PRINTOUTPUT = 0;}
+	SEED = atoi(argv[++i]);
     }
 }
 /*-------------------------------------------*/
@@ -343,7 +339,7 @@ void SetValue(char Word[])
    * where space is allowed in path and file name. */
   if (!(strcmp(Word,"INFILE"))) {ReadSpaceString(DATAFILE,STRLEN,PARAMS);
   
-  if (PRINTOUTPUT){ printf("datafile is\n%s\n",DATAFILE);};
+  printf("datafile is\n%s\n",DATAFILE);
   }
   else if (!(strcmp(Word,"OUTFILE"))) ReadSpaceString(OUTFILE,STRLEN,PARAMS);
   else if (!(strcmp(Word,"NUMINDS"))) fscanf(PARAMS,"%d",&NUMINDS);
@@ -461,8 +457,7 @@ void OpenFile(char input[15])
       printf("Can't open the file \"%s\".\n",input);  
       Kill();
     }
-  else {
-  if (PRINTOUTPUT){ printf("Reading file \"%s\".\n",input); } }
+  else printf("Reading file \"%s\".\n",input); 
 }
 /*-------------------------------------------*/
 void PresetValues()

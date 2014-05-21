@@ -1485,18 +1485,18 @@ OutPutResults (int *Geno, int rep, int savefreq,
   double DIC = 0.0;
   /*  DIC = CalcDIC(rep, sumlikes, sumindlikes, indlikes_norm); */
   if (final) {
-    if(PRINTOUTPUT){sprintf (outname, "%s_f", OUTFILE);}
+    sprintf (outname, "%s_f", OUTFILE);
   } else {
-    if(PRINTOUTPUT){sprintf (outname, "%s_%d", OUTFILE, (rep - BURNIN) / savefreq);}
+    sprintf (outname, "%s_%d", OUTFILE, (rep - BURNIN) / savefreq);
   }
   
   RESULTS = fopen (outname, "w");
   if (RESULTS == NULL) {
     printf ("WARNING: Unable to open output file %s.\n", outname);
   } else {
-    if(PRINTOUTPUT){Welcome (RESULTS);}
+    Welcome (RESULTS);
     if (final) {
-      if(PRINTOUTPUT){printf ("\nMCMC completed\n");}
+      printf ("\nMCMC completed\n");
     }
     PrintMainParams (RESULTS, rep, argc, argv);
     PrintMembership (RESULTS, QSum, Individual);
@@ -1507,22 +1507,18 @@ OutPutResults (int *Geno, int rep, int savefreq,
     PrintQ (RESULTS, Geno, rep, QSum, Individual, AncestDist, UsePopProbs,sumR);
     PrintP (RESULTS, rep, Geno, PSum, Translation, NumAlleles, SumEpsilon, Markername);
     if (final) {
-      if(PRINTOUTPUT){PrintQ (stdout, Geno, rep, QSum, Individual, AncestDist, UsePopProbs,sumR);}
+      PrintQ (stdout, Geno, rep, QSum, Individual, AncestDist, UsePopProbs,sumR);
       if (PRINTQHAT) {
         PrintQFile (rep, QSum, Individual, UsePopProbs);
       }
-      if(PRINTOUTPUT){
-	PrintMainParams (stdout, rep, argc, argv);
-	PrintSums (stdout, rep, sumlikes, sumsqlikes, FstSum, sumAlpha, sumlambda, sumR,varR, Individual, sumLocPrior, LocPriorLen, DIC);
-	PrintMembership (stdout, QSum, Individual);
-      }
+      PrintMainParams (stdout, rep, argc, argv);
+      PrintSums (stdout, rep, sumlikes, sumsqlikes, FstSum, sumAlpha, sumlambda, sumR,varR, Individual, sumLocPrior, LocPriorLen, DIC);
+      PrintMembership (stdout, QSum, Individual);
     }
 
     PrintAllParams (RESULTS);
     if (final) {
-      if(PRINTOUTPUT){
-	printf ("Final results printed to file %s\n\n", outname);
-      }
+      printf ("Final results printed to file %s\n\n", outname);
     }
   }
   fclose (RESULTS);

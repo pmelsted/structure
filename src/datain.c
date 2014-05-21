@@ -34,10 +34,10 @@ ReadInputFile (int *Geno, double *Mapdistance, char *Markername, struct IND *Ind
                 int *Recessive)
 {
   OpenData ();			/*open input file */
-  if(PRINTOUTPUT){printf ("Reading file \"%s\".\n", DATAFILE);}
+  printf ("Reading file \"%s\".\n", DATAFILE);
   ReadData (Geno, Mapdistance, Markername, Individual, Phase,Recessive);
   fclose (INPUT);
-  if (ECHODATA && PRINTOUTPUT)
+  if (ECHODATA)
     PrintSomeData (Geno, Individual, stdout);
   if (RECESSIVEALLELES) RecessiveDataCheck(Geno,Recessive);
 
@@ -774,10 +774,8 @@ int FindMaxAlleles (int *Geno, int *Recessive)
       sumk += k;
     }
 
-  if(PRINTOUTPUT){
-    printf ("Number of alleles per locus: min=%2d; ave=%2.1f; max=%2d\n",
-	    mink, (double) sumk / NUMLOCI, maxk);
-  }
+  printf ("Number of alleles per locus: min=%2d; ave=%2.1f; max=%2d\n",
+	  mink, (double) sumk / NUMLOCI, maxk);
   free (Alleles);
   return maxk;
 }
