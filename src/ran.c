@@ -346,6 +346,7 @@ underflows in the RGamma function.
 made by Daniel
 b is the output array and c is a logged version of b*/
 
+/*O(k)*/
 void
 LogRDirichlet (const double *a, const int k, double *b,double *c)
 {
@@ -358,7 +359,9 @@ LogRDirichlet (const double *a, const int k, double *b,double *c)
     sum += b[i];
   }
   
-  /* patch added May 2007 to set gene frequencies equal if all draws from the Gamma distribution are very low. Ensures that P and logP remain defined in this rare event */
+  /* patch added May 2007 to set gene frequencies equal if all draws 
+     from the Gamma distribution are very low. 
+     Ensures that P and logP remain defined in this rare event */
   if(sum<UNDERFLO) {
     for(i=0;i<k;i++) {
       b[i] = 1.0/(double)(k);

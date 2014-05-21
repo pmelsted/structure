@@ -120,9 +120,11 @@ double LDirichletProb(double prior[],double post[],int length)
 }
 /*---------------------------------*/
 double LGammaDistProb(double alpha,double beta, double y)
-/*returns the log probability of a gamma-distributed random
-variable "y", with parameters alpha and beta, where the mean
-is alpha*beta, and the variance is alpha*beta*beta*/
+/* 
+ * returns the log probability of a gamma-distributed random
+ * variable "y", with parameters alpha and beta, where the mean
+ * is alpha*beta, and the variance is alpha*beta*beta
+ */
 {
 
   double logsum;

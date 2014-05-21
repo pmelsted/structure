@@ -1,5 +1,3 @@
-
-
 /*=======================================================
 
   STRUCTURE.C
@@ -250,12 +248,14 @@ PrintTranslation (int *Translation, int *NumAlleles)
 void
 InitFromGeogPop (int *Geno, struct IND *Individual, int *Z, int verbose)
 {
-  /*initialize the population of origin of each allele. These are
-    started in their given populations (when there is population info).
-    It is assumed that the populations are numbered 1..K.  If the
-    population identifier is out of range, the allele is assigned to a
-    random population.  These is used to check that the MCMC is not
-    producing unexpected results because it couldn't find the mode. */
+  /*
+   * initialize the population of origin of each allele. These are
+   * started in their given populations (when there is population info).
+   * It is assumed that the populations are numbered 1..K.  If the
+   * population identifier is out of range, the allele is assigned to a
+   * random population.  These is used to check that the MCMC is not
+   * producing unexpected results because it couldn't find the mode.
+   */
 
   int ind, line, loc;
   int poperrors = 0;
@@ -298,14 +298,16 @@ InitFromGeogPop (int *Geno, struct IND *Individual, int *Z, int verbose)
 void
 InitializeZ (int *Geno, struct IND *Individual, int *Z)
 {
-  /*initialize the population of origin of each allele. I pick these at
-    random because this seems to produce better behaviour than starting
-    out with everybody in one pop, for instance.  I also set missing Data
-    to the unassigned pop from the start.  STARTATPOPINFO indicates that
-    individuals should be started at their given populations. It is
-    assumed that the populations are numbered 1..K.  If the population
-    identifier is out of range, the allele is assigned to a random
-    population. */
+  /* 
+   * initialize the population of origin of each allele. I pick these at
+   * random because this seems to produce better behaviour than starting
+   * out with everybody in one pop, for instance.  I also set missing Data
+   * to the unassigned pop from the start.  STARTATPOPINFO indicates that
+   * individuals should be started at their given populations. It is
+   * assumed that the populations are numbered 1..K.  If the population
+   * identifier is out of range, the allele is assigned to a random
+   * population.
+   */
 
   int ind, line, loc;
   int allele;
@@ -413,8 +415,10 @@ InitFreqPriors (double *Epsilon, double *Fst, int *Geno, int *NumAlleles)
 
 void
 CheckPopPriors (struct IND *Individual)
-    /*This function is called when USEPOPINFO==1 to check that the
-      prior information on populations is ok */
+    /*
+     * This function is called when USEPOPINFO==1 to check that the
+     * prior information on populations is ok
+     */
 {
   int ind;
   int numnopop;
@@ -465,9 +469,11 @@ CheckPopPriors (struct IND *Individual)
 }
 
 
-/*GetNumLocations: Melissa added 7/12/07.  Sets the variable NUMLOCATIONS and also setse
-  all the individuals so that ind[i].myloc is in (0...NUMLOCATIONS).  ind[i].loc is unchanged
-  to whatever the input file indicates*/
+/*
+ * GetNumLocations: Melissa added 7/12/07.  Sets the variable NUMLOCATIONS and also setse
+ * all the individuals so that ind[i].myloc is in (0...NUMLOCATIONS).  ind[i].loc is unchanged
+ * to whatever the input file indicates
+ */
 void GetNumLocations (struct IND *ind) {
   int maxloc=0, i, j, *freq, pos;
   for (i=0; i<NUMINDS; i++) {
@@ -629,8 +635,9 @@ void Initialization (int *Geno, int *PreGeno,
                      double *sumIndLikes, double *indlike_norm)
 
     /*
-      This function is in charge of initializing the data arrays and other
-      parameters to appropriate values */
+     * This function is in charge of initializing the data arrays and other
+     * parameters to appropriate values
+     */
 {
   int pop, ind, loc, i;
 
@@ -771,10 +778,12 @@ double LogProbQ (double *Q, double onealpha, struct IND *Individual)
 /*-----------------------------------------*/
 double LogProbQonepop (double *Q, double popalpha, double sumalphas, struct IND *Individual,int pop)
 {
-  /*return log prob of q given alpha--for one element of q ONLY.  This version is for
-    updates where there is one alpha for each population.  Everything cancels out of
-    the M-H ratio except one term of the gamma function, top and bottom, and the
-    relevant product in the q's */
+  /*
+   * return log prob of q given alpha--for one element of q ONLY.  This version is for
+   * updates where there is one alpha for each population.  Everything cancels out of
+   * the M-H ratio except one term of the gamma function, top and bottom, and the
+   * relevant product in the q's
+   */
 
   double sum;
   double runningtotal;
@@ -825,9 +834,11 @@ double AlphaPriorDiff (double newalpha, double oldalpha)
 /*-----------------------------------------*/
 void UpdateAlpha (double *Q, double *Alpha, struct IND *Individual, int rep)
 {
-  /* Produce new *Alpha using metropolis step.  There are two cases
-     here: either there is the same alpha for all populations, or we do a
-     separate Metropolis update for the alpha for each population.*/
+  /*
+   * Produce new *Alpha using metropolis step.  There are two cases
+   * here: either there is the same alpha for all populations, or we do a
+   * separate Metropolis update for the alpha for each population.
+   */
 
   double newalpha;
   /*  double logoldprob;
@@ -1022,9 +1033,11 @@ void UpdatePopLambda (double *LogP, double *lambda, int *NumAlleles)
 
 /*--------------------------------------------*/
 void UpdateLambda (double *LogP,double *Epsilon, double *lambda, int *NumAlleles)
-    /*updates single value of lambda.  If FREQSCORR is turned on, this is based on the
-      ancestral frequencies (Epsilon); otherwise it is based on ALL
-      the population frequencies, P.  Uniform prior for lambda assumed */
+    /*
+     * updates single value of lambda.  If FREQSCORR is turned on, this is based on the
+     * ancestral frequencies (Epsilon); otherwise it is based on ALL
+     * the population frequencies, P.  Uniform prior for lambda assumed
+     */
 {
   double new;
   double sum;
@@ -1089,12 +1102,16 @@ FPriorDiff (double newf, double oldf)
 double
 FlikeFreqs (double f, double *Epsilon, double *LogP, int *NumAlleles, int pop)
 {
-  /*returns the log probability of the allele frequencies (for a particular pop)
-    given the prior and the z (number of each allele in each population).
-    Here f is the value of Fst for that locus */
+  /*
+   * returns the log probability of the allele frequencies (for a particular pop)
+   * given the prior and the z (number of each allele in each population).
+   * Here f is the value of Fst for that locus
+   */
 
-  /* If numalleles=1 this seems to be ok
-   * here passes Epsilon into mylgamma. Does this cause problems if epsilon very small? */
+  /*
+   * If numalleles=1 this seems to be ok
+   * here passes Epsilon into mylgamma. Does this cause problems if epsilon very small?
+   */
   int allele;
   double sum;
   int loc;
@@ -1184,8 +1201,10 @@ UpdateFst (double *Epsilon, double *Fst,
 
 
 /*===============================================*/
+/*O(MAXPOPS*numalleles + NUMINDS*LINES) */
 void
-GetNumFromPop (int *NumAFromPop, int *Geno, int *Z, int loc, int numalleles,struct IND *Individual)
+GetNumFromPop (int *NumAFromPop, int *Geno, int *Z, int loc,
+	       int numalleles,struct IND *Individual)
 {
   /*Fill in the number of each allele from each pop */
   int ind, line, pop, allele;
@@ -1193,12 +1212,14 @@ GetNumFromPop (int *NumAFromPop, int *Geno, int *Z, int loc, int numalleles,stru
   int allelevalue;
   int popvalue;
 
+  /* O(MAXPOPS*numalleles) */
   for (pop = 0; pop < MAXPOPS; pop++) {
     for (allele = 0; allele < numalleles; allele++) {
       NumAFromPop[NumAFromPopPos (pop, allele)] = 0;
     }
   }
 
+  /* O(NUMINDS*LINES) */
   if (PFROMPOPFLAGONLY) {     /*this option uses only individuals with POPFLAG=1 to update P*/
     for (ind = 0; ind < NUMINDS; ind++) {
       if (Individual[ind].PopFlag == 1) {    /*individual must have popflag turned on*/
@@ -1317,9 +1338,11 @@ void IndependenceUpdateEpsilon(double *P,double *LogP, double *Epsilon, double *
 /*------------------------------------------*/
 void
 UpdateEpsilon(double *P,double *LogP, double *Epsilon, double *Fst,int *NumAlleles, double lambda)
-    /*update the ancestral allele freq vector Epsilon.  This is done
-      by picking 2 alleles at each locus, and changing their frequencies.
-      See notes May 30; June 20, 2001*/
+    /*
+     * update the ancestral allele freq vector Epsilon.  This is done
+     * by picking 2 alleles at each locus, and changing their frequencies.
+     * See notes May 30; June 20, 2001
+     */
 
 {
   int loc,pop,allele1,allele2;
@@ -1400,6 +1423,10 @@ UpdateEpsilon(double *P,double *LogP, double *Epsilon, double *Fst,int *NumAllel
 
 
 /*------------------------------------------*/
+/*
+ * O(NUMLOCI*(MAXPOPS* (max_loc NumAlleles[loc]) + NUMINDS*LINES)) =>
+ * O(NUMLOCI*(MAXPOPS*MAXALLELES + NUMINDS*LINES))
+ */
 void UpdateP (double *P, double *LogP, double *Epsilon, double *Fst,
               int *NumAlleles, int *Geno, int *Z, double *lambda, struct IND *Individual)
     /*Simulate new allele frequencies from Dirichlet distribution */
@@ -1408,17 +1435,20 @@ void UpdateP (double *P, double *LogP, double *Epsilon, double *Fst,
   double *Parameters;           /*[MAXALLS] **Parameters of posterior on P */
   int *NumAFromPop;             /*[MAXPOPS][MAXALLS] **number of each allele from each pop */
 
-  Parameters = calloc (MAXALLELES, sizeof (double));
-  NumAFromPop = calloc (MAXPOPS * MAXALLELES, sizeof (int));
+  Parameters = calloc(MAXALLELES, sizeof (double));
+  NumAFromPop = calloc(MAXPOPS * MAXALLELES, sizeof (int));
   
   if ((Parameters == NULL) || (NumAFromPop == NULL)) {
     printf ("WARNING: unable to allocate array space in UpdateP\n");
     Kill ();
   }
-
+   
+  /* O(NUMLOCI*(MAXPOPS* (max_loc NumAlleles[loc]) + NUMINDS*LINES)) */
   for (loc = 0; loc < NUMLOCI; loc++) {
     /*count number of each allele from each pop */
+    /*O(MAXPOPS*NumAlleles[loc] + NUMINDS*LINES) */
     GetNumFromPop (NumAFromPop, Geno, Z, loc, NumAlleles[loc], Individual);
+    /* O(MAXPOPS*NumAlleles[loc])*/
     for (pop = 0; pop < MAXPOPS; pop++) {
       for (allele = 0; allele < NumAlleles[loc]; allele++) {
         if (FREQSCORR) {
@@ -1431,7 +1461,10 @@ void UpdateP (double *P, double *LogP, double *Epsilon, double *Fst,
         }
       }
       /*return a value of P simulated from the posterior Di(Parameters) */
-      LogRDirichlet (Parameters, NumAlleles[loc], P + PPos (loc, pop, 0),LogP +PPos(loc,pop,0));
+      /*O(NumAlleles[loc]) */
+      LogRDirichlet (Parameters, NumAlleles[loc],
+		     P + PPos (loc, pop, 0),
+		     LogP +PPos(loc,pop,0));
 
       /*need to worry about underflow in UpdateEpsilon due to
         allele frequencies being set to zero---hence previously used the
@@ -1463,12 +1496,14 @@ void UpdateP (double *P, double *LogP, double *Epsilon, double *Fst,
 /*Melissa updated 7/12/07 to incorporate locprior*/
 void UpdateQMetro (int *Geno, int *PreGeno, double *Q, double *P,
                    double *Alpha, int rep, struct IND *Individual, int *Recessive)
-    /*The goal with this function is to improve mixing when alpha is
-      small.  The problem is that in that situation the Q's can't move
-      efficiently.  What I do here is simply pick a proposal Q from the
-      prior, and try to move there.  I move from q0->q1 with prob: Min(1,
-      [P(X|q1,P)/P(X|q0,P)]
-      --- Notes 28 July 99 */
+    /*
+     * The goal with this function is to improve mixing when alpha is
+     * small.  The problem is that in that situation the Q's can't move
+     * efficiently.  What I do here is simply pick a proposal Q from the
+     * prior, and try to move there.  I move from q0->q1 with prob: Min(1,
+     * [P(X|q1,P)/P(X|q0,P)]
+     * --- Notes 28 July 99
+     */
 
     /* note that this code overlaps substantially with updateqmetrorecombine (the
      * version used for the linkage model).  Both versions should be updated in tandem. */
@@ -1565,10 +1600,13 @@ void UpdateQMetro (int *Geno, int *PreGeno, double *Q, double *P,
 
 
 /*----------------------------------------*/
+/*O(NUMINDS*MAXPOPS*LINES*NUMLOCI)*/
 void
 UpdateQNoAdmix (int *Geno, double *Q, double *P, struct IND *Individual, double *LocPrior)
-    /*Assign each individual to exactly one population according to the
-      conditional probabilities. */
+    /* 
+     * Assign each individual to exactly one population according to the
+     * conditional probabilities.
+     */
 {
 
   int ind, line, loc, pop;
@@ -1580,7 +1618,7 @@ UpdateQNoAdmix (int *Geno, double *Q, double *P, struct IND *Individual, double 
   int pickedpop;
 
   ProbsVector = calloc (MAXPOPS, sizeof (double));
-
+  
   for (ind = 0; ind < NUMINDS; ind++) {
     if (!((USEPOPINFO) && (Individual[ind].PopFlag))) {
       /* ie don't use individuals for whom prior pop info is used */
@@ -1679,14 +1717,16 @@ void UpdateQAdmixture (double *Q, int *Z, double *Alpha, struct IND *Individual)
 void
 UpdateQWithPops (int *Geno, double *Q, double *P, int *Z, double *Alpha,
                  int rep, struct IND *Individual, double *UsePopProbs)
-    /*This version of UpdateQ is used when the USEPOPINFO flag is
-      turned on, indicating that the prior information about population
-      information should be taken into account.  It assumes that individuals
-      are normally from the given populations, but are occasionally
-      migrants, or children, grandchildren, etc of migrants.  Individuals
-      can also be marked as unknown, in which case the usual method for
-      estimating Q is used. Individuals who lack prior pop info are treated
-      by the regular Q updates */
+    /*
+     * This version of UpdateQ is used when the USEPOPINFO flag is
+     * turned on, indicating that the prior information about population
+     * information should be taken into account.  It assumes that individuals
+     * are normally from the given populations, but are occasionally
+     * migrants, or children, grandchildren, etc of migrants.  Individuals
+     * can also be marked as unknown, in which case the usual method for
+     * estimating Q is used. Individuals who lack prior pop info are treated
+     * by the regular Q updates
+     */
 {
   double *Input, *Output;       /*both [MAXPOPS] */
   int ind, pop, loc, allele1, allele2, homepop;
@@ -1888,13 +1928,15 @@ UpdateQWithPops (int *Geno, double *Q, double *P, int *Z, double *Alpha,
 /*Melissa updated 7/12/07 to incorporate LocPriors*/
 void UpdateQ (int *Geno, int *PreGeno, double *Q, double *P, int *Z, double *Alpha, int rep,
               struct IND *Individual, double *UsePopProbs, int *Recessive, double *LocPrior)
-    /*update Q: proportion of ancest of each ind in each pop. Three
-      main options here.  One is update Q with admixture, one is update
-      Q with no admixture, and one is to use prior population info.
-      Even when USEPOPINFO is turned on, the other Q updates are still
-      called, in order to deal with any individuals who lack population
-      info.  The other functions are written to ignore individuals with
-      pop data when USEPOPINFO is on. */
+    /* 
+     * update Q: proportion of ancest of each ind in each pop. Three
+     * main options here.  One is update Q with admixture, one is update
+     * Q with no admixture, and one is to use prior population info.
+     * Even when USEPOPINFO is turned on, the other Q updates are still
+     * called, in order to deal with any individuals who lack population
+     * info.  The other functions are written to ignore individuals with
+     * pop data when USEPOPINFO is on.
+     */
 {
 
   if (USEPOPINFO) {               /*update with prior population information */
@@ -2063,8 +2105,10 @@ void UpdateLocPrior(double *Q, double *LocPrior, double *Alpha, struct IND *Indi
 /*------------------------------------------*/
 void UpdateGeno (int *PreGeno, int *Geno, double *P, int *Z,
                  int *Recessive, int *NumAlleles, double *Q)
-    /* this function updates the imputed genotypes when the genotypes are
-     * ambiguous due to recessive markers or inbreeding.  */
+    /* 
+     * this function updates the imputed genotypes when the genotypes are
+     * ambiguous due to recessive markers or inbreeding.
+     */
 {
 
   int ind, loc, allele, line, dom, toggle,rejectioncount,allelecount,notmissingcount;
@@ -2254,6 +2298,7 @@ void UpdateGeno (int *PreGeno, int *Geno, double *P, int *Z,
 
 
 /*-----------------------------------------*/
+/*O*(NUMINDS*LINES*NUMLOCI*MAXPOPS)*/
 void
 UpdateZ (int *Z, double *SiteBySiteSum, double *Q, double *P, int *Geno,int rep)
     /*update Z: population origin of each allele */
@@ -2272,7 +2317,7 @@ UpdateZ (int *Z, double *SiteBySiteSum, double *Q, double *P, int *Geno,int rep)
     printf ("WARNING: unable to allocate array space in UpdateZ\n");
     Kill ();
   }
-
+  /*O*(NUMINDS*LINES*NUMLOCI*MAXPOPS)*/
   for (ind = 0; ind < NUMINDS; ind++) {  /*go through all alleles in sample */
     for (line = 0; line < LINES; line++) {
       for (loc = 0; loc < NUMLOCI; loc++) {
@@ -2911,9 +2956,11 @@ void
 UpdateQMetroRecombine (int *Geno, double *Q, int *Z, double *P,
                        double *Alpha, int rep, struct IND *Individual,
                        double *Mapdistance, double *R, double *Phase,int *Phasemodel)
-    /* This function does the same job as UpdateQMetro in the case
-       when there is recombination.
-       the code is very similar, but a new routine is nevertheless a good idea */
+    /* 
+     * This function does the same job as UpdateQMetro in the case
+     * when there is recombination.
+     * the code is very similar, but a new routine is nevertheless a good idea 
+     */
 {
   double *PriorQ;               /*[MAXPOPS]; */
   double *CurrentQ;             /*[MAXPOPS]; */
