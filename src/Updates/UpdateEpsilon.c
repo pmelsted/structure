@@ -4,7 +4,6 @@
 #include "../ran.h"
 #include "../mymath.h"
 #include "../structure.h"
-#include "../output.h"
 
 
 /*------------------------------------------*/

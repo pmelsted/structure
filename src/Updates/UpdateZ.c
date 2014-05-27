@@ -4,9 +4,9 @@
 #include "../ran.h"
 #include "../mymath.h"
 #include "../structure.h"
-#include "../output.h"
 
 #include "ForwardAndBackward.h"
+
 /*-----------------------------------------*/
 /*O*(NUMINDS*LINES*NUMLOCI*MAXPOPS)*/
 void
@@ -25,6 +25,7 @@ UpdateZ (int *Z,  double *Q, double *P, int *Geno,int rep)
     printf ("WARNING: unable to allocate array space in UpdateZ\n");
     Kill ();
   }
+
   /*O*(NUMINDS*LINES*NUMLOCI*MAXPOPS)*/
   for (ind = 0; ind < NUMINDS; ind++) {  /*go through all alleles in sample */
     for (line = 0; line < LINES; line++) {
