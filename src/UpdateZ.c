@@ -34,14 +34,6 @@ UpdateZ (int *Z, double *SiteBySiteSum, double *Q, double *P, int *Geno,int rep)
 
         if (allele == MISSING) {   /*Missing Data */
           Z[ZPos (ind, line, loc)] = UNASSIGNED;
-          if (SITEBYSITE && rep+1>BURNIN) {
-            sum=0.0;
-            sum2=1.0;
-            for (pop=0;pop<MAXPOPS;pop++) {
-              Cutoffs[pop]=Q[QPos(ind,pop)];
-              sum+=Cutoffs[pop];
-            }
-          }
         } else {
           /*Data present */
           sum = 0.0;    /*compute prob of each allele being from each pop */
@@ -51,24 +43,9 @@ UpdateZ (int *Z, double *SiteBySiteSum, double *Q, double *P, int *Geno,int rep)
             sum += Cutoffs[pop];
           }
 
-          if (SITEBYSITE && rep+1>BURNIN && !POSTERIOR) {
-            for (pop=0;pop<MAXPOPS;pop++) {
-              Cutoffs2[pop] = P[PPos (loc, pop, allele)];
-              sum2 += Cutoffs2[pop];
-            }
-          }
           Z[ZPos (ind, line, loc)] = PickAnOption (MAXPOPS, sum, Cutoffs);
         }
         
-        if (SITEBYSITE && rep+1>BURNIN) {
-          for (pop=0;pop<MAXPOPS;pop++) {
-            if (POSTERIOR) {
-              SiteBySiteSum[SiteBySiteSumPos (ind, line, loc, pop)] += Cutoffs[pop]/sum;
-            } else {
-              SiteBySiteSum[SiteBySiteSumPos (ind, line, loc, pop)] += Cutoffs2[pop]/sum2;
-            }
-          }
-        }
       }
     }
   }
