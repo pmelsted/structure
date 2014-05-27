@@ -133,4 +133,7 @@ void Kill ();			/*abort program */
 
 void Welcome (FILE * file);
 int FindMaxAlleles (int *Geno, int *Recessive);
+extern double Forward (int *Z, double *IndividualQ, double *P, int *Geno,
+                       double Rec, int ind, double *RTransitProb,
+                       double *Mapdistance, double *Phase,int *Phasemodel);
 

@@ -25,8 +25,8 @@ prof: target
 #debug: clean
 #debug: target
 
-structure: structure.o params.o datain.o output.o ran.o mymath.o
-	$(CC) -o structure structure.o params.o datain.o output.o ran.o mymath.o $(OPT) $(LIBS) $(CFLAGS)
+structure: structure.o params.o datain.o output.o ran.o mymath.o UpdateQ.o UpdateZ.o UpdateP.o ForwardAndBackward.o
+	$(CC) -o structure structure.o params.o datain.o output.o ran.o  mymath.o UpdateQ.o UpdateZ.o UpdateP.o ForwardAndBackward.o $(OPT) $(LIBS) $(CFLAGS)
 
 #STRAT: STRAT.o params.o datain.o ran.o mymath.o
 #	$(CC) -o STRAT STRAT.o params.o datain.o ran.o mymath.o $(OPT) $(LIBS)
@@ -51,6 +51,18 @@ ran.o: ran.c
 
 mymath.o: mymath.c
 	$(CC) -c mymath.c $(OPT) $(CFLAGS)
+
+UpdateQ.o: UpdateQ.c
+	$(CC) -c UpdateQ.c $(OPT) $(CFLAGS)
+
+UpdateZ.o: UpdateZ.c
+	$(CC) -c UpdateZ.c $(OPT) $(CFLAGS)
+
+UpdateP.o: UpdateP.c
+	$(CC) -c UpdateP.c $(OPT) $(CFLAGS)
+
+ForwardAndBackward.o: ForwardAndBackward.c
+	$(CC) -c ForwardAndBackward.c $(OPT) $(CFLAGS)
 clean:
 	@rm -f *.o structure
 
