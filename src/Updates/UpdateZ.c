@@ -10,7 +10,7 @@
 /*-----------------------------------------*/
 /*O*(NUMINDS*LINES*NUMLOCI*MAXPOPS)*/
 void
-UpdateZ (int *Z,  double *Q, double *P, int *Geno,int rep)
+UpdateZ (int *Z,  double *Q, double *P, int *Geno)
     /*update Z: population origin of each allele */
 {
   int ind, line, loc, pop;
@@ -21,7 +21,7 @@ UpdateZ (int *Z,  double *Q, double *P, int *Geno,int rep)
   int allele;
 
   Cutoffs = calloc (MAXPOPS, sizeof (double));
-  if (Cutoffs == NULL ) {
+  if (Cutoffs == NULL) {
     printf ("WARNING: unable to allocate array space in UpdateZ\n");
     Kill ();
   }

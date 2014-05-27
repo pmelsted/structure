@@ -90,6 +90,10 @@ Init.o: Init.c
 Util.o: Util.c
 	$(CC) -c Util.c $(OPT) $(CFLAGS)
 
+
+KernelsTest: Kernels.c
+	$(CC) -o Kernels Kernels.c -lOpenCL
+
 clean:
 	@rm -f *.o structure
 

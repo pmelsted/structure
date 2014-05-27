@@ -1,4 +1,4 @@
-extern void UpdateZ (int *Z, double *Q, double *P, int *Geno,int rep);
+extern void UpdateZ (int *Z, double *Q, double *P, int *Geno);
 extern double UpdateZandSingleR (int *Z,  double *Q, double *P, int *Geno,
                                  double *R, double *Mapdistance, int rep, double *Phase,
                                  int *Z1,int *Phasemodel, double *sumIndLikes,

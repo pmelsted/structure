@@ -278,7 +278,7 @@ int main (int argc, char *argv[])
                                        Mapdistance, rep, Phase, Z1,Phasemodel, rep+1 > BURNIN ? sumIndLikes:NULL, indLikesNorm);
       }
     } else {
-      UpdateZ (Z,  Q, P, Geno,rep);
+      UpdateZ (Z,  Q, P, Geno);
       /*      printf("done updatez alpha[2]=%e\n", Alpha[2]); */
     }
 
