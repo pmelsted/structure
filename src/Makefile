@@ -25,8 +25,8 @@ prof: target
 #debug: clean
 #debug: target
 
-structure: structure.o params.o datain.o output.o ran.o mymath.o UpdateQ.o UpdateZ.o UpdateP.o ForwardAndBackward.o
-	$(CC) -o structure structure.o params.o datain.o output.o ran.o  mymath.o UpdateQ.o UpdateZ.o UpdateP.o ForwardAndBackward.o $(OPT) $(LIBS) $(CFLAGS)
+structure: structure.o params.o datain.o output.o ran.o mymath.o ForwardAndBackward.o UpdateQ.o UpdateZ.o UpdateP.o UpdateLocPrior.o 
+	$(CC) -o structure structure.o params.o datain.o output.o ran.o  mymath.o ForwardAndBackward.o UpdateQ.o UpdateZ.o UpdateP.o UpdateLocPrior.o $(OPT) $(LIBS) $(CFLAGS)
 
 #STRAT: STRAT.o params.o datain.o ran.o mymath.o
 #	$(CC) -o STRAT STRAT.o params.o datain.o ran.o mymath.o $(OPT) $(LIBS)
@@ -60,6 +60,9 @@ UpdateZ.o: UpdateZ.c
 
 UpdateP.o: UpdateP.c
 	$(CC) -c UpdateP.c $(OPT) $(CFLAGS)
+
+UpdateLocPrior.o: UpdateLocPrior.c
+	$(CC) -c UpdateLocPrior.c $(OPT) $(CFLAGS)
 
 ForwardAndBackward.o: ForwardAndBackward.c
 	$(CC) -c ForwardAndBackward.c $(OPT) $(CFLAGS)
