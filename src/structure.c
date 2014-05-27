@@ -16,22 +16,21 @@
 #include <math.h>
 #include <float.h>
 #include <assert.h>
-#include "mymath.h"
 #include "ran.h"
 #include "params.h"
 #include "datain.h"
 #include "output.h"
 
 /*Here come the updates */
-#include "UpdateQ.h"
-#include "UpdateZ.h"
-#include "UpdateP.h"
-#include "UpdateAlpha.h"
-#include "UpdateGeno.h"
-#include "UpdateLocPrior.h"
-#include "UpdateEpsilon.h"
-#include "UpdateFst.h"
-#include "UpdateLambda.h"
+#include "Updates/UpdateQ.h"
+#include "Updates/UpdateZ.h"
+#include "Updates/UpdateP.h"
+#include "Updates/UpdateAlpha.h"
+#include "Updates/UpdateGeno.h"
+#include "Updates/UpdateLocPrior.h"
+#include "Updates/UpdateEpsilon.h"
+#include "Updates/UpdateFst.h"
+#include "Updates/UpdateLambda.h"
 
 #include "Init.h"
 #include "Util.h"

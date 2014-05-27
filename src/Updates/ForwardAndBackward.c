@@ -3,8 +3,8 @@
 #include <math.h>
 #include <float.h>
 #include <assert.h>
-#include "datain.h"
-#include "mymath.h"
+#include "../datain.h"
+#include "../mymath.h"
 
 
 /*---------------------------------------*/

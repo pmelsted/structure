@@ -54,32 +54,35 @@ ran.o: ran.c
 mymath.o: mymath.c
 	$(CC) -c mymath.c $(OPT) $(CFLAGS)
 
-UpdateQ.o: UpdateQ.c
-	$(CC) -c UpdateQ.c $(OPT) $(CFLAGS)
+UpdateQ.o: Updates/UpdateQ.c
+	$(CC) -c Updates/UpdateQ.c $(OPT) $(CFLAGS)
 
-UpdateZ.o: UpdateZ.c
-	$(CC) -c UpdateZ.c $(OPT) $(CFLAGS)
+UpdateZ.o: Updates/UpdateZ.c
+	$(CC) -c Updates/UpdateZ.c $(OPT) $(CFLAGS)
 
-UpdateP.o: UpdateP.c
-	$(CC) -c UpdateP.c $(OPT) $(CFLAGS)
+UpdateP.o: Updates/UpdateP.c
+	$(CC) -c Updates/UpdateP.c $(OPT) $(CFLAGS)
 
-UpdateLocPrior.o: UpdateLocPrior.c
-	$(CC) -c UpdateLocPrior.c $(OPT) $(CFLAGS)
+UpdateLocPrior.o: Updates/UpdateLocPrior.c
+	$(CC) -c Updates/UpdateLocPrior.c $(OPT) $(CFLAGS)
 
-UpdateAlpha.o: UpdateAlpha.c
-	$(CC) -c UpdateAlpha.c $(OPT) $(CFLAGS)
+UpdateAlpha.o: Updates/UpdateAlpha.c
+	$(CC) -c Updates/UpdateAlpha.c $(OPT) $(CFLAGS)
 
-UpdateGeno.o: UpdateGeno.c
-	$(CC) -c UpdateGeno.c $(OPT) $(CFLAGS)
+UpdateGeno.o: Updates/UpdateGeno.c
+	$(CC) -c Updates/UpdateGeno.c $(OPT) $(CFLAGS)
 
-UpdateEpsilon.o: UpdateEpsilon.c
-	$(CC) -c UpdateEpsilon.c $(OPT) $(CFLAGS)
+UpdateEpsilon.o: Updates/UpdateEpsilon.c
+	$(CC) -c Updates/UpdateEpsilon.c $(OPT) $(CFLAGS)
 
-UpdateFst.o: UpdateFst.c
-	$(CC) -c UpdateFst.c $(OPT) $(CFLAGS)
+UpdateFst.o: Updates/UpdateFst.c
+	$(CC) -c Updates/UpdateFst.c $(OPT) $(CFLAGS)
 
-UpdateLambda.o: UpdateZ.c
-	$(CC) -c UpdateLambda.c $(OPT) $(CFLAGS)
+UpdateLambda.o: Updates/UpdateLambda.c
+	$(CC) -c Updates/UpdateLambda.c $(OPT) $(CFLAGS)
+
+ForwardAndBackward.o: Updates/ForwardAndBackward.c
+	$(CC) -c Updates/ForwardAndBackward.c $(OPT) $(CFLAGS)
 
 Init.o: Init.c
 	$(CC) -c Init.c $(OPT) $(CFLAGS)
@@ -87,8 +90,6 @@ Init.o: Init.c
 Util.o: Util.c
 	$(CC) -c Util.c $(OPT) $(CFLAGS)
 
-ForwardAndBackward.o: ForwardAndBackward.c
-	$(CC) -c ForwardAndBackward.c $(OPT) $(CFLAGS)
 clean:
 	@rm -f *.o structure
 

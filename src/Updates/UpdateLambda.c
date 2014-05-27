@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "ran.h"
-#include "mymath.h"
-#include "structure.h"
-#include "output.h"
+#include "../ran.h"
+#include "../mymath.h"
+#include "../structure.h"
+#include "../output.h"
 
 void UpdatePopLambda (double *LogP, double *lambda, int *NumAlleles)
     /*updates a lambda for each population*/

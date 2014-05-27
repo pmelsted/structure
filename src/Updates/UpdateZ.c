@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "ran.h"
-#include "mymath.h"
-#include "structure.h"
-#include "output.h"
+#include "../ran.h"
+#include "../mymath.h"
+#include "../structure.h"
+#include "../output.h"
+
 #include "ForwardAndBackward.h"
 /*-----------------------------------------*/
 /*O*(NUMINDS*LINES*NUMLOCI*MAXPOPS)*/

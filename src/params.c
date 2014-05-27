@@ -31,6 +31,8 @@ Command line flags: enter the appropriate flag followed by new value :
 #define MAXNAME 30  /*maximum length of parameter names*/
 FILE *PARAMS; /*parameter files*/
 
+int ret; /*return value of fscanf when reading settings */
+
 
 void ReadFile();
 void GetParamValue();
@@ -119,7 +121,7 @@ int CommandLineInts(char *value, char parameter[100])
        line (for MAXPOPS, etc) and make sure they are valid integers*/
 {
   int i;
-  int ok = 1;
+  /*int ok = 1;*/
 
   for (i = 0; i < 100; i++)
     {
@@ -127,7 +129,7 @@ int CommandLineInts(char *value, char parameter[100])
 	break;
       if (((value[i] < '0') || (value[i] > '9')) && (value[i] != '-'))
 	{
-	  ok = 0;
+	  /*ok = 0;*/
 	  printf("Error in command-line data entry for %s\n",parameter);
 	  printf("Value input at command line is %s\n",value);
 	  Kill();
@@ -342,96 +344,96 @@ void SetValue(char Word[])
   printf("datafile is\n%s\n",DATAFILE);
   }
   else if (!(strcmp(Word,"OUTFILE"))) ReadSpaceString(OUTFILE,STRLEN,PARAMS);
-  else if (!(strcmp(Word,"NUMINDS"))) fscanf(PARAMS,"%d",&NUMINDS);
-  else if (!(strcmp(Word,"NUMLOCI"))) fscanf(PARAMS,"%d",&NUMLOCI);
-  else if (!(strcmp(Word,"MISSING"))) fscanf(PARAMS,"%d",&MISSING);
-  else if (!(strcmp(Word,"LABEL"))) fscanf(PARAMS,"%d",&LABEL);
-  else if (!(strcmp(Word,"POPDATA"))) fscanf(PARAMS,"%d",&POPDATA);
-  else if (!(strcmp(Word,"MARKERNAMES"))) fscanf(PARAMS,"%d",&MARKERNAMES);
-  else if (!(strcmp(Word,"PHASEINFO"))) fscanf(PARAMS,"%d",&PHASEINFO);
-  else if (!(strcmp(Word,"MAPDISTANCES"))) fscanf(PARAMS,"%d",&MAPDISTANCES);
-  else if (!(strcmp(Word,"MARKOVPHASE"))) fscanf(PARAMS,"%d",&MARKOVPHASE);
-  else if (!(strcmp(Word,"PLOIDY"))) fscanf(PARAMS,"%d",&LINES);
-  else if (!(strcmp(Word,"ONEROWPERIND"))) fscanf(PARAMS,"%d",&ONEROWPERIND);
-  else if (!(strcmp(Word,"RECESSIVEALLELES"))) fscanf(PARAMS,"%d",&RECESSIVEALLELES);
-  else if (!(strcmp(Word,"NOTAMBIGUOUS"))) fscanf(PARAMS,"%d",&NOTAMBIGUOUS);
-  else if (!(strcmp(Word,"POPFLAG"))) fscanf(PARAMS,"%d",&POPFLAG);
-  else if (!(strcmp(Word,"PHENOTYPE"))) fscanf(PARAMS,"%d",&PHENOTYPE);
-  else if (!(strcmp(Word,"EXTRACOLS"))) fscanf(PARAMS,"%d",&EXTRACOLS);
-  else if (!(strcmp(Word,"MAXPOPS"))) fscanf(PARAMS,"%d",&MAXPOPS);
-  else if (!(strcmp(Word,"BURNIN"))) fscanf(PARAMS,"%d",&BURNIN);
-  else if (!(strcmp(Word,"NUMREPS"))) fscanf(PARAMS,"%d",&NUMREPS);
-  else if (!(strcmp(Word,"USEPOPINFO"))) fscanf(PARAMS,"%d",&USEPOPINFO);
-  else if (!(strcmp(Word,"PFROMPOPFLAGONLY"))) fscanf(PARAMS,"%d",&PFROMPOPFLAGONLY);
-  else if (!(strcmp(Word,"INFERALPHA"))) fscanf(PARAMS,"%d",&INFERALPHA);
-  else if (!(strcmp(Word,"INFERLAMBDA"))) fscanf(PARAMS,"%d",&INFERLAMBDA);
-  else if (!(strcmp(Word,"POPSPECIFICLAMBDA"))) fscanf(PARAMS,"%d",&POPSPECIFICLAMBDA);
-  else if (!(strcmp(Word,"POPALPHAS"))) fscanf(PARAMS,"%d",&POPALPHAS);
-  else if (!(strcmp(Word,"COMPUTEPROB"))) fscanf(PARAMS,"%d",&COMPUTEPROB);
-  else if (!(strcmp(Word,"NOADMIX"))) fscanf(PARAMS,"%d",&NOADMIX);
-  else if (!(strcmp(Word,"ADMBURNIN"))) fscanf(PARAMS,"%d",&ADMBURNIN);
-  else if (!(strcmp(Word,"PHASED"))) fscanf(PARAMS,"%d",&PHASED);
-  else if (!(strcmp(Word,"PRINTQHAT"))) fscanf(PARAMS,"%d",&PRINTQHAT);
-  else if (!(strcmp(Word,"PRINTQSUM"))) fscanf(PARAMS,"%d",&PRINTQSUM);
-  else if (!(strcmp(Word,"UPDATEFREQ"))) fscanf(PARAMS,"%d",&UPDATEFREQ);
-  else if (!(strcmp(Word,"PRINTLIKES"))) fscanf(PARAMS,"%d",&PRINTLIKES);
-  else if (!(strcmp(Word,"INTERMEDSAVE"))) fscanf(PARAMS,"%d",&INTERMEDSAVE);
-  else if (!(strcmp(Word,"PRINTKLD"))) fscanf(PARAMS,"%d",&PRINTKLD);
-  else if (!(strcmp(Word,"PRINTNET"))) fscanf(PARAMS,"%d",&PRINTNET);
-  else if (!(strcmp(Word,"PRINTLAMBDA"))) fscanf(PARAMS,"%d",&PRINTLAMBDA);
-  else if (!(strcmp(Word,"ECHODATA"))) fscanf(PARAMS,"%d",&ECHODATA);
-  else if (!(strcmp(Word,"ANCESTDIST"))) fscanf(PARAMS,"%d",&ANCESTDIST);
-  else if (!(strcmp(Word,"NUMBOXES"))) fscanf(PARAMS,"%d",&NUMBOXES);
-  else if (!(strcmp(Word,"ANCESTPINT"))) fscanf(PARAMS,"%lf",&ANCESTPINT);
-  else if (!(strcmp(Word,"GENSBACK"))) fscanf(PARAMS,"%d",&GENSBACK);
-  else if (!(strcmp(Word,"MIGRPRIOR"))) fscanf(PARAMS,"%lf",&MIGRPRIOR);
-  else if (!(strcmp(Word,"ALPHA"))) fscanf(PARAMS,"%lf",&ALPHA);
-  else if (!(strcmp(Word,"LOG10RPROPSD"))) fscanf(PARAMS,"%lf",&LOG10RPROPSD);
-  else if (!(strcmp(Word,"LOG10RMIN"))) fscanf(PARAMS,"%lf",&LOG10RMIN);
-  else if (!(strcmp(Word,"LOG10RMAX"))) fscanf(PARAMS,"%lf",&LOG10RMAX);
-  else if (!(strcmp(Word,"LOG10RSTART"))) fscanf(PARAMS,"%lf",&LOG10RSTART);
-  else if (!(strcmp(Word,"FREQSCORR"))) fscanf(PARAMS,"%d",&FREQSCORR);
-  else if (!(strcmp(Word,"ONEFST"))) fscanf(PARAMS,"%d",&ONEFST);
-  else if (!(strcmp(Word,"FPRIORMEAN"))) fscanf(PARAMS,"%lf",&FPRIORMEAN);
-  else if (!(strcmp(Word,"FPRIORSD"))) fscanf(PARAMS,"%lf",&FPRIORSD);
-  else if (!(strcmp(Word,"LAMBDA"))) fscanf(PARAMS,"%lf",&LAMBDA);
-  else if (!(strcmp(Word,"UNIFPRIORALPHA"))) fscanf(PARAMS,"%d",&UNIFPRIORALPHA);
-  else if (!(strcmp(Word,"ALPHAMAX"))) fscanf(PARAMS,"%lf",&ALPHAMAX);
-  else if (!(strcmp(Word,"ALPHAPRIORA"))) fscanf(PARAMS,"%lf",&ALPHAPRIORA);
-  else if (!(strcmp(Word,"ALPHAPRIORB"))) fscanf(PARAMS,"%lf",&ALPHAPRIORB);
-  else if (!(strcmp(Word,"ALPHAPROPSD"))) fscanf(PARAMS,"%lf",&ALPHAPROPSD);
-  else if (!(strcmp(Word,"STARTATPOPINFO"))) fscanf(PARAMS,"%d",&STARTATPOPINFO);
-  else if (!(strcmp(Word,"RANDOMIZE"))) fscanf(PARAMS,"%d",&RANDOMIZE);
-    else if (!(strcmp(Word,"LINKAGE"))) fscanf(PARAMS,"%d",&LINKAGE);
-  else if (!(strcmp(Word,"METROFREQ"))) fscanf(PARAMS,"%d",&METROFREQ);
-  else if (!(strcmp(Word,"REPORTHITRATE"))) fscanf(PARAMS,"%d",&REPORTHITRATE);
+  else if (!(strcmp(Word,"NUMINDS"))) ret = fscanf(PARAMS,"%d",&NUMINDS);
+  else if (!(strcmp(Word,"NUMLOCI"))) ret = fscanf(PARAMS,"%d",&NUMLOCI);
+  else if (!(strcmp(Word,"MISSING"))) ret = fscanf(PARAMS,"%d",&MISSING);
+  else if (!(strcmp(Word,"LABEL"))) ret = fscanf(PARAMS,"%d",&LABEL);
+  else if (!(strcmp(Word,"POPDATA"))) ret = fscanf(PARAMS,"%d",&POPDATA);
+  else if (!(strcmp(Word,"MARKERNAMES"))) ret = fscanf(PARAMS,"%d",&MARKERNAMES);
+  else if (!(strcmp(Word,"PHASEINFO"))) ret = fscanf(PARAMS,"%d",&PHASEINFO);
+  else if (!(strcmp(Word,"MAPDISTANCES"))) ret = fscanf(PARAMS,"%d",&MAPDISTANCES);
+  else if (!(strcmp(Word,"MARKOVPHASE"))) ret = fscanf(PARAMS,"%d",&MARKOVPHASE);
+  else if (!(strcmp(Word,"PLOIDY"))) ret = fscanf(PARAMS,"%d",&LINES);
+  else if (!(strcmp(Word,"ONEROWPERIND"))) ret = fscanf(PARAMS,"%d",&ONEROWPERIND);
+  else if (!(strcmp(Word,"RECESSIVEALLELES"))) ret = fscanf(PARAMS,"%d",&RECESSIVEALLELES);
+  else if (!(strcmp(Word,"NOTAMBIGUOUS"))) ret = fscanf(PARAMS,"%d",&NOTAMBIGUOUS);
+  else if (!(strcmp(Word,"POPFLAG"))) ret = fscanf(PARAMS,"%d",&POPFLAG);
+  else if (!(strcmp(Word,"PHENOTYPE"))) ret = fscanf(PARAMS,"%d",&PHENOTYPE);
+  else if (!(strcmp(Word,"EXTRACOLS"))) ret = fscanf(PARAMS,"%d",&EXTRACOLS);
+  else if (!(strcmp(Word,"MAXPOPS"))) ret = fscanf(PARAMS,"%d",&MAXPOPS);
+  else if (!(strcmp(Word,"BURNIN"))) ret = fscanf(PARAMS,"%d",&BURNIN);
+  else if (!(strcmp(Word,"NUMREPS"))) ret = fscanf(PARAMS,"%d",&NUMREPS);
+  else if (!(strcmp(Word,"USEPOPINFO"))) ret = fscanf(PARAMS,"%d",&USEPOPINFO);
+  else if (!(strcmp(Word,"PFROMPOPFLAGONLY"))) ret = fscanf(PARAMS,"%d",&PFROMPOPFLAGONLY);
+  else if (!(strcmp(Word,"INFERALPHA"))) ret = fscanf(PARAMS,"%d",&INFERALPHA);
+  else if (!(strcmp(Word,"INFERLAMBDA"))) ret = fscanf(PARAMS,"%d",&INFERLAMBDA);
+  else if (!(strcmp(Word,"POPSPECIFICLAMBDA"))) ret = fscanf(PARAMS,"%d",&POPSPECIFICLAMBDA);
+  else if (!(strcmp(Word,"POPALPHAS"))) ret = fscanf(PARAMS,"%d",&POPALPHAS);
+  else if (!(strcmp(Word,"COMPUTEPROB"))) ret = fscanf(PARAMS,"%d",&COMPUTEPROB);
+  else if (!(strcmp(Word,"NOADMIX"))) ret = fscanf(PARAMS,"%d",&NOADMIX);
+  else if (!(strcmp(Word,"ADMBURNIN"))) ret = fscanf(PARAMS,"%d",&ADMBURNIN);
+  else if (!(strcmp(Word,"PHASED"))) ret = fscanf(PARAMS,"%d",&PHASED);
+  else if (!(strcmp(Word,"PRINTQHAT"))) ret = fscanf(PARAMS,"%d",&PRINTQHAT);
+  else if (!(strcmp(Word,"PRINTQSUM"))) ret = fscanf(PARAMS,"%d",&PRINTQSUM);
+  else if (!(strcmp(Word,"UPDATEFREQ"))) ret = fscanf(PARAMS,"%d",&UPDATEFREQ);
+  else if (!(strcmp(Word,"PRINTLIKES"))) ret = fscanf(PARAMS,"%d",&PRINTLIKES);
+  else if (!(strcmp(Word,"INTERMEDSAVE"))) ret = fscanf(PARAMS,"%d",&INTERMEDSAVE);
+  else if (!(strcmp(Word,"PRINTKLD"))) ret = fscanf(PARAMS,"%d",&PRINTKLD);
+  else if (!(strcmp(Word,"PRINTNET"))) ret = fscanf(PARAMS,"%d",&PRINTNET);
+  else if (!(strcmp(Word,"PRINTLAMBDA"))) ret = fscanf(PARAMS,"%d",&PRINTLAMBDA);
+  else if (!(strcmp(Word,"ECHODATA"))) ret = fscanf(PARAMS,"%d",&ECHODATA);
+  else if (!(strcmp(Word,"ANCESTDIST"))) ret = fscanf(PARAMS,"%d",&ANCESTDIST);
+  else if (!(strcmp(Word,"NUMBOXES"))) ret = fscanf(PARAMS,"%d",&NUMBOXES);
+  else if (!(strcmp(Word,"ANCESTPINT"))) ret = fscanf(PARAMS,"%lf",&ANCESTPINT);
+  else if (!(strcmp(Word,"GENSBACK"))) ret = fscanf(PARAMS,"%d",&GENSBACK);
+  else if (!(strcmp(Word,"MIGRPRIOR"))) ret = fscanf(PARAMS,"%lf",&MIGRPRIOR);
+  else if (!(strcmp(Word,"ALPHA"))) ret = fscanf(PARAMS,"%lf",&ALPHA);
+  else if (!(strcmp(Word,"LOG10RPROPSD"))) ret = fscanf(PARAMS,"%lf",&LOG10RPROPSD);
+  else if (!(strcmp(Word,"LOG10RMIN"))) ret = fscanf(PARAMS,"%lf",&LOG10RMIN);
+  else if (!(strcmp(Word,"LOG10RMAX"))) ret = fscanf(PARAMS,"%lf",&LOG10RMAX);
+  else if (!(strcmp(Word,"LOG10RSTART"))) ret = fscanf(PARAMS,"%lf",&LOG10RSTART);
+  else if (!(strcmp(Word,"FREQSCORR"))) ret = fscanf(PARAMS,"%d",&FREQSCORR);
+  else if (!(strcmp(Word,"ONEFST"))) ret = fscanf(PARAMS,"%d",&ONEFST);
+  else if (!(strcmp(Word,"FPRIORMEAN"))) ret = fscanf(PARAMS,"%lf",&FPRIORMEAN);
+  else if (!(strcmp(Word,"FPRIORSD"))) ret = fscanf(PARAMS,"%lf",&FPRIORSD);
+  else if (!(strcmp(Word,"LAMBDA"))) ret = fscanf(PARAMS,"%lf",&LAMBDA);
+  else if (!(strcmp(Word,"UNIFPRIORALPHA"))) ret = fscanf(PARAMS,"%d",&UNIFPRIORALPHA);
+  else if (!(strcmp(Word,"ALPHAMAX"))) ret = fscanf(PARAMS,"%lf",&ALPHAMAX);
+  else if (!(strcmp(Word,"ALPHAPRIORA"))) ret = fscanf(PARAMS,"%lf",&ALPHAPRIORA);
+  else if (!(strcmp(Word,"ALPHAPRIORB"))) ret = fscanf(PARAMS,"%lf",&ALPHAPRIORB);
+  else if (!(strcmp(Word,"ALPHAPROPSD"))) ret = fscanf(PARAMS,"%lf",&ALPHAPROPSD);
+  else if (!(strcmp(Word,"STARTATPOPINFO"))) ret = fscanf(PARAMS,"%d",&STARTATPOPINFO);
+  else if (!(strcmp(Word,"RANDOMIZE"))) ret = fscanf(PARAMS,"%d",&RANDOMIZE);
+    else if (!(strcmp(Word,"LINKAGE"))) ret = fscanf(PARAMS,"%d",&LINKAGE);
+  else if (!(strcmp(Word,"METROFREQ"))) ret = fscanf(PARAMS,"%d",&METROFREQ);
+  else if (!(strcmp(Word,"REPORTHITRATE"))) ret = fscanf(PARAMS,"%d",&REPORTHITRATE);
 
 /* HIDDEN PARAMETERS */
-  else if (!(strcmp(Word,"NOQS"))) fscanf(PARAMS,"%d",&NOQS);  
-  else if (!(strcmp(Word,"POSTERIOR"))) fscanf(PARAMS,"%d",&POSTERIOR);
-  else if (!(strcmp(Word,"PICTUREFILE"))) fscanf(PARAMS,"%d",&PICTUREFILE);
-  else if (!(strcmp(Word,"INDIVIDUALR"))) fscanf(PARAMS,"%d",&INDIVIDUALR);
+  else if (!(strcmp(Word,"NOQS"))) ret = fscanf(PARAMS,"%d",&NOQS);  
+  else if (!(strcmp(Word,"POSTERIOR"))) ret = fscanf(PARAMS,"%d",&POSTERIOR);
+  else if (!(strcmp(Word,"PICTUREFILE"))) ret = fscanf(PARAMS,"%d",&PICTUREFILE);
+  else if (!(strcmp(Word,"INDIVIDUALR"))) ret = fscanf(PARAMS,"%d",&INDIVIDUALR);
   
 /*STRAT parameters*/
-  else if (!(strcmp(Word,"NUMSIMSTATS"))) fscanf(PARAMS,"%d",&NUMSIMSTATS);
-  else if (!(strcmp(Word,"EMERROR"))) fscanf(PARAMS,"%lf",&EMERROR);
-  /* else if (!(strcmp(Word,"NUMPHENS"))) fscanf(PARAMS,"%d",&NUMPHENS);*/
-  else if (!(strcmp(Word,"POOLFREQ"))) fscanf(PARAMS,"%d",&POOLFREQ);
-  else if (!(strcmp(Word,"LOCUSxONLY"))) fscanf(PARAMS,"%d",&LOCUSxONLY);
-  else if (!(strcmp(Word,"PHENOTYPECOL"))) fscanf(PARAMS,"%d",&PHENOTYPECOL);
-  else if (!(strcmp(Word,"MISSINGPHENO"))) fscanf(PARAMS,"%d",&MISSINGPHENO);
+  else if (!(strcmp(Word,"NUMSIMSTATS"))) ret = fscanf(PARAMS,"%d",&NUMSIMSTATS);
+  else if (!(strcmp(Word,"EMERROR"))) ret = fscanf(PARAMS,"%lf",&EMERROR);
+  /* else if (!(strcmp(Word,"NUMPHENS"))) ret = fscanf(PARAMS,"%d",&NUMPHENS);*/
+  else if (!(strcmp(Word,"POOLFREQ"))) ret = fscanf(PARAMS,"%d",&POOLFREQ);
+  else if (!(strcmp(Word,"LOCUSxONLY"))) ret = fscanf(PARAMS,"%d",&LOCUSxONLY);
+  else if (!(strcmp(Word,"PHENOTYPECOL"))) ret = fscanf(PARAMS,"%d",&PHENOTYPECOL);
+  else if (!(strcmp(Word,"MISSINGPHENO"))) ret = fscanf(PARAMS,"%d",&MISSINGPHENO);
 
   /*Melissa added 7/12/07 to input popprior parameters*/
-  else if (strcmp(Word, "LOCPRIOR")==0) fscanf(PARAMS, "%i", &LOCPRIOR);
-  else if (strcmp(Word, "UPDATELOCPRIOR")==0) fscanf(PARAMS, "%i", &UPDATELOCPRIOR);
-  else if (strcmp(Word, "LOCPRIORINIT")==0) fscanf(PARAMS, "%lf", &LOCPRIORINIT);
-  else if (strcmp(Word, "MAXLOCPRIOR")==0) fscanf(PARAMS, "%lf", &MAXLOCPRIOR);
-  else if (strcmp(Word, "LOCISPOP")==0) fscanf(PARAMS, "%i", &LOCISPOP);
-  else if (strcmp(Word, "LOCDATA")==0) fscanf(PARAMS, "%i", &LOCDATA);
-  else if (strcmp(Word, "LOCPRIORSTEP")==0) fscanf(PARAMS, "%lf", &LOCPRIORSTEP);
+  else if (strcmp(Word, "LOCPRIOR")==0) ret = fscanf(PARAMS, "%i", &LOCPRIOR);
+  else if (strcmp(Word, "UPDATELOCPRIOR")==0) ret = fscanf(PARAMS, "%i", &UPDATELOCPRIOR);
+  else if (strcmp(Word, "LOCPRIORINIT")==0) ret = fscanf(PARAMS, "%lf", &LOCPRIORINIT);
+  else if (strcmp(Word, "MAXLOCPRIOR")==0) ret = fscanf(PARAMS, "%lf", &MAXLOCPRIOR);
+  else if (strcmp(Word, "LOCISPOP")==0) ret = fscanf(PARAMS, "%i", &LOCISPOP);
+  else if (strcmp(Word, "LOCDATA")==0) ret = fscanf(PARAMS, "%i", &LOCDATA);
+  else if (strcmp(Word, "LOCPRIORSTEP")==0) ret = fscanf(PARAMS, "%lf", &LOCPRIORSTEP);
 
   /*Melissa added 1/15/08 so that seed can be set*/
-  else if (strcmp(Word, "SEED")==0) {fscanf(PARAMS, "%i", &SEED);}
+  else if (strcmp(Word, "SEED")==0) {ret = fscanf(PARAMS, "%i", &SEED);}
 
   else
     printf("Warning:  Ignoring unrecognized parameter name (%s)\n",Word);
