@@ -18,9 +18,7 @@
 #define GenPos(ind,line,loc) ((ind)*(LINES)*(NUMLOCI)+(line)*(NUMLOCI)+(loc))	/*Geno */
 #define TransPos(loc,pos) ((MAXALLELES)*(loc)+(pos))	/*Translation */
 #define ZPos(ind,line,loc) ((ind)*(LINES)*(NUMLOCI)+(line)*(NUMLOCI)+(loc))	/* Z */
-#define SiteBySiteSumPos(ind,line,loc,pop) ((ind)*(LINES)*(NUMLOCI)*(MAXPOPS)+(line)*(NUMLOCI)*(MAXPOPS)+(loc)*(MAXPOPS)+(pop))
 	/* P */
-#define DiploidSiteBySiteSumPos(ind,pop2,loc,pop) ((ind)*(MAXPOPS)*(NUMLOCI)*(MAXPOPS)+(pop2)*(NUMLOCI)*(MAXPOPS)+(loc)*(MAXPOPS)+(pop))
 	
 #define PPos(loc,pop,allele) ((loc)*(MAXPOPS)*(MAXALLELES)+(pop)*(MAXALLELES)+(allele))
 #define QPos(ind,pop) ((ind)*(MAXPOPS)+(pop))	/* Q */
@@ -85,7 +83,6 @@ int ECHODATA, ANCESTDIST, NUMBOXES, GENSBACK;
 double ANCESTPINT;
 int PRINTQHAT;
 int PRINTQSUM;
-int SITEBYSITE;
 /*Priors */
 int FREQSCORR, UNIFPRIORALPHA, ONEFST;
 double MIGRPRIOR, ALPHA, FPRIORMEAN,FPRIORSD, LAMBDA, MIGRPRIOR;

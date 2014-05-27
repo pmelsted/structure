@@ -81,8 +81,6 @@ OUTPUT OPTIONS
 #define PRINTLAMBDA  1 // (B) Print current value(s) of lambda to screen
 #define PRINTQSUM    1 // (B) Print summary of current population membership to screen
 
-#define SITEBYSITE   0  // (B) whether or not to print site by site results. 
-		     	       (Linkage model only) This is a large file!
 #define PRINTQHAT    0  // (B) Q-hat printed to a separate file.  Turn this 
                            on before using STRAT.
 #define UPDATEFREQ   100  // (int) frequency of printing update on the screen.

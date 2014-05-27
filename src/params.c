@@ -370,7 +370,6 @@ void SetValue(char Word[])
   else if (!(strcmp(Word,"COMPUTEPROB"))) fscanf(PARAMS,"%d",&COMPUTEPROB);
   else if (!(strcmp(Word,"NOADMIX"))) fscanf(PARAMS,"%d",&NOADMIX);
   else if (!(strcmp(Word,"ADMBURNIN"))) fscanf(PARAMS,"%d",&ADMBURNIN);
-  else if (!(strcmp(Word,"SITEBYSITE"))) fscanf(PARAMS,"%d",&SITEBYSITE);
   else if (!(strcmp(Word,"PHASED"))) fscanf(PARAMS,"%d",&PHASED);
   else if (!(strcmp(Word,"PRINTQHAT"))) fscanf(PARAMS,"%d",&PRINTQHAT);
   else if (!(strcmp(Word,"PRINTQSUM"))) fscanf(PARAMS,"%d",&PRINTQSUM);
@@ -502,7 +501,6 @@ void PresetValues()
   ADMBURNIN=(int) BURNIN/4;
   PRINTQHAT=0;
   PRINTQSUM=0;
-  SITEBYSITE=0;
   PHASED=1;  /*this is the default since unphased data is necessarily diploid and requires extra input*/
   /*Output Options*/
   UPDATEFREQ=200;

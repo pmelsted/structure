@@ -1,6 +1,6 @@
 /* #include "structure.h" */
 void
-DataCollection (int *Geno,int *PreGeno, double *Q, double *QSum, int *Z, int *Z1, double *SiteBySiteSum, double *P, double *PSum,
+DataCollection (int *Geno,int *PreGeno, double *Q, double *QSum, int *Z, int *Z1,  double *P, double *PSum,
 		double *Fst, double *FstSum, int *NumAlleles,
 		int *AncestDist, double *Alpha, double *sumAlpha,
 		double *sumR, double *varR, double *like,
@@ -18,7 +18,7 @@ void PrintUpdate (int rep, int *Geno, int *PreGeno, double *Alpha, double *Corre
 		  struct IND *Individual,  double recomblikelihood, int *Recessive, double *PopPrior, int PopPriorLen);
 void
 OutPutResults (int *Geno, int rep, int savefreq, struct IND *Individual,
-	  double *PSum, double *QSum, double *SiteBySiteSum, double *FstSum,
+	  double *PSum, double *QSum,  double *FstSum,
 	       int *AncestDist, double *UsePopProbs,
 	       double sumlikes, double sumsqlikes, double *sumAlpha,
 	       double *sumR, double *varR,

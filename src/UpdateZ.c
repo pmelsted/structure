@@ -9,20 +9,18 @@
 /*-----------------------------------------*/
 /*O*(NUMINDS*LINES*NUMLOCI*MAXPOPS)*/
 void
-UpdateZ (int *Z, double *SiteBySiteSum, double *Q, double *P, int *Geno,int rep)
+UpdateZ (int *Z,  double *Q, double *P, int *Geno,int rep)
     /*update Z: population origin of each allele */
 {
   int ind, line, loc, pop;
-  double *Cutoffs, *Cutoffs2 /*[MAXPOPS] */ ;
+  double *Cutoffs /*[MAXPOPS] */ ;
   /*Cutoffs contains unnormalized probabilities of
     an allele coming from each population */
-  /*Cutoffs2 shows the same thing, independent of the individual's other alleles*/
-  double sum=0.0, sum2=0.0;
+  double sum=0.0;
   int allele;
 
   Cutoffs = calloc (MAXPOPS, sizeof (double));
-  Cutoffs2 = calloc (MAXPOPS, sizeof (double));
-  if (Cutoffs == NULL || Cutoffs2 == NULL) {
+  if (Cutoffs == NULL ) {
     printf ("WARNING: unable to allocate array space in UpdateZ\n");
     Kill ();
   }
@@ -37,7 +35,6 @@ UpdateZ (int *Z, double *SiteBySiteSum, double *Q, double *P, int *Geno,int rep)
         } else {
           /*Data present */
           sum = 0.0;    /*compute prob of each allele being from each pop */
-          sum2 = 0.0;
           for (pop = 0; pop < MAXPOPS; pop++) {
             Cutoffs[pop] = Q[QPos (ind, pop)] * P[PPos (loc, pop, allele)];
             sum += Cutoffs[pop];
@@ -51,7 +48,6 @@ UpdateZ (int *Z, double *SiteBySiteSum, double *Q, double *P, int *Geno,int rep)
   }
 
   free (Cutoffs);
-  free (Cutoffs2);
 }
 
 
@@ -61,7 +57,7 @@ UpdateZ (int *Z, double *SiteBySiteSum, double *Q, double *P, int *Geno,int rep)
 
 /*----------------------------------------*/
 double
-UpdateZandSingleR (int *Z, double *SiteBySiteSum, double *Q, double *P, int *Geno,
+UpdateZandSingleR (int *Z,  double *Q, double *P, int *Geno,
                    double *R, double *Mapdistance, int rep, double *Phase,
                    int *Z1,int *Phasemodel, double *sumIndLikes,
                    double *indlike_norm)
@@ -109,7 +105,7 @@ UpdateZandSingleR (int *Z, double *SiteBySiteSum, double *Q, double *P, int *Gen
       sumIndLikes[ind] += exp(indlike-indlike_norm[ind]);
     }
 
-    Backward(Z, SiteBySiteSum, IndividualQ, R[ind], ind, Mapdistance,
+    Backward(Z,  IndividualQ, R[ind], ind, Mapdistance,
              RTransitProb, rep, Z1, Phase, P, Geno,Phasemodel);
 
     trialloglikelihood += Forward (Z, IndividualQ, P, Geno, trialR, ind, RTransitProb,
@@ -136,7 +132,7 @@ UpdateZandSingleR (int *Z, double *SiteBySiteSum, double *Q, double *P, int *Gen
 
 /*----------------------------------------*/
 double
-UpdateZandR (int *Z, double *SiteBySiteSum, double *Q, double *P, int *Geno,
+UpdateZandR (int *Z,  double *Q, double *P, int *Geno,
              double *R, double *Mapdistance, int rep, double *Phase, int *Z1,int *Phasemodel, double *sumindlike, double *indlike_norm)
     /* updates Z and R, assuming that the data is phased */
 {
@@ -169,7 +165,7 @@ UpdateZandR (int *Z, double *SiteBySiteSum, double *Q, double *P, int *Geno,
 
     currentloglikelihood = Forward (Z, IndividualQ, P, Geno, R[ind], ind, RTransitProb,
                                     Mapdistance, Phase,Phasemodel);
-    Backward (Z, SiteBySiteSum, IndividualQ, R[ind], ind, Mapdistance, RTransitProb,
+    Backward (Z,  IndividualQ, R[ind], ind, Mapdistance, RTransitProb,
               rep, Z1, Phase, P, Geno,Phasemodel);
     
     logtrialR = RNormal(log(R[ind])/2.30259,LOG10RPROPSD);

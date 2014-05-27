@@ -93,12 +93,6 @@ void CheckParamCombinations()
   }
 
 
-  if ((LINKAGE==0) && (SITEBYSITE))
-  {
-    printf("SITEBYSITE is not currently implemented for no-linkage model\n");
-    SITEBYSITE=0;
-  }
-
 
   if (((NOADMIX) || (LINKAGE)) && ADMBURNIN >= BURNIN)
   {
@@ -137,7 +131,6 @@ void CheckParamCombinations()
               struct IND *Individual, int *Translation,
               int *NumAlleles, int *Z, int *Z1, double *Q, double *P, double *LogP, double *Epsilon,
               double *Fst, int *NumLociPop, double *PSum, double *QSum,
-              double *SiteBySiteSum,
               double *FstSum, int *AncestDist, double *UsePopProbs, double *R,
               double *sumR, double *varR, double *LocPrior, double *sumLocPrior)
 */
@@ -145,7 +138,7 @@ void FreeAll(double *Mapdistance, double *Phase, int *Phasemodel, double *lambda
              char *Markername, int *Geno, int* PreGeno, int* Recessive, struct IND *Individual,
              int *Translation, int *NumAlleles, int *Z, int *Z1, double *Q, double *P, double *LogP,
              double *R, double *sumR, double *varR, double *Epsilon, double *SumEpsilon, double *Fst,
-             double *FstSum, int *NumLociPop, double *PSum, double *QSum, double *SiteBySiteSum,
+             double *FstSum, int *NumLociPop, double *PSum, double *QSum,
              int *AncestDist, double *UsePopProbs, double *LocPrior, double *sumLocPrior,
              double *Alpha, double *sumAlpha, double *sumIndLikes, double *indLikesNorm)
 {
@@ -202,9 +195,6 @@ void FreeAll(double *Mapdistance, double *Phase, int *Phasemodel, double *lambda
   free (PSum);
   free (QSum);
 
-  if ( SITEBYSITE) {
-    free (SiteBySiteSum);
-  }
 
   if (ANCESTDIST) {
     free (AncestDist);
@@ -517,7 +507,7 @@ void GetNumLocations (struct IND *ind) {
 
 /*---------------------------------------*/
 void
-InitializeSums (double *PSum, double *QSum, double *SiteBySiteSum, double *FstSum,
+InitializeSums (double *PSum, double *QSum,  double *FstSum,
                 int *NumAlleles, int *AncestDist, double *UsePopProbs,double *SumEpsilon)
     /*initialize arrays which store sums of parameters */
 {
@@ -537,29 +527,6 @@ InitializeSums (double *PSum, double *QSum, double *SiteBySiteSum, double *FstSu
     }
   }
 
-  if (SITEBYSITE) {
-    if ((LINKAGE) && (!PHASED)) {
-      for (ind = 0; ind < NUMINDS; ind++) {
-        for (loc = 0; loc < MAXPOPS; loc++) {
-          for (line = 0; line < LINES; line++) {
-            for (pop = 0; pop < MAXPOPS; pop++) {
-              SiteBySiteSum[DiploidSiteBySiteSumPos (ind, line, loc, pop)] = 0.0;
-            }
-          }
-        }
-      }
-    } else {
-      for (ind = 0; ind < NUMINDS; ind++) {
-        for (loc = 0; loc < NUMLOCI; loc++) {
-          for (line = 0; line < LINES; line++) {
-            for (pop = 0; pop < MAXPOPS; pop++) {
-              SiteBySiteSum[SiteBySiteSumPos (ind, line, loc, pop)] = 0.0;
-            }
-          }
-        }
-      }
-    }
-  }
 
   if (ANCESTDIST) {
     for (box = 0; box < NUMBOXES; box++) {
@@ -628,7 +595,7 @@ void Initialization (int *Geno, int *PreGeno,
                      int *NumAlleles, int *Z, int *Z1, double *Epsilon,
                      double *SumEpsilon,
                      double *Fst,double *PSum, double *Q, double *QSum,
-                     double *SiteBySiteSum, double *FstSum,
+                      double *FstSum,
                      int *AncestDist, double *UsePopProbs, double *Alpha,
                      double *sumAlpha, double *sumR, double *varR,
                      double *sumlikes, double *sumsqlikes,
@@ -699,7 +666,7 @@ void Initialization (int *Geno, int *PreGeno,
   }
 
   InitFreqPriors (Epsilon, Fst, Geno, NumAlleles);      /*set priors on allele freqs */
-  InitializeSums (PSum, QSum, SiteBySiteSum, FstSum, NumAlleles, AncestDist, UsePopProbs,SumEpsilon);
+  InitializeSums (PSum, QSum,  FstSum, NumAlleles, AncestDist, UsePopProbs,SumEpsilon);
 
   for (ind=0; ind<NUMINDS; ind++) {
     for (pop=0; pop<MAXPOPS; pop++) {
@@ -1599,7 +1566,6 @@ int main (int argc, char *argv[])
   int    *NumLociPop;           /*NUMINDSxMAXPOPS: Number of alleles from each pop (by ind) */
   double *PSum;                 /*NUMLOCIxMAXPOPSxMAXALLELES: sum of AlFreqs */
   double *QSum;                 /*NUMINDSxMAXPOPS:  sum of Ancestries */
-  double *SiteBySiteSum=NULL;
   double *FstSum;               /*MAXPOPS:  Sum of Fst */
   double *SumEpsilon=NULL;      /*NUMLOCIxMAXALLELES: sum of ancestral allele freqs*/
   double *sumAlpha;              /*MAXPOPS*/
@@ -1703,13 +1669,6 @@ int main (int argc, char *argv[])
   NumLociPop = calloc (NUMINDS * MAXPOPS, sizeof (int));
   PSum = calloc (NUMLOCI * MAXPOPS * MAXALLELES, sizeof (double));
   QSum = calloc (NUMINDS * MAXPOPS, sizeof (double));
-  if (SITEBYSITE) {
-    if (LINKAGE && !PHASED) {
-      SiteBySiteSum = calloc (NUMINDS * MAXPOPS * NUMLOCI * MAXPOPS, sizeof (double));
-    } else {
-      SiteBySiteSum = calloc (NUMINDS * LINES * NUMLOCI * MAXPOPS, sizeof (double));
-    }
-  }
 
 
   if (ANCESTDIST) {
@@ -1752,7 +1711,7 @@ int main (int argc, char *argv[])
   if ((Translation == NULL) || (NumAlleles == NULL) || (Z == NULL) || (Z1 == NULL) || (Q == NULL) ||
       (P == NULL) || (LogP==NULL) || (R == NULL) || (sumR == NULL) || (varR == NULL) || (Epsilon == NULL) ||
       (Fst == NULL) || (NumLociPop == NULL) ||
-      (PSum == NULL) || (QSum == NULL) || ( SITEBYSITE && (SiteBySiteSum == NULL)) || (FstSum == NULL) ||
+      (PSum == NULL) || (QSum == NULL) ||  (FstSum == NULL) ||
       ((ANCESTDIST) && (AncestDist == NULL)) ||
       ((USEPOPINFO) && (UsePopProbs == NULL))||(Alpha == NULL)||(sumAlpha==NULL)||
       ((FREQSCORR) && (SumEpsilon == NULL)) ||
@@ -1762,7 +1721,7 @@ int main (int argc, char *argv[])
     printf ("Error in assigning memory (not enough space?)\n");
     FreeAll(Mapdistance, Phase, Phasemodel, lambda, sumlambda, Markername, Geno, PreGeno, Recessive,
             Individual, Translation, NumAlleles, Z, Z1, Q, P, LogP, R, sumR, varR, Epsilon, SumEpsilon,
-            Fst, FstSum, NumLociPop, PSum, QSum, SiteBySiteSum, AncestDist, UsePopProbs, LocPrior,
+            Fst, FstSum, NumLociPop, PSum, QSum,  AncestDist, UsePopProbs, LocPrior,
             sumLocPrior, Alpha, sumAlpha, sumIndLikes, indLikesNorm);
     Kill ();
   }
@@ -1770,7 +1729,7 @@ int main (int argc, char *argv[])
 
   /*initialize variables and arrays */
   Initialization (Geno, PreGeno, Individual, Translation, NumAlleles, Z, Z1, Epsilon, SumEpsilon,
-                  Fst, PSum, Q, QSum, SiteBySiteSum, FstSum, AncestDist, UsePopProbs, Alpha,
+                  Fst, PSum, Q, QSum, FstSum, AncestDist, UsePopProbs, Alpha,
                   sumAlpha, sumR, varR, &sumlikes, &sumsqlikes, &savefreq, R, lambda,
                   sumlambda,Phase,Recessive, LocPrior, sumLocPrior, LocPriorLen, sumIndLikes, indLikesNorm);
   printf ("\n\n--------------------------------------\n\n");
@@ -1800,14 +1759,14 @@ int main (int argc, char *argv[])
     
     if (LINKAGE && rep > ADMBURNIN) {
       if (!INDIVIDUALR) {
-        recomblikelihood = UpdateZandSingleR(Z, SiteBySiteSum, Q, P, Geno,
+        recomblikelihood = UpdateZandSingleR(Z,  Q, P, Geno,
                                              R, Mapdistance, rep, Phase, Z1,Phasemodel, rep+1 > BURNIN? sumIndLikes : NULL, indLikesNorm);
       } else {
-        recomblikelihood = UpdateZandR(Z, SiteBySiteSum, Q, P, Geno, R,
+        recomblikelihood = UpdateZandR(Z,  Q, P, Geno, R,
                                        Mapdistance, rep, Phase, Z1,Phasemodel, rep+1 > BURNIN ? sumIndLikes:NULL, indLikesNorm);
       }
     } else {
-      UpdateZ (Z, SiteBySiteSum, Q, P, Geno,rep);
+      UpdateZ (Z,  Q, P, Geno,rep);
       /*      printf("done updatez alpha[2]=%e\n", Alpha[2]); */
     }
 
@@ -1833,7 +1792,7 @@ int main (int argc, char *argv[])
 
     /*====book-keeping stuff======================*/
     if (rep + 1 > BURNIN) {
-      DataCollection (Geno, PreGeno, Q, QSum, Z, Z1, SiteBySiteSum, P, PSum,
+      DataCollection (Geno, PreGeno, Q, QSum, Z, Z1,  P, PSum,
                       Fst, FstSum, NumAlleles,
                       AncestDist, Alpha, sumAlpha, sumR, varR, &like,
                       &sumlikes, &sumsqlikes, R, Epsilon,SumEpsilon,recomblikelihood,
@@ -1843,7 +1802,7 @@ int main (int argc, char *argv[])
     if ((savefreq) && ((rep + 1) > BURNIN) && (((rep + 1 - BURNIN) % savefreq) == 0)
         && ((rep + 1) != NUMREPS + BURNIN)) {
       OutPutResults (Geno, rep + 1, savefreq, Individual, PSum, QSum,
-                     SiteBySiteSum, FstSum, AncestDist, UsePopProbs, sumlikes,
+                      FstSum, AncestDist, UsePopProbs, sumlikes,
                      sumsqlikes, sumAlpha, sumR, varR,
                      NumAlleles, Translation, 0, Markername, R,
                      SumEpsilon,
@@ -1871,7 +1830,7 @@ int main (int argc, char *argv[])
   }
 
   OutPutResults (Geno, rep, savefreq, Individual, PSum, QSum,
-                 SiteBySiteSum, FstSum, AncestDist, UsePopProbs,
+                  FstSum, AncestDist, UsePopProbs,
                  sumlikes, sumsqlikes,
                  sumAlpha, sumR, varR, NumAlleles, Translation, 1,
                  Markername, R, SumEpsilon,
@@ -1882,7 +1841,7 @@ int main (int argc, char *argv[])
   /*=====Closing everything down==============================*/
   FreeAll(Mapdistance, Phase, Phasemodel, lambda, sumlambda, Markername, Geno, PreGeno, Recessive,
             Individual, Translation, NumAlleles, Z, Z1, Q, P, LogP, R, sumR, varR, Epsilon, SumEpsilon,
-            Fst, FstSum, NumLociPop, PSum, QSum, SiteBySiteSum, AncestDist, UsePopProbs, LocPrior,
+            Fst, FstSum, NumLociPop, PSum, QSum,  AncestDist, UsePopProbs, LocPrior,
             sumLocPrior, Alpha, sumAlpha, sumIndLikes, indLikesNorm);
   return (0);
 }

@@ -223,7 +223,7 @@ Forward (int *Z, double *IndividualQ, double *P, int *Geno, double Rec, int ind,
 
 /*-----------------------------------------------------------*/
 void
-Backward (int *Z, double *SiteBySiteSum, double *IndividualQ, double Rec, int ind,
+Backward (int *Z,  double *IndividualQ, double Rec, int ind,
           double *Mapdistance, double *RTransitProb, int rep, int *Z1,
           double *Phase, double *P, int *Geno,int *Phasemodel)
 {
@@ -260,13 +260,6 @@ Backward (int *Z, double *SiteBySiteSum, double *IndividualQ, double Rec, int in
 
       Z[ZPos (ind, line, NUMLOCI - 1)] = PickAnOption (MAXPOPS, sum, Cutoffs);
 
-      if (rep + 1 > BURNIN && SITEBYSITE) {
-        for (pop = 0; pop < MAXPOPS; pop++)
-          if (POSTERIOR)
-            SiteBySiteSum[SiteBySiteSumPos (ind, line, NUMLOCI - 1, pop)] += Cutoffs[pop] / sum;
-          else
-            SiteBySiteSum[SiteBySiteSumPos (ind, line, NUMLOCI - 1, pop)] += Cutoffs2[pop] / sum2;
-      }
       for (loc = NUMLOCI - 2; loc > -1; loc = loc - 1)
       {
         sum = 0.0;
@@ -284,13 +277,6 @@ Backward (int *Z, double *SiteBySiteSum, double *IndividualQ, double Rec, int in
           sum += Cutoffs[pop];
           Cutoffs2[pop] = P[PPos (loc, pop, Geno[GenPos (ind, line, loc)])];
           sum2 += Cutoffs2[pop];
-        }
-        if (rep + 1 > BURNIN && SITEBYSITE) {
-          for (pop = 0; pop < MAXPOPS; pop++)
-            if (POSTERIOR)
-              SiteBySiteSum[SiteBySiteSumPos (ind, line, loc, pop)] += Cutoffs[pop] / sum;
-            else
-              SiteBySiteSum[SiteBySiteSumPos (ind, line, loc, pop)] += Cutoffs2[pop] / sum2;
         }
         Z[ZPos (ind, line, loc)] = PickAnOption (MAXPOPS, sum, Cutoffs);
       }
@@ -336,13 +322,6 @@ Backward (int *Z, double *SiteBySiteSum, double *IndividualQ, double Rec, int in
           }
         }
 
-        if (rep + 1 > BURNIN && SITEBYSITE) {
-          for (pop = 0; pop < MAXPOPS; pop++) {
-            for (pop2 = 0; pop2 < MAXPOPS; pop2++) {
-              SiteBySiteSum[DiploidSiteBySiteSumPos (ind, pop2, loc, pop)] += SquareCutoffs[SquarePos (pop, pop2)] / sum;
-            }
-          }
-        }
 
         answer = PickAnOption (MAXPOPS * MAXPOPS, sum, SquareCutoffs);
         Z1[ZPos (ind, 0, loc)] = answer / MAXPOPS;
@@ -422,13 +401,6 @@ Backward (int *Z, double *SiteBySiteSum, double *IndividualQ, double Rec, int in
           }
         }
 
-        if (rep + 1 > BURNIN && SITEBYSITE) {
-          for (pop = 0; pop < MAXPOPS; pop++) {
-            for (pop2 = 0; pop2 < MAXPOPS; pop2++) {
-              SiteBySiteSum[ DiploidSiteBySiteSumPos (ind, pop2, loc, pop)] += SquareCutoffs[SquarePos (pop, pop2)] / sum;
-            }
-          }
-        }
 
         answer = PickAnOption (MAXPOPS * MAXPOPS, sum, SquareCutoffs);
         Z[ZPos (ind, 0, loc)] = answer / MAXPOPS;

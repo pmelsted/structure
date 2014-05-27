@@ -29,13 +29,10 @@ void PrintQ (FILE * file, int *Geno, int rep, double *QSum, struct IND *Individu
 void PrintP (FILE * file, int rep, int *Geno, double *PSum, int *Translation,
              int *NumAlleles, double *SumEpsilon, char *Markername);
 void PrintMembership (FILE * file, double *QSum, struct IND *Individual);
-void PrintSiteBySite (FILE * file, double *SiteBySiteSum, int rep,
-                      char *Markername, double *PSum,
-                      int *NumAlleles, int *Geno, int *Translation,double *SumEpsilon, struct IND *Individual);
-void PrintSequences (FILE * file, int *Geno, char *Markername, double *SiteBySiteSum, int rep, int *Translation);
+void PrintSequences (FILE * file, int *Geno, char *Markername, int rep, int *Translation);
 void PrintSums (FILE * file, int rep, double sumlikes,
                 double sumsqlikes, double *FstSum, double *sumAlpha, double *sumlambda,
-                double *sumR,double *varR, struct IND *Individual,
+                double *sumR, double *varR, struct IND *Individual,
                 double *sumLocPriors, int LocPriorLen, double DIC);
 void PrintGeneName(FILE * file, int loc, char *Markername);
 int EqualGeneNames(int loc1,int loc2,char *Markername);
@@ -45,7 +42,7 @@ int EqualGeneNames(int loc1,int loc2,char *Markername);
 void
 DataCollection (int *Geno, int *PreGeno,
                 double *Q, double *QSum, int *Z, int *Z1,
-                double *SiteBySiteSum, double *P, double *PSum,
+                 double *P, double *PSum,
                 double *Fst, double *FstSum, int *NumAlleles,
                 int *AncestDist, double *Alpha, double *sumAlpha,
                 double *sumR, double *varR, double *like,
@@ -1257,38 +1254,6 @@ MissingInd (int *Geno, int ind)
 
   return sofar;
 }
-/*------------------------------------------------------------------------*/
-void
-PrintSiteBySite (FILE * file, double *SiteBySiteSum, int rep, char *Markername, double *PSum, int *NumAlleles, int *Geno, int *Translation, double *SumEpsilon,struct IND *Individual)
-{
-  int ind,pop,pop2,line,loc;
-  fprintf (file, "\n\n");
-  /*
-    fprintf(file, "Here are the site by site outputs for each individual.\n");
-    fprintf(file, "See user guide for details \n"); */
-  for (ind = 0; ind < NUMINDS; ind++)
-  {
-    for (loc = 0; loc < NUMLOCI; loc++)
-    {
-      fprintf (file, "%d %d ", ind+1,loc+1);
-      /*
-        if (MARKERNAMES) PrintGeneName(file, loc, Markername);
-        if (LABEL)
-        fprintf (file, "%8s ", Individual[ind].Label);
-      */
-      if (PHASED || !LINKAGE)
-        for (line = 0; line < LINES; line++)
-          for (pop = 0; pop < MAXPOPS; pop++)
-            fprintf (file, "%1.3f ", SiteBySiteSum[SiteBySiteSumPos (ind, line, loc, pop)] / (double) (rep - BURNIN));
-      else
-        for (pop = 0; pop < MAXPOPS; pop++)
-          for (pop2=0;pop2<MAXPOPS;pop2++)
-            fprintf(file,"%1.3f ", SiteBySiteSum[DiploidSiteBySiteSumPos (ind,pop2,loc,pop)]/(double)(rep-BURNIN));
-      fprintf (file, "\n");
-    }
-    fprintf (file, "\n");
-  }
-}
 /*----------------------------------------------------*/
 void PrintGeneName(FILE * file, int loc, char *Markername)
 {
@@ -1458,7 +1423,7 @@ double CalcDIC(int rep, double sumlikes, double* sumindlikes,
 void
 OutPutResults (int *Geno, int rep, int savefreq,
                struct IND *Individual,
-               double *PSum, double *QSum, double *SiteBySiteSum,
+               double *PSum, double *QSum, 
                double *FstSum, int *AncestDist, double *UsePopProbs,
                double sumlikes, double sumsqlikes, double *sumAlpha,
                double *sumR, double *varR,
@@ -1477,10 +1442,8 @@ OutPutResults (int *Geno, int rep, int savefreq,
     missing data for each individual... */
 
   char outname[STRLEN + 20];
-  char outname2[STRLEN + 20];
 
   FILE *RESULTS;
-  FILE *RESULTS2;
   /*  int outputoption; */
   double DIC = 0.0;
   /*  DIC = CalcDIC(rep, sumlikes, sumindlikes, indlikes_norm); */
@@ -1523,15 +1486,5 @@ OutPutResults (int *Geno, int rep, int savefreq,
   }
   fclose (RESULTS);
     
-  if ((final) && (SITEBYSITE)) {
-    sprintf (outname2, "%s_ss", OUTFILE);
-    RESULTS2 = fopen (outname2, "w");
-    if (RESULTS2 == NULL) {
-      printf ("WARNING: Unable to open sitebysite file %s.\n", outname2);
-    } else {
-      PrintSiteBySite (RESULTS2, SiteBySiteSum, rep, Markername, PSum, NumAlleles, Geno, Translation,SumEpsilon,Individual);
-      printf("sitebysite results printed to file %s\n\n",outname2);
-    }
-  }
   
 }
