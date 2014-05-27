@@ -1,0 +1,13 @@
+extern void Initialization (int *Geno, int *PreGeno,
+                     struct IND *Individual, int *Translation,
+                     int *NumAlleles, int *Z, int *Z1, double *Epsilon,
+                     double *SumEpsilon,
+                     double *Fst,double *PSum, double *Q, double *QSum,
+                      double *FstSum,
+                     int *AncestDist, double *UsePopProbs, double *Alpha,
+                     double *sumAlpha, double *sumR, double *varR,
+                     double *sumlikes, double *sumsqlikes,
+                     int *savefreq, double *R, double *lambda, double *sumlambda,
+                     double *Phase, int *Recessive, double *LocPrior,
+                     double *sumLocPrior, int LocPriorLen,
+                     double *sumIndLikes, double *indlike_norm);

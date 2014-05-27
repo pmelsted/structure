@@ -1,3 +1,4 @@
+#define VERSION "2.3.4 (Jul 2012)"
 
 /*Mechanics of the program, should not need to be changed. */
 #define UNDERFLO   1e-100 /*DBL_MIN*1.1*/	/*Get worried about numbers that are smaller than this */

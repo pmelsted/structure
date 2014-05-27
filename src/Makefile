@@ -25,8 +25,10 @@ prof: target
 #debug: clean
 #debug: target
 
-structure: structure.o params.o datain.o output.o ran.o mymath.o ForwardAndBackward.o UpdateQ.o UpdateZ.o UpdateP.o UpdateLocPrior.o 
-	$(CC) -o structure structure.o params.o datain.o output.o ran.o  mymath.o ForwardAndBackward.o UpdateQ.o UpdateZ.o UpdateP.o UpdateLocPrior.o $(OPT) $(LIBS) $(CFLAGS)
+UPDATES = ForwardAndBackward.o UpdateQ.o UpdateZ.o UpdateP.o UpdateLocPrior.o UpdateAlpha.o UpdateGeno.o UpdateEpsilon.o UpdateFst.o UpdateLambda.o
+
+structure: structure.o params.o datain.o output.o ran.o mymath.o  $(UPDATES) Init.o Util.o
+	$(CC) -o structure structure.o params.o datain.o output.o ran.o  mymath.o $(UPDATES) Init.o Util.o $(OPT) $(LIBS) $(CFLAGS)
 
 #STRAT: STRAT.o params.o datain.o ran.o mymath.o
 #	$(CC) -o STRAT STRAT.o params.o datain.o ran.o mymath.o $(OPT) $(LIBS)
@@ -63,6 +65,27 @@ UpdateP.o: UpdateP.c
 
 UpdateLocPrior.o: UpdateLocPrior.c
 	$(CC) -c UpdateLocPrior.c $(OPT) $(CFLAGS)
+
+UpdateAlpha.o: UpdateAlpha.c
+	$(CC) -c UpdateAlpha.c $(OPT) $(CFLAGS)
+
+UpdateGeno.o: UpdateGeno.c
+	$(CC) -c UpdateGeno.c $(OPT) $(CFLAGS)
+
+UpdateEpsilon.o: UpdateEpsilon.c
+	$(CC) -c UpdateEpsilon.c $(OPT) $(CFLAGS)
+
+UpdateFst.o: UpdateFst.c
+	$(CC) -c UpdateFst.c $(OPT) $(CFLAGS)
+
+UpdateLambda.o: UpdateZ.c
+	$(CC) -c UpdateLambda.c $(OPT) $(CFLAGS)
+
+Init.o: Init.c
+	$(CC) -c Init.c $(OPT) $(CFLAGS)
+
+Util.o: Util.c
+	$(CC) -c Util.c $(OPT) $(CFLAGS)
 
 ForwardAndBackward.o: ForwardAndBackward.c
 	$(CC) -c ForwardAndBackward.c $(OPT) $(CFLAGS)
