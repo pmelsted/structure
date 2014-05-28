@@ -118,11 +118,42 @@ int alreadyCompiled(char * programFilename, CLDict * clDict){
     return -1;
 }
 
+void searchReplace(char * string, char * sourceName, char *toReplace[], char *replacements[], int numReplacements){
+    int i = 0;
+    char *locOfToRep;
+    char *toRep;
+    char *rep;
+    int lenToRep,lenStr,lenAfterLocRep;
+    static char buffer[MAX_SOURCE_SIZE];
+    for(i = 0; i < numReplacements; ++i){
+        toRep = toReplace[i];
+        rep = replacements[i];
+        /*if str not in the string, exit.*/
+        if (!(locOfToRep = strstr(string,toRep))){
+           printf("%s not found in %s!\n",toRep,sourceName);
+           exit(EXIT_FAILURE);
+        }
+        lenToRep = strlen(toRep); 
+        lenStr = strlen(string); 
+        lenAfterLocRep = strlen(locOfToRep); 
+        /*Print the string upto the pointer, then the val, and then the rest of the string.*/
+        sprintf(buffer, "%.*s%s%s", lenStr-lenAfterLocRep, string,rep,locOfToRep+lenToRep);
+        /*Will break if buffer is longer than string, so we restrict ourselves to the longest length.*/
+        strncpy(string,buffer,MAX_SOURCE_SIZE);
+    }
+}
 
-int CompileProgram(char * programFilename, CLDict *clDict){
+void preProcessSource(char * kernelSource, size_t *source_size, char * sourceName, char *names[], char *vals[], int numVals){
+   searchReplace(kernelSource, sourceName, names, vals, numVals);
+}
+
+/*
+ *
+ */
+int CompileProgram(CLDict *clDict, char * programFilename, char *names[],char *vals[], int numVals){
     int indIfAlreadyCompiled;
     FILE *fp;
-    char *KernelSource; 
+    char *KernelSource;
     size_t source_size;
     
     int err;
@@ -143,15 +174,17 @@ int CompileProgram(char * programFilename, CLDict *clDict){
         exit(EXIT_FAILURE);
     }
 
+
     KernelSource = (char*)malloc(MAX_SOURCE_SIZE);
     source_size = fread(KernelSource, 1, MAX_SOURCE_SIZE, fp);
     fclose(fp);
 
+    preProcessSource(KernelSource, &source_size, programFilename, names,vals,numVals); 
+    printf("%s\n",KernelSource);
     program = clCreateProgramWithSource(clDict->context, 1, (const char **) & KernelSource, NULL, &err);
     if (!program)
     {
         printf("Error: Failed to create compute program!\n");
-        printf("Size: %d\n", (int)source_size);
         exit(EXIT_FAILURE);
     }
 
@@ -168,6 +201,7 @@ int CompileProgram(char * programFilename, CLDict *clDict){
         printf("Error: Failed to build program executable!\n");
         clGetProgramBuildInfo(program, clDict->device_id, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &len);
         printf("%s\n", buffer);
+        printf("%d\n", (int) len);
         exit(EXIT_FAILURE);
     }
 
@@ -177,15 +211,15 @@ int CompileProgram(char * programFilename, CLDict *clDict){
     return indOfProgram;
 }
 
-/*
 int main(int argc, char *argv[]){
     CLDict clDict;
-    int a,b;
+    int numVals;
+    char *names[2] = {"%maxpops%", "%missing%"};
+    char *vals[2] = {"2", "-9"};
+    numVals = 2;
     InitCLDict(&clDict);
-    a = CompileProgram("UpdateZLoci.cl", &clDict); 
-    b = CompileProgram("UpdateZLoci.cl", &clDict); 
+    CompileProgram(&clDict,"Kernels/UpdateZLoci.cl", names, vals, numVals); 
     ReleaseCLDict(&clDict);
     printf("Compiled!\n");
-    printf("a %d, b %d\n",a,b);
     return EXIT_SUCCESS;
-}*/
+}

@@ -94,7 +94,7 @@ Kernels.o: Kernels.c
 	$(CC) -c Kernels.c $(OPT) $(CFLAGS)
 
 KernelsTest: Kernels.c
-	$(CC) -o Kernels Kernels.c  -Wall -pedantic -lOpenCL
+	$(CC) -o KernelTest Kernels.c  -Wall -pedantic -lOpenCL
 
 clean:
 	@rm -f *.o structure
