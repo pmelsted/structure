@@ -32,6 +32,8 @@
 #include "Updates/UpdateFst.h"
 #include "Updates/UpdateLambda.h"
 
+
+#include "Kernels.h"
 #include "Init.h"
 #include "Util.h"
 
@@ -40,7 +42,7 @@
 
 int main (int argc, char *argv[])
 {
-
+  int a;
   /*data--------- */
   int *Geno;                    /*NUMINDSxLINES: genotypes */
   double *R;                    /*NUMINDS */
@@ -104,6 +106,9 @@ int main (int argc, char *argv[])
   /*Melissa's new variables added 7/12/07 to use priors based on sampling location*/
   double *LocPrior=NULL, *sumLocPrior=NULL, LocPriorLen=0;
 
+  /*Dict to that keeps track of CL info */
+  CLDict clDict;
+
 
   /*=====Code for getting started=============================*/
 
@@ -111,6 +116,7 @@ int main (int argc, char *argv[])
   GetParams (0,argc,argv);      /*read in parameter values */
 
   CheckParamCombinations();     /*check that some parameter combinations are valid*/
+
 
   Mapdistance = calloc (NUMLOCI, sizeof (double));
   Phase = calloc (NUMLOCI * NUMINDS, sizeof (double));
@@ -234,7 +240,7 @@ int main (int argc, char *argv[])
     FreeAll(Mapdistance, Phase, Phasemodel, lambda, sumlambda, Markername, Geno, PreGeno, Recessive,
             Individual, Translation, NumAlleles, Z, Z1, Q, P, LogP, R, sumR, varR, Epsilon, SumEpsilon,
             Fst, FstSum, NumLociPop, PSum, QSum,  AncestDist, UsePopProbs, LocPrior,
-            sumLocPrior, Alpha, sumAlpha, sumIndLikes, indLikesNorm);
+            sumLocPrior, Alpha, sumAlpha, sumIndLikes, indLikesNorm, &clDict);
     Kill ();
   }
   /*=========done setting aside memory space=====================*/
@@ -243,7 +249,7 @@ int main (int argc, char *argv[])
   Initialization (Geno, PreGeno, Individual, Translation, NumAlleles, Z, Z1, Epsilon, SumEpsilon,
                   Fst, PSum, Q, QSum, FstSum, AncestDist, UsePopProbs, Alpha,
                   sumAlpha, sumR, varR, &sumlikes, &sumsqlikes, &savefreq, R, lambda,
-                  sumlambda,Phase,Recessive, LocPrior, sumLocPrior, LocPriorLen, sumIndLikes, indLikesNorm);
+                  sumlambda,Phase,Recessive, LocPrior, sumLocPrior, LocPriorLen, sumIndLikes, indLikesNorm, &clDict);
   printf ("\n\n--------------------------------------\n\n");
   printf ("Finished initialization; starting MCMC \n");
   printf ("%d iterations + %d burnin\n\n", NUMREPS, BURNIN);
@@ -354,7 +360,7 @@ int main (int argc, char *argv[])
   FreeAll(Mapdistance, Phase, Phasemodel, lambda, sumlambda, Markername, Geno, PreGeno, Recessive,
             Individual, Translation, NumAlleles, Z, Z1, Q, P, LogP, R, sumR, varR, Epsilon, SumEpsilon,
             Fst, FstSum, NumLociPop, PSum, QSum,  AncestDist, UsePopProbs, LocPrior,
-            sumLocPrior, Alpha, sumAlpha, sumIndLikes, indLikesNorm);
+            sumLocPrior, Alpha, sumAlpha, sumIndLikes, indLikesNorm, &clDict);
   return (0);
 }
 

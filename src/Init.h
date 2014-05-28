@@ -10,4 +10,4 @@ extern void Initialization (int *Geno, int *PreGeno,
                      int *savefreq, double *R, double *lambda, double *sumlambda,
                      double *Phase, int *Recessive, double *LocPrior,
                      double *sumLocPrior, int LocPriorLen,
-                     double *sumIndLikes, double *indlike_norm);
+                     double *sumIndLikes, double *indlike_norm, CLDict *clDict);

@@ -4,7 +4,7 @@ OPT = -O3
 
 CFLAGS = -Wall -pedantic
 CC = gcc
-LIBS = -lm
+LIBS = -lm -lOpenCL
 
 all: target
 
@@ -27,8 +27,8 @@ prof: target
 
 UPDATES = ForwardAndBackward.o UpdateQ.o UpdateZ.o UpdateP.o UpdateLocPrior.o UpdateAlpha.o UpdateGeno.o UpdateEpsilon.o UpdateFst.o UpdateLambda.o
 
-structure: structure.o params.o datain.o output.o ran.o mymath.o  $(UPDATES) Init.o Util.o
-	$(CC) -o structure structure.o params.o datain.o output.o ran.o  mymath.o $(UPDATES) Init.o Util.o $(OPT) $(LIBS) $(CFLAGS)
+structure: structure.o params.o datain.o output.o ran.o mymath.o  $(UPDATES) Init.o Util.o Kernels.o
+	$(CC) -o structure structure.o params.o datain.o output.o ran.o  mymath.o $(UPDATES) Init.o Util.o Kernels.o $(OPT) $(LIBS) $(CFLAGS)
 
 #STRAT: STRAT.o params.o datain.o ran.o mymath.o
 #	$(CC) -o STRAT STRAT.o params.o datain.o ran.o mymath.o $(OPT) $(LIBS)
@@ -90,9 +90,11 @@ Init.o: Init.c
 Util.o: Util.c
 	$(CC) -c Util.c $(OPT) $(CFLAGS)
 
+Kernels.o: Kernels.c
+	$(CC) -c Kernels.c $(OPT) $(CFLAGS)
 
 KernelsTest: Kernels.c
-	$(CC) -o Kernels Kernels.c -lOpenCL
+	$(CC) -o Kernels Kernels.c  -Wall -pedantic -lOpenCL
 
 clean:
 	@rm -f *.o structure
