@@ -152,7 +152,7 @@ void preProcessSource(char * kernelSource, size_t *source_size, char * sourceNam
 }
 
 /*
- *
+ * compiles the program with filename programFilename, and replaces the names in names with the values in vals.
  */
 int CompileProgram(CLDict *clDict, char * programFilename, char *names[],char *vals[], int numVals){
     int indIfAlreadyCompiled;
@@ -219,11 +219,11 @@ int CompileProgram(CLDict *clDict, char * programFilename, char *names[],char *v
 int main(int argc, char *argv[]){
     CLDict *clDict = NULL;
     int numVals;
-    char *names[2] = {"%maxpops%", "%missing%"};
-    char *vals[2] = {"2", "-9"};
+    char *names[5] = {"%maxpops%", "%missing%", "%maxalleles%","%numloci%","%lines%"};
+    char *vals[5] = {"2", "-9", "100","20","299"};
     clDict = malloc(sizeof *clDict);
 
-    numVals = 2;
+    numVals = 5;
     InitCLDict(clDict);
     CompileProgram(clDict,"Kernels/UpdateZLoci.cl", names, vals, numVals); 
     ReleaseCLDict(clDict);

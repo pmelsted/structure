@@ -14,6 +14,7 @@ float randomReal(float lower, float upper,mwc64x_state_t *randState){
     return (lower + randPercent*(upper-lower));
 }
 
+
 /*
  *  Returns a random number between 0 and n-1, according to a list of
  *  probabilities.  The function takes a (possibly) unnormalized
