@@ -98,6 +98,7 @@ void ReleaseCLDict(CLDict *clDict){
     } 
     clReleaseCommandQueue(clDict->commands);
     clReleaseContext(clDict->context);
+    free(clDict);
 }
 
 /*
@@ -214,15 +215,18 @@ int CompileProgram(CLDict *clDict, char * programFilename, char *names[],char *v
     return indOfProgram;
 }
 
+
 int main(int argc, char *argv[]){
-    CLDict clDict;
+    CLDict *clDict = NULL;
     int numVals;
     char *names[2] = {"%maxpops%", "%missing%"};
     char *vals[2] = {"2", "-9"};
+    clDict = malloc(sizeof *clDict);
+
     numVals = 2;
-    InitCLDict(&clDict);
-    CompileProgram(&clDict,"Kernels/UpdateZLoci.cl", names, vals, numVals); 
-    ReleaseCLDict(&clDict);
+    InitCLDict(clDict);
+    CompileProgram(clDict,"Kernels/UpdateZLoci.cl", names, vals, numVals); 
+    ReleaseCLDict(clDict);
     printf("Compiled!\n");
     return EXIT_SUCCESS;
 }

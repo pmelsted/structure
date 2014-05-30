@@ -107,7 +107,7 @@ int main (int argc, char *argv[])
   double *LocPrior=NULL, *sumLocPrior=NULL, LocPriorLen=0;
 
   /*Dict to that keeps track of CL info */
-  CLDict clDict;
+  CLDict *clDict = NULL;
 
 
   /*=====Code for getting started=============================*/
@@ -240,7 +240,7 @@ int main (int argc, char *argv[])
     FreeAll(Mapdistance, Phase, Phasemodel, lambda, sumlambda, Markername, Geno, PreGeno, Recessive,
             Individual, Translation, NumAlleles, Z, Z1, Q, P, LogP, R, sumR, varR, Epsilon, SumEpsilon,
             Fst, FstSum, NumLociPop, PSum, QSum,  AncestDist, UsePopProbs, LocPrior,
-            sumLocPrior, Alpha, sumAlpha, sumIndLikes, indLikesNorm, &clDict);
+            sumLocPrior, Alpha, sumAlpha, sumIndLikes, indLikesNorm, clDict);
     Kill ();
   }
   /*=========done setting aside memory space=====================*/
@@ -249,7 +249,7 @@ int main (int argc, char *argv[])
   Initialization (Geno, PreGeno, Individual, Translation, NumAlleles, Z, Z1, Epsilon, SumEpsilon,
                   Fst, PSum, Q, QSum, FstSum, AncestDist, UsePopProbs, Alpha,
                   sumAlpha, sumR, varR, &sumlikes, &sumsqlikes, &savefreq, R, lambda,
-                  sumlambda,Phase,Recessive, LocPrior, sumLocPrior, LocPriorLen, sumIndLikes, indLikesNorm, &clDict);
+                  sumlambda,Phase,Recessive, LocPrior, sumLocPrior, LocPriorLen, sumIndLikes, indLikesNorm, clDict);
   printf ("\n\n--------------------------------------\n\n");
   printf ("Finished initialization; starting MCMC \n");
   printf ("%d iterations + %d burnin\n\n", NUMREPS, BURNIN);
@@ -360,7 +360,7 @@ int main (int argc, char *argv[])
   FreeAll(Mapdistance, Phase, Phasemodel, lambda, sumlambda, Markername, Geno, PreGeno, Recessive,
             Individual, Translation, NumAlleles, Z, Z1, Q, P, LogP, R, sumR, varR, Epsilon, SumEpsilon,
             Fst, FstSum, NumLociPop, PSum, QSum,  AncestDist, UsePopProbs, LocPrior,
-            sumLocPrior, Alpha, sumAlpha, sumIndLikes, indLikesNorm, &clDict);
+            sumLocPrior, Alpha, sumAlpha, sumIndLikes, indLikesNorm, clDict);
   return (0);
 }
 
