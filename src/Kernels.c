@@ -2,28 +2,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <CL/cl.h>
+#include "KernelDefs.h"
 
-#define MAXNUMBEROFKERNELS 1
 #define MAX_SOURCE_SIZE (0x100000)
 #define USEGPU 1
-#define UPDATEZLOCIKERNEL 0
 
 
-typedef struct CLDict {
-    int numProgramsInDict;
-    char **ProgramNames;
-    cl_program *Programs;    
-    cl_platform_id platform_id;
-    cl_uint ret_num_devices;
-    cl_uint ret_num_platforms;
-    cl_context context;
-    cl_device_id device_id; 
-    cl_command_queue commands;
-} CLDict;
 
+/*
+ * Inits the dict, but the program must still be compiled.
+ */
 int InitCLDict(CLDict *clDictToInit){
-    char *ProgramNames[MAXNUMBEROFKERNELS];
-    cl_program Programs[MAXNUMBEROFKERNELS];    
+    cl_kernel kernels[NumberOfKernels];    
     cl_platform_id platform_id;
     cl_uint ret_num_devices;
     cl_uint ret_num_platforms;
@@ -79,9 +69,8 @@ int InitCLDict(CLDict *clDictToInit){
 
 
 
-    clDictToInit->numProgramsInDict = 0;
-    clDictToInit->ProgramNames = ProgramNames;
-    clDictToInit->Programs = Programs;
+    clDictToInit->numKernelsInDict = 0;
+    clDictToInit->kernels = kernels;
     clDictToInit->platform_id = platform_id;
     clDictToInit->ret_num_devices = ret_num_devices;
     clDictToInit->ret_num_platforms = ret_num_platforms;
@@ -93,33 +82,18 @@ int InitCLDict(CLDict *clDictToInit){
 
 void ReleaseCLDict(CLDict *clDict){
     int i;
-    for(i = 0; i < clDict->numProgramsInDict; i++){
-        clReleaseProgram(clDict->Programs[i]);
+    clReleaseProgram(clDict->program);
+    for(i = 0; i < clDict->numKernelsInDict; ++i){
+        clReleaseKernel(clDict->kernels[i]);
     } 
     clReleaseCommandQueue(clDict->commands);
     clReleaseContext(clDict->context);
     free(clDict);
 }
 
-/*
- * If we've already compiled this program,
- * return the index in CompiledPrograms in which it is located.
- * to save on speed, we should really just keep track of in the code
- * where each program is and use that, i.e. define a constant for the
- * location of each program.
- */
-int alreadyCompiled(char * programFilename, CLDict * clDict){
-    int i, comp;
-    for(i = 0; i < clDict->numProgramsInDict && i < MAXNUMBEROFKERNELS; i++){
-      comp = strcmp(programFilename,clDict->ProgramNames[i]); 
-      if(comp == 0){
-        return i;     
-      }
-    }
-    return -1;
-}
 
-char * searchReplace(char * string, char * sourceName, char *toReplace[], char *replacements[], int numReplacements){
+
+char * searchReplace(char * string,  char *toReplace[], char *replacements[], int numReplacements){
     int i = 0;
     char *locOfToRep;
     char *toRep;
@@ -130,10 +104,10 @@ char * searchReplace(char * string, char * sourceName, char *toReplace[], char *
     for(i = 0; i < numReplacements; ++i){
         toRep = toReplace[i];
         rep = replacements[i];
-        /*if str not in the string, exit.*/
+        /*if str not in the string, skip it */
         if (!(locOfToRep = strstr(buffer,toRep))){
-           printf("%s not found in %s!\n",toRep,sourceName);
-           exit(EXIT_FAILURE);
+           printf("Warning: %s not found in string!\n",toRep);
+           continue;
         }
         lenToRep = strlen(toRep); 
         lenStr = strlen(buffer); 
@@ -145,37 +119,75 @@ char * searchReplace(char * string, char * sourceName, char *toReplace[], char *
     return buffer;
 }
 
-void preProcessSource(char * kernelSource, size_t *source_size, char * sourceName, char *names[], char *vals[], int numVals){
+void preProcessSource(char * kernelSource, size_t *source_size, char *names[], char *vals[], int numVals){
    char * processedSource;
-   processedSource = searchReplace(kernelSource, sourceName, names, vals, numVals);
+   processedSource = searchReplace(kernelSource, names, vals, numVals);
    strncpy(kernelSource,processedSource,MAX_SOURCE_SIZE);
+   *source_size = strlen(kernelSource);
+}
+
+
+
+int initKernel(CLDict *clDict,char * kernelName, enum KERNEL kernelEnumVal){
+    cl_kernel kernel;
+    int err;
+    kernel = clCreateKernel(clDict->program, kernelName, &err);
+    if (!kernel || err != CL_SUCCESS)
+    {
+    	switch(err){
+    	case CL_INVALID_PROGRAM:
+    		printf("invalid program\n");
+    		break;
+    	case CL_INVALID_PROGRAM_EXECUTABLE:
+    		printf("invalid exec\n");
+    		break;
+    	case CL_INVALID_KERNEL_NAME:
+    		printf("invalid name\n");
+    		break;
+    	case CL_INVALID_KERNEL_DEFINITION:
+    		printf("invalid def\n");
+    		break;
+    	case CL_INVALID_VALUE:
+    		printf("invalid val\n");
+    		break;
+    	case CL_OUT_OF_HOST_MEMORY:
+    		printf("invalid mem\n");
+    		break;
+    	case CL_SUCCESS:
+    		printf("no kernel\n");
+    		break;
+    	default:
+    		printf("%d\n", err);
+    	}
+        printf("Error: Failed to create compute kernel %s!\n", kernelName);
+        return EXIT_FAILURE;
+    }
+    clDict->kernels[kernelEnumVal] = kernel;
+    return EXIT_SUCCESS;
 }
 
 /*
  * compiles the program with filename programFilename, and replaces the names in names with the values in vals.
  */
-int CompileProgram(CLDict *clDict, char * programFilename, char *names[],char *vals[], int numVals){
-    int indIfAlreadyCompiled;
+int CompileKernels(CLDict *clDict, char *names[],char *vals[], int numVals){
     FILE *fp;
     char *KernelSource;
     size_t source_size;
     
     int err;
-    int indOfProgram;
+    int i;
+    cl_program program;
+
+    char *kernelNames[NumberOfKernels] = {"UpdateZ"};
     /*cl_int ret;*/
 
 
-    cl_program program;
-    indIfAlreadyCompiled = alreadyCompiled(programFilename, clDict);
-    if(indIfAlreadyCompiled >= 0){
-        return indIfAlreadyCompiled;        
-    }
 
-    /* Load the source code containing the kernel*/
-    fp = fopen(programFilename, "r");
+    /* Load the source code containing the kernels*/
+    fp = fopen("Kernels/Kernels.cl", "r");
     if (!fp) {
-    	fprintf(stderr, "Failed to load kernel %s.\n", programFilename);
-        exit(EXIT_FAILURE);
+    	fprintf(stderr, "Failed to load kernel file Kernels.cl\n");
+        return EXIT_FAILURE;
     }
 
 
@@ -183,13 +195,12 @@ int CompileProgram(CLDict *clDict, char * programFilename, char *names[],char *v
     source_size = fread(KernelSource, 1, MAX_SOURCE_SIZE, fp);
     fclose(fp);
 
-    preProcessSource(KernelSource, &source_size, programFilename, names,vals,numVals); 
-    printf("%s\n",KernelSource);
+    preProcessSource(KernelSource, &source_size, names,vals,numVals); 
     program = clCreateProgramWithSource(clDict->context, 1, (const char **) & KernelSource, NULL, &err);
     if (!program)
     {
         printf("Error: Failed to create compute program!\n");
-        exit(EXIT_FAILURE);
+        return EXIT_FAILURE;
     }
 
 
@@ -206,27 +217,33 @@ int CompileProgram(CLDict *clDict, char * programFilename, char *names[],char *v
         clGetProgramBuildInfo(program, clDict->device_id, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &len);
         printf("%s\n", buffer);
         printf("%d\n", (int) len);
-        exit(EXIT_FAILURE);
+        return EXIT_FAILURE;
     }
 
-    indOfProgram = clDict->numProgramsInDict++;
-    clDict->ProgramNames[indOfProgram] = programFilename;
-    clDict->Programs[indOfProgram] = program;
-    return indOfProgram;
+    clDict->program = program;
+    for(i = 0; i < NumberOfKernels; ++i){
+        err = initKernel(clDict, kernelNames[i], i);
+        if(err != EXIT_SUCCESS){
+            return EXIT_FAILURE;
+        }
+    }
+
+    return EXIT_SUCCESS;
 }
 
-
+/*
 int main(int argc, char *argv[]){
     CLDict *clDict = NULL;
     int numVals;
+    int ret;
     char *names[5] = {"%maxpops%", "%missing%", "%maxalleles%","%numloci%","%lines%"};
-    char *vals[5] = {"2", "-9", "100","20","299"};
+    char *vals[5] = {"2", "-999", "15","15","2"};
     clDict = malloc(sizeof *clDict);
-
+    
     numVals = 5;
     InitCLDict(clDict);
-    CompileProgram(clDict,"Kernels/UpdateZLoci.cl", names, vals, numVals); 
+    ret = CompileKernels(clDict,names,vals,numVals);
+    printf("return code: %d\n",ret);
     ReleaseCLDict(clDict);
-    printf("Compiled!\n");
-    return EXIT_SUCCESS;
-}
+    return ret;
+}*/

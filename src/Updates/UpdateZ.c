@@ -29,14 +29,15 @@ UpdateZ (int *Z,  double *Q, double *P, int *Geno)
   /*O*(NUMINDS*LINES*NUMLOCI*MAXPOPS)*/
   for (ind = 0; ind < NUMINDS; ind++) {  /*go through all alleles in sample */
     for (line = 0; line < LINES; line++) {
+      /*
       for (loc = 0; loc < NUMLOCI; loc++) {
+        
         allele = Geno[GenPos (ind, line, loc)];
 
-        if (allele == MISSING) {   /*Missing Data */
+        if (allele == MISSING) {
           Z[ZPos (ind, line, loc)] = UNASSIGNED;
         } else {
-          /*Data present */
-          sum = 0.0;    /*compute prob of each allele being from each pop */
+          sum = 0.0;
           for (pop = 0; pop < MAXPOPS; pop++) {
             Cutoffs[pop] = Q[QPos (ind, pop)] * P[PPos (loc, pop, allele)];
             sum += Cutoffs[pop];
@@ -45,7 +46,7 @@ UpdateZ (int *Z,  double *Q, double *P, int *Geno)
           Z[ZPos (ind, line, loc)] = PickAnOption (MAXPOPS, sum, Cutoffs);
         }
         
-      }
+      }*/
     }
   }
 

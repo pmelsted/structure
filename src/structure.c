@@ -1,15 +1,15 @@
-/*=======================================================
+    /*=======================================================
 
-  STRUCTURE.C
+      STRUCTURE.C
 
-  Program for inferring population structure using multilocus
-  genotype data.
+      Program for inferring population structure using multilocus
+      genotype data.
 
-  Code written by Daniel Falush, Melissa Hubisz, and Jonathan Pritchard
+      Code written by Daniel Falush, Melissa Hubisz, and Jonathan Pritchard
 
-  See additional details in README file.
+      See additional details in README file.
 
-  =========================================================*/
+      =========================================================*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,7 +21,7 @@
 #include "datain.h"
 #include "output.h"
 
-/*Here come the updates */
+    /*Here come the updates */
 #include "Updates/UpdateQ.h"
 #include "Updates/UpdateZ.h"
 #include "Updates/UpdateP.h"
@@ -107,16 +107,20 @@ int main (int argc, char *argv[])
   double *LocPrior=NULL, *sumLocPrior=NULL, LocPriorLen=0;
 
   /*Dict to that keeps track of CL info */
+  int ret;
+  int i = 0;
   CLDict *clDict = NULL;
+  char *names[5];
+  char *vals[5];
 
-
+  clDict = malloc(sizeof *clDict);
   /*=====Code for getting started=============================*/
 
   Welcome (stdout);             /*welcome */
   GetParams (0,argc,argv);      /*read in parameter values */
 
   CheckParamCombinations();     /*check that some parameter combinations are valid*/
-
+   
 
   Mapdistance = calloc (NUMLOCI, sizeof (double));
   Phase = calloc (NUMLOCI * NUMINDS, sizeof (double));
@@ -132,6 +136,7 @@ int main (int argc, char *argv[])
       }
     }
   }
+ 
   
   lambda=calloc(MAXPOPS, sizeof (double));
   sumlambda=calloc(MAXPOPS, sizeof (double));
@@ -250,9 +255,38 @@ int main (int argc, char *argv[])
                   Fst, PSum, Q, QSum, FstSum, AncestDist, UsePopProbs, Alpha,
                   sumAlpha, sumR, varR, &sumlikes, &sumsqlikes, &savefreq, R, lambda,
                   sumlambda,Phase,Recessive, LocPrior, sumLocPrior, LocPriorLen, sumIndLikes, indLikesNorm, clDict);
+
+  
+  /* ==================== GPU Structure ==================== */  
+  /* compile OpenCL kernels */ 
+  /*Define the constants in the kernels */
+
+  for(i = 0; i < 5; ++i){
+    vals[i] = calloc(255, sizeof(char));
+  }
+
+  names[0] = "%maxpops%"; sprintf(vals[0],"%d",MAXPOPS);
+  names[1] = "%missing%"; sprintf(vals[1],"%d",MISSING);
+  names[2] = "%maxalleles%"; sprintf(vals[2],"%d",MAXALLELES);
+  names[3] = "%numloci%"; sprintf(vals[3],"%d",MAXALLELES);
+  names[4] = "%lines%"; sprintf(vals[4],"%d",LINES);
+
+  ret = CompileKernels(clDict,names,vals,5);
+  for(i = 0; i < 5; ++i){
+    free(vals[i]);
+  }
+
+  if(ret != EXIT_SUCCESS){
+      printf("Kernels failed to compile!\n");
+      exit(EXIT_FAILURE);
+  }
+ 
+  /* ====== OpenCL initialized ====== */
+
   printf ("\n\n--------------------------------------\n\n");
   printf ("Finished initialization; starting MCMC \n");
   printf ("%d iterations + %d burnin\n\n", NUMREPS, BURNIN);
+
   /*=====Main MCMC loop=======================================*/
 
   for (rep = 0; rep < (NUMREPS + BURNIN); rep++) {
