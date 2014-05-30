@@ -118,33 +118,36 @@ int alreadyCompiled(char * programFilename, CLDict * clDict){
     return -1;
 }
 
-void searchReplace(char * string, char * sourceName, char *toReplace[], char *replacements[], int numReplacements){
+char * searchReplace(char * string, char * sourceName, char *toReplace[], char *replacements[], int numReplacements){
     int i = 0;
     char *locOfToRep;
     char *toRep;
     char *rep;
     int lenToRep,lenStr,lenAfterLocRep;
     static char buffer[MAX_SOURCE_SIZE];
+    strncpy(buffer,string,MAX_SOURCE_SIZE);
     for(i = 0; i < numReplacements; ++i){
         toRep = toReplace[i];
         rep = replacements[i];
         /*if str not in the string, exit.*/
-        if (!(locOfToRep = strstr(string,toRep))){
+        if (!(locOfToRep = strstr(buffer,toRep))){
            printf("%s not found in %s!\n",toRep,sourceName);
            exit(EXIT_FAILURE);
         }
         lenToRep = strlen(toRep); 
-        lenStr = strlen(string); 
+        lenStr = strlen(buffer); 
         lenAfterLocRep = strlen(locOfToRep); 
         /*Print the string upto the pointer, then the val, and then the rest of the string.*/
-        sprintf(buffer, "%.*s%s%s", lenStr-lenAfterLocRep, string,rep,locOfToRep+lenToRep);
+        sprintf(buffer, "%.*s%s%s", lenStr-lenAfterLocRep, buffer,rep,locOfToRep+lenToRep);
         /*Will break if buffer is longer than string, so we restrict ourselves to the longest length.*/
-        strncpy(string,buffer,MAX_SOURCE_SIZE);
     }
+    return buffer;
 }
 
 void preProcessSource(char * kernelSource, size_t *source_size, char * sourceName, char *names[], char *vals[], int numVals){
-   searchReplace(kernelSource, sourceName, names, vals, numVals);
+   char * processedSource;
+   processedSource = searchReplace(kernelSource, sourceName, names, vals, numVals);
+   strncpy(kernelSource,processedSource,MAX_SOURCE_SIZE);
 }
 
 /*
