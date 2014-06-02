@@ -100,6 +100,32 @@ int PickAnOption(int total,double sum,double Probs[])
   return option;
 
 }
+
+
+int PickAnOptionDiscrete(int total,float sum,float Probs[],float randNum)
+{
+  /*Returns a random number between 0 and n-1, according to a list of
+    probabilities.  The function takes a (possibly) unnormalized
+    vector of probabilities of the form (p1, p2, p3,....,p_n).  There
+    are "total" possible options, and sum is the sum of the
+    probabilities.  This comes up in the Gibbs sampler context.*/
+
+  int option;
+  float random;
+  float sumsofar = 0.0;
+
+  random = numToRange(0,sum, randNum);     /*Get uniform random real in this range*/
+  for (option=0; option<total; option++) /*Figure out which popn this is*/
+    {
+      sumsofar += Probs[option];
+	if (random <= sumsofar) break;
+    }
+
+  return option;
+
+}
+
+
 /*---------------------------------*/
 double LDirichletProb(double prior[],double post[],int length)
 /*returns the log probability of a vector "post" of length "length", 

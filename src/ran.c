@@ -989,3 +989,21 @@ double BinoProb(int n, double p,int i)
   
   return exp(logsum);
 }
+
+void FillArrayWithRandom(float *random, int n)
+{
+    /*Fills an array with floating random numbers in [0,1)*/
+    int i;
+    double d;
+    for(i = 0; i < n; i++){
+            d = (double) rand() / ((double) RAND_MAX + 1);
+            random[i] = (float) d;
+    }
+}
+
+
+float numToRange(float low, float high, float num)
+{
+  /* Takes a number in [0,1) -> [low,high) */
+  return (low + num * (high - low) );
+}

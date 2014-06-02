@@ -10,17 +10,17 @@
 /*-----------------------------------------*/
 /*O*(NUMINDS*LINES*NUMLOCI*MAXPOPS)*/
 void
-UpdateZ (int *Z,  double *Q, double *P, int *Geno)
+UpdateZ (int *Z,  double *Q, double *P, int *Geno,float * randomArr)
     /*update Z: population origin of each allele */
 {
   int ind, line, loc, pop;
-  double *Cutoffs /*[MAXPOPS] */ ;
+  float *Cutoffs /*[MAXPOPS] */ ;
   /*Cutoffs contains unnormalized probabilities of
     an allele coming from each population */
   double sum=0.0;
   int allele;
 
-  Cutoffs = calloc (MAXPOPS, sizeof (double));
+  Cutoffs = calloc (MAXPOPS, sizeof (float));
   if (Cutoffs == NULL) {
     printf ("WARNING: unable to allocate array space in UpdateZ\n");
     Kill ();
@@ -29,7 +29,6 @@ UpdateZ (int *Z,  double *Q, double *P, int *Geno)
   /*O*(NUMINDS*LINES*NUMLOCI*MAXPOPS)*/
   for (ind = 0; ind < NUMINDS; ind++) {  /*go through all alleles in sample */
     for (line = 0; line < LINES; line++) {
-      /*
       for (loc = 0; loc < NUMLOCI; loc++) {
         
         allele = Geno[GenPos (ind, line, loc)];
@@ -37,16 +36,16 @@ UpdateZ (int *Z,  double *Q, double *P, int *Geno)
         if (allele == MISSING) {
           Z[ZPos (ind, line, loc)] = UNASSIGNED;
         } else {
-          sum = 0.0;
+          sum = 0.0f;
           for (pop = 0; pop < MAXPOPS; pop++) {
-            Cutoffs[pop] = Q[QPos (ind, pop)] * P[PPos (loc, pop, allele)];
+            Cutoffs[pop] = (float) (Q[QPos (ind, pop)] * P[PPos (loc, pop, allele)]);
             sum += Cutoffs[pop];
           }
 
-          Z[ZPos (ind, line, loc)] = PickAnOption (MAXPOPS, sum, Cutoffs);
+          Z[ZPos (ind, line, loc)] = PickAnOptionDiscrete (MAXPOPS, sum, Cutoffs,randomArr[ind*NUMLOCI+loc]);
         }
         
-      }*/
+      }
     }
   }
 

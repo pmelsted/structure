@@ -112,6 +112,7 @@ int main (int argc, char *argv[])
   CLDict *clDict = NULL;
   char *names[5];
   char *vals[5];
+  float * randomArr; /* array of random numbers */
 
   clDict = malloc(sizeof *clDict);
   /*=====Code for getting started=============================*/
@@ -280,6 +281,8 @@ int main (int argc, char *argv[])
       printf("Kernels failed to compile!\n");
       exit(EXIT_FAILURE);
   }
+
+  randomArr = calloc(NUMINDS*NUMLOCI,sizeof(float));
  
   /* ====== OpenCL initialized ====== */
 
@@ -318,7 +321,8 @@ int main (int argc, char *argv[])
                                        Mapdistance, rep, Phase, Z1,Phasemodel, rep+1 > BURNIN ? sumIndLikes:NULL, indLikesNorm);
       }
     } else {
-      UpdateZ (Z,  Q, P, Geno);
+      FillArrayWithRandom(randomArr,NUMINDS*NUMLOCI);
+      UpdateZ (Z,  Q, P, Geno,randomArr);
       /*      printf("done updatez alpha[2]=%e\n", Alpha[2]); */
     }
 
@@ -395,6 +399,7 @@ int main (int argc, char *argv[])
             Individual, Translation, NumAlleles, Z, Z1, Q, P, LogP, R, sumR, varR, Epsilon, SumEpsilon,
             Fst, FstSum, NumLociPop, PSum, QSum,  AncestDist, UsePopProbs, LocPrior,
             sumLocPrior, Alpha, sumAlpha, sumIndLikes, indLikesNorm, clDict);
+  free(randomArr);
   return (0);
 }
 

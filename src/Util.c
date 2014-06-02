@@ -276,5 +276,3 @@ void GetNumLocations (struct IND *ind) {
   free(freq);
   NUMLOCATIONS = pos;
 }
-
-
