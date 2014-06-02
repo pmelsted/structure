@@ -14,6 +14,12 @@ float randomReal(float lower, float upper,mwc64x_state_t *randState){
     return (lower + randPercent*(upper-lower));
 }
 
+float numToRange(float low, float high, float num)
+{
+  /* Takes a number in [0,1) -> [low,high) */
+  return (low + num * (high - low) );
+}
+
 
 /*
  *  Returns a random number between 0 and n-1, according to a list of
@@ -22,13 +28,13 @@ float randomReal(float lower, float upper,mwc64x_state_t *randState){
  *  are "total" possible options, and sum is the sum of the
  *  probabilities.  This comes up in the Gibbs sampler context.
  */
-int PickAnOption(int total, float sum, float Probs [], mwc64x_state_t *randState){
+int PickAnOptionDiscrete(int total, float sum, float Probs [], float randNum){
    int option;
    float random;
    float sumsofar;
    
    sumsofar = 0.0; 
-   random = randomReal(0,sum, randState);
+   random = numToRange(0,sum, randNum);
    for (option=0; option < total && random <= sumsofar; ++option){
        sumsofar += Probs[option];
    }

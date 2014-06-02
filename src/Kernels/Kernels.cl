@@ -17,10 +17,9 @@
 __kernel void UpdateZ (                                                       
    __global float* Q, /* input */
    __global float* P,  /* input */                                           
-   __global float* Geno,/* input */
+   __global int* Geno,/* input */
    __global float* randNums, /*random numbers*/                                   
-   __global float* Z, /* output */                                                   
-   const unsigned int baseOffset
+   __global int* Z /* output */                                                   
    )                                      
 {                                                                      
    int allele;
@@ -28,10 +27,6 @@ __kernel void UpdateZ (
    int line;
    float Cutoffs[MAXPOPS];
    float sum;
-   mwc64x_state_t rng;
-   //ulong samplesPerStream=n/get_global_size(0);
-   ulong samplesPerStream= 10000;
-   MWC64X_SeedStreams(&rng, baseOffset, 2*samplesPerStream);
    
    int ind = get_global_id(0);
    int loc = get_global_id(1); /* is this correct? */
@@ -47,7 +42,7 @@ __kernel void UpdateZ (
             Cutoffs[pop] = Q[QPos (ind, pop)] * P[PPos (loc, pop, allele)];
             sum += Cutoffs[pop];
           }
-          Z[ZPos (ind, line, loc)] = PickAnOption (MAXPOPS, sum, Cutoffs,&rng);
+          Z[ZPos (ind, line, loc)] = PickAnOptionDiscrete (MAXPOPS, sum, Cutoffs,randNums[ind*NUMLOCI+loc]);
        }
    }
 }                                                                     
