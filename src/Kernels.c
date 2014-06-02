@@ -13,7 +13,7 @@
  * Inits the dict, but the program must still be compiled.
  */
 int InitCLDict(CLDict *clDictToInit){
-    cl_kernel kernels[NumberOfKernels];    
+    cl_kernel *kernels;
     cl_platform_id platform_id;
     cl_uint ret_num_devices;
     cl_uint ret_num_platforms;
@@ -68,7 +68,7 @@ int InitCLDict(CLDict *clDictToInit){
 
 
 
-
+    kernels = calloc(NumberOfKernels, sizeof(cl_kernel));
     clDictToInit->numKernelsInDict = 0;
     clDictToInit->kernels = kernels;
     clDictToInit->platform_id = platform_id;
@@ -86,6 +86,7 @@ void ReleaseCLDict(CLDict *clDict){
     for(i = 0; i < clDict->numKernelsInDict; ++i){
         clReleaseKernel(clDict->kernels[i]);
     } 
+    free(clDict->kernels);
     clReleaseCommandQueue(clDict->commands);
     clReleaseContext(clDict->context);
     free(clDict);
