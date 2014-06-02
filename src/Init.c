@@ -240,7 +240,7 @@ InitializeSums (double *PSum, double *QSum,  double *FstSum,
                 int *NumAlleles, int *AncestDist, double *UsePopProbs,double *SumEpsilon)
     /*initialize arrays which store sums of parameters */
 {
-  int loc, pop, allele, ind, box, gen, line;
+  int loc, pop, allele, ind, box, gen;
 
   for (loc = 0; loc < NUMLOCI; loc++) {
     for (pop = 0; pop < MAXPOPS; pop++) {

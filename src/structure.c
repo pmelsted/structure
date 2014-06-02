@@ -42,7 +42,6 @@
 
 int main (int argc, char *argv[])
 {
-  int a;
   /*data--------- */
   int *Geno;                    /*NUMINDSxLINES: genotypes */
   double *R;                    /*NUMINDS */
