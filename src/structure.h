@@ -15,6 +15,12 @@
 #define LAMBDAMAX  10           /*max value of lambda*/
 #define LAMBDAPROPSD 0.3          /*SD for proposal for lambda*/
 
+#define QSIZE NUMINDS*MAXPOPS
+#define PSIZE NUMLOCI*MAXPOPS*MAXALLELES
+#define ZSIZE NUMINDS*LINES*NUMLOCI
+#define GENOSIZE LINES*NUMLOCI*NUMINDS
+#define RANDSIZE NUMINDS*NUMLOCI
+
 /*return appropriate positions in each array... */
 #define GenPos(ind,line,loc) ((ind)*(LINES)*(NUMLOCI)+(line)*(NUMLOCI)+(loc))	/*Geno */
 #define TransPos(loc,pos) ((MAXALLELES)*(loc)+(pos))	/*Translation */
@@ -131,7 +137,3 @@ void Kill ();			/*abort program */
 
 void Welcome (FILE * file);
 int FindMaxAlleles (int *Geno, int *Recessive);
-extern double Forward (int *Z, double *IndividualQ, double *P, int *Geno,
-                       double Rec, int ind, double *RTransitProb,
-                       double *Mapdistance, double *Phase,int *Phasemodel);
-

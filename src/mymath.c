@@ -102,7 +102,7 @@ int PickAnOption(int total,double sum,double Probs[])
 }
 
 
-int PickAnOptionDiscrete(int total,float sum,float Probs[],float randNum)
+int PickAnOptionDiscrete(int total,double sum,double Probs[],double randNum)
 {
   /*Returns a random number between 0 and n-1, according to a list of
     probabilities.  The function takes a (possibly) unnormalized
@@ -111,8 +111,8 @@ int PickAnOptionDiscrete(int total,float sum,float Probs[],float randNum)
     probabilities.  This comes up in the Gibbs sampler context.*/
 
   int option;
-  float random;
-  float sumsofar = 0.0;
+  double random;
+  double sumsofar = 0.0;
 
   random = numToRange(0,sum, randNum);     /*Get uniform random real in this range*/
   for (option=0; option<total; option++) /*Figure out which popn this is*/

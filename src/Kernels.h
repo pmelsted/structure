@@ -2,3 +2,4 @@
 extern int InitCLDict(CLDict *clDictToInit);
 extern void ReleaseCLDict(CLDict *clDict);
 extern int CompileKernels(CLDict *clDict, char * names[], char *vals[],int numVals);
+extern void printCLErr(cl_int err);

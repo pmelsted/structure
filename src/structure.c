@@ -1,15 +1,15 @@
-    /*=======================================================
+/*=======================================================
 
-      STRUCTURE.C
+  STRUCTURE.C
 
-      Program for inferring population structure using multilocus
-      genotype data.
+  Program for inferring population structure using multilocus
+  genotype data.
 
-      Code written by Daniel Falush, Melissa Hubisz, and Jonathan Pritchard
+  Code written by Daniel Falush, Melissa Hubisz, and Jonathan Pritchard
 
-      See additional details in README file.
+  See additional details in README file.
 
-      =========================================================*/
+  =========================================================*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,6 +20,7 @@
 #include "params.h"
 #include "datain.h"
 #include "output.h"
+#include "Kernels.h"
 
     /*Here come the updates */
 #include "Updates/UpdateQ.h"
@@ -33,10 +34,26 @@
 #include "Updates/UpdateLambda.h"
 
 
-#include "Kernels.h"
 #include "Init.h"
 #include "Util.h"
 
+
+void compareZAndOldZ(int *Z, int *OldZ){
+    int i;
+    int notSame=0;
+    int same =ZSIZE;
+    for(i = 0; i < ZSIZE;i++){
+        if(Z[i] != OldZ[i]){
+            notSame++;
+            same--;
+        }
+    }
+    if(notSame > 0){
+       printf("Z and Old Z differ!\n");
+       printf("Difference between Z and OldZ: same: %d, not same %d\n",same,notSame);
+       exit(EXIT_FAILURE);     
+    }
+}
 
 /*=============MAIN======================================*/
 
@@ -105,15 +122,18 @@ int main (int argc, char *argv[])
   /*Melissa's new variables added 7/12/07 to use priors based on sampling location*/
   double *LocPrior=NULL, *sumLocPrior=NULL, LocPriorLen=0;
 
+  /* ======================= GPU Structure ======================== */
   /*Dict to that keeps track of CL info */
   int ret;
   int i = 0;
   CLDict *clDict = NULL;
-  char *names[5];
-  char *vals[5];
-  float * randomArr; /* array of random numbers */
+  /*int *OldZ; */
+  char *names[6];
+  char *vals[6];
+  double * randomArr; /* array of random numbers */
 
   clDict = malloc(sizeof *clDict);
+  /* OldZ = calloc (NUMINDS * LINES * NUMLOCI, sizeof (int));*/
   /*=====Code for getting started=============================*/
 
   Welcome (stdout);             /*welcome */
@@ -261,18 +281,19 @@ int main (int argc, char *argv[])
   /* compile OpenCL kernels */ 
   /*Define the constants in the kernels */
 
-  for(i = 0; i < 5; ++i){
+  for(i = 0; i < 6; ++i){
     vals[i] = calloc(255, sizeof(char));
   }
 
   names[0] = "%maxpops%"; sprintf(vals[0],"%d",MAXPOPS);
   names[1] = "%missing%"; sprintf(vals[1],"%d",MISSING);
   names[2] = "%maxalleles%"; sprintf(vals[2],"%d",MAXALLELES);
-  names[3] = "%numloci%"; sprintf(vals[3],"%d",MAXALLELES);
+  names[3] = "%numloci%"; sprintf(vals[3],"%d",NUMLOCI);
   names[4] = "%lines%"; sprintf(vals[4],"%d",LINES);
+  names[5] = "%numinds%"; sprintf(vals[5],"%d",NUMINDS);
 
-  ret = CompileKernels(clDict,names,vals,5);
-  for(i = 0; i < 5; ++i){
+  ret = CompileKernels(clDict,names,vals,6);
+  for(i = 0; i < 6; ++i){
     free(vals[i]);
   }
 
@@ -281,7 +302,7 @@ int main (int argc, char *argv[])
       exit(EXIT_FAILURE);
   }
 
-  randomArr = calloc(NUMINDS*NUMLOCI,sizeof(float));
+  randomArr = calloc(NUMINDS*NUMLOCI,sizeof(double));
  
   /* ====== OpenCL initialized ====== */
 
@@ -321,7 +342,11 @@ int main (int argc, char *argv[])
       }
     } else {
       FillArrayWithRandom(randomArr,NUMINDS*NUMLOCI);
+      UpdateZCL (clDict,Z,  Q, P, Geno,randomArr);
+      /*
+      memcpy(OldZ,Z,ZSIZE*sizeof(int));
       UpdateZ (Z,  Q, P, Geno,randomArr);
+      compareZAndOldZ(Z,OldZ);*/
       /*      printf("done updatez alpha[2]=%e\n", Alpha[2]); */
     }
 
@@ -399,6 +424,7 @@ int main (int argc, char *argv[])
             Fst, FstSum, NumLociPop, PSum, QSum,  AncestDist, UsePopProbs, LocPrior,
             sumLocPrior, Alpha, sumAlpha, sumIndLikes, indLikesNorm, clDict);
   free(randomArr);
+  /*free(OldZ);*/
   return (0);
 }
 

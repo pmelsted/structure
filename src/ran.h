@@ -18,5 +18,5 @@ extern long   Binomial(int n, double p);
 extern long   Binomial1(int n, double p);
 extern double BinoProb(int n, double p,int i);
 extern void LogRDirichlet (const double *a, const int k, double *b,double *c);
-extern void FillArrayWithRandom(float *random, int n);
-extern float numToRange(float low, float high, float num);
+extern void FillArrayWithRandom(double *random, int n);
+extern double numToRange(double low, double high, double num);
