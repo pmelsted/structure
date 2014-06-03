@@ -68,8 +68,9 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,double *
     global[0] = NUMINDS;
     global[1] = NUMLOCI;
 
-
-    qCL = clCreateBuffer(clDict->context,  CL_MEM_READ_ONLY,  sizeof(double)*QSIZE,NULL, &err);
+    
+    /*This can also be CL_MEM_READ_ONLY, but then we have to explicitly write the memory*/
+    qCL = clCreateBuffer(clDict->context,  CL_MEM_COPY_HOST_PTR,  sizeof(double)*QSIZE,Q, &err);
     if (err != CL_SUCCESS) {
         printf("Error: Failed create buffer Q!\n");
         printCLErr(err);
@@ -77,34 +78,35 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,double *
     }
 
 
-    pCL = clCreateBuffer(clDict->context,  CL_MEM_READ_ONLY,  sizeof(double)*PSIZE,NULL, &err);
+    pCL = clCreateBuffer(clDict->context,  CL_MEM_COPY_HOST_PTR,  sizeof(double)*PSIZE,P, &err);
     if (err != CL_SUCCESS) {
         printf("Error: Failed create buffer P!\n");
         printCLErr(err);
         exit(1);
     }
     
-    genoCL = clCreateBuffer(clDict->context,  CL_MEM_READ_ONLY,  sizeof(int)*GENOSIZE,NULL, &err);
+    genoCL = clCreateBuffer(clDict->context,  CL_MEM_COPY_HOST_PTR,  sizeof(int)*GENOSIZE,Geno, &err);
     if (err != CL_SUCCESS) {
         printf("Error: Failed create buffer Geno!\n");
         printCLErr(err);
         exit(1);
     }
 
-    randCL = clCreateBuffer(clDict->context,  CL_MEM_READ_ONLY,  sizeof(double)*RANDSIZE,NULL, &err);
+r   randCL = clCreateBuffer(clDict->context,  CL_MEM_COPY_HOST_PTR,  sizeof(double)*RANDSIZE,randomArr, &err);
     if (err != CL_SUCCESS) {
         printf("Error: Failed create buffer Rand!\n");
         printCLErr(err);
         exit(1);
     }
 
-    zCL = clCreateBuffer(clDict->context,  CL_MEM_WRITE_ONLY,  sizeof(int)*ZSIZE,NULL, &err);
+    zCL = clCreateBuffer(clDict->context,  CL_MEM_WRITE_ONLY,  sizeof(int)*ZSIZE,Z, &err);
     if (err != CL_SUCCESS) {
         printf("Error: Failed create buffer Z!\n");
         printCLErr(err);
         exit(1);
     }
-
+    
+    /* //Needed if we elect to use CL_MEM_READ_ONLY for Q,P,Geno and rand
     err = 0;
     err = clEnqueueWriteBuffer(clDict->commands, qCL, CL_TRUE, 0, sizeof(double) * QSIZE, Q, 0, NULL, NULL);
     if (err != CL_SUCCESS) {
@@ -130,6 +132,7 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,double *
         printCLErr(err);
         exit(1);
     }
+    */
 
 
     err = 0;
@@ -161,7 +164,7 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,double *
 
     err = clFinish(clDict->commands);
 
-    err = clEnqueueReadBuffer(clDict->commands, zCL, CL_TRUE, 0, sizeof(int) * ZSIZE, Z, 0, NULL, NULL );  
+    err = clEnqueueReadBuffer(clDict->commands, zCL, CL_TRUE, 0, sizeof(int) * ZSIZE, Z, 0, NULL, NULL );
     free(global);
     clReleaseMemObject(qCL);
     clReleaseMemObject(pCL);
