@@ -320,6 +320,10 @@ int main (int argc, char *argv[])
       exit(EXIT_FAILURE);
   }
 
+  /*Create the memory buffers */
+  createCLBuffers(clDict);
+
+
   randomArr = calloc(NUMINDS*NUMLOCI,sizeof(double));
  
   /* ====== OpenCL initialized ====== */

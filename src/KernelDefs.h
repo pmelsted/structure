@@ -6,9 +6,17 @@ enum KERNEL {
     NumberOfKernels
 };
 
+enum BUFFER {
+    QCL,
+    PCL,
+    ZCL,
+    GENOCL,
+    RANDCL,
+    NumberOfBuffers
+};
 typedef struct CLDict {
-    int numKernelsInDict;
     cl_kernel *kernels;
+    cl_mem *buffers;
     cl_program program;    
     cl_platform_id platform_id;
     cl_uint ret_num_devices;

@@ -3,6 +3,7 @@
 #include <string.h>
 #include <CL/cl.h>
 #include "KernelDefs.h"
+#include "structure.h"
 
 #define MAX_SOURCE_SIZE (0x100000)
 #define USEGPU 1
@@ -67,6 +68,7 @@ void printCLErr(cl_int err)
  */
 int InitCLDict(CLDict *clDictToInit){
     cl_kernel *kernels;
+    cl_mem *buffers;
     cl_platform_id platform_id;
     cl_uint ret_num_devices;
     cl_uint ret_num_platforms;
@@ -122,8 +124,9 @@ int InitCLDict(CLDict *clDictToInit){
 
 
     kernels = calloc(NumberOfKernels, sizeof(cl_kernel));
-    clDictToInit->numKernelsInDict = 0;
+    buffers = calloc(NumberOfBuffers, sizeof(cl_mem));
     clDictToInit->kernels = kernels;
+    clDictToInit->buffers = buffers;
     clDictToInit->platform_id = platform_id;
     clDictToInit->ret_num_devices = ret_num_devices;
     clDictToInit->ret_num_platforms = ret_num_platforms;
@@ -136,10 +139,14 @@ int InitCLDict(CLDict *clDictToInit){
 void ReleaseCLDict(CLDict *clDict){
     int i;
     clReleaseProgram(clDict->program);
-    for(i = 0; i < clDict->numKernelsInDict; ++i){
+    for(i = 0; i < NumberOfKernels; ++i){
         clReleaseKernel(clDict->kernels[i]);
     } 
     free(clDict->kernels);
+    for(i = 0; i < NumberOfBuffers; ++i){
+        clReleaseMemObject(clDict->buffers[i]);
+    } 
+    free(clDict->buffers);
     clReleaseCommandQueue(clDict->commands);
     clReleaseContext(clDict->context);
     free(clDict);
@@ -292,6 +299,26 @@ void handleCLErr(cl_int err, char * message)
         printCLErr(err);
         exit(1);
     }
+}
+
+void createCLBuffers(CLDict *clDict){
+    cl_int err;
+    clDict->buffers[QCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,  sizeof(double)*QSIZE,NULL, &err);
+    handleCLErr(err,"Error: Failed create buffer Q!");
+
+
+    clDict->buffers[PCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,  sizeof(double)*PSIZE,NULL, &err);
+    handleCLErr(err,"Error: Failed create buffer P!");
+
+    clDict->buffers[ZCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,  sizeof(int)*ZSIZE,NULL, &err);
+    handleCLErr(err,"Error: Failed create buffer Z!");
+    
+    clDict->buffers[GENOCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,  sizeof(int)*GENOSIZE,NULL, &err);
+    handleCLErr(err,"Error: Failed create buffer Geno!");
+
+    clDict->buffers[RANDCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,  sizeof(double)*RANDSIZE,NULL, &err);
+
+    handleCLErr(err,"Error: Failed create buffer rand!");
 }
 
 /*

@@ -57,7 +57,6 @@ void UpdateZ (int *Z,  double *Q, double *P, int *Geno,double * randomArr)
 void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,double * randomArr)
     /*update Z: population origin of each allele */
 {
-    cl_mem qCL,pCL,genoCL,randCL,zCL;
     cl_int err;
     size_t local;                      
     size_t *global;
@@ -69,67 +68,43 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,double *
     global[1] = NUMLOCI;
 
     
-    /*This can also be CL_MEM_READ_ONLY, but then we have to explicitly write the memory*/
-    qCL = clCreateBuffer(clDict->context,  CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,  sizeof(double)*QSIZE,Q, &err);
-    handleCLErr(err,"Error: Failed create buffer Q!");
-
-
-    pCL = clCreateBuffer(clDict->context,  CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,  sizeof(double)*PSIZE,P, &err);
-    handleCLErr(err,"Error: Failed create buffer P!");
     
-    genoCL = clCreateBuffer(clDict->context,  CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,  sizeof(int)*GENOSIZE,Geno, &err);
-    handleCLErr(err,"Error: Failed create buffer Geno!");
-
-   randCL = clCreateBuffer(clDict->context,  CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,  sizeof(double)*RANDSIZE,randomArr, &err);
-    handleCLErr(err,"Error: Failed create buffer rand!");
-
-    zCL = clCreateBuffer(clDict->context,  CL_MEM_WRITE_ONLY,  sizeof(int)*ZSIZE,Z, &err);
-    handleCLErr(err,"Error: Failed create buffer Z!");
-    
-    /* //Needed if we elect to use only CL_MEM_READ_ONLY for Q,P,Geno and rand, and not CL_MEM_COPY_HOST_PTR
     err = 0;
-    err = clEnqueueWriteBuffer(clDict->commands, qCL, CL_TRUE, 0, sizeof(double) * QSIZE, Q, 0, NULL, NULL);
+    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[QCL], CL_TRUE, 0, sizeof(double) * QSIZE, Q, 0, NULL, NULL);
     handleCLErr(err,"Error: Failed to write buffer Q!");
 
-    err = clEnqueueWriteBuffer(clDict->commands, pCL, CL_TRUE, 0, sizeof(double) * PSIZE, P, 0, NULL, NULL);
+    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[PCL], CL_TRUE, 0, sizeof(double) * PSIZE, P, 0, NULL, NULL);
     handleCLErr(err,"Error: Failed to write buffer P!");
 
-    err = clEnqueueWriteBuffer(clDict->commands, genoCL, CL_TRUE, 0, sizeof(int) * GENOSIZE, Geno, 0, NULL, NULL);
+    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[GENOCL], CL_TRUE, 0, sizeof(int) * GENOSIZE, Geno, 0, NULL, NULL);
     handleCLErr(err,"Error: Failed to write buffer geno!");
 
-    err = clEnqueueWriteBuffer(clDict->commands, randCL, CL_TRUE, 0, sizeof(double) * RANDSIZE, randomArr, 0, NULL, NULL);
+    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[RANDCL], CL_TRUE, 0, sizeof(double) * RANDSIZE, randomArr, 0, NULL, NULL);
     handleCLErr(err,"Error: Failed to write buffer rand!");
-    */
 
 
     err = 0;
-    err  = clSetKernelArg(clDict->kernels[UpdateZKernel], 0, sizeof(cl_mem), &qCL);
-    handleCLErr(err,"Error: Failed to set args!");
-    err = clSetKernelArg(clDict->kernels[UpdateZKernel], 1, sizeof(cl_mem), &pCL);
-    handleCLErr(err,"Error: Failed to set args!");
-    err = clSetKernelArg(clDict->kernels[UpdateZKernel], 2, sizeof(cl_mem), &genoCL);
-    handleCLErr(err,"Error: Failed to set args!");
-    err = clSetKernelArg(clDict->kernels[UpdateZKernel], 3, sizeof(cl_mem), &randCL);
-    handleCLErr(err,"Error: Failed to set args!");
-    err = clSetKernelArg(clDict->kernels[UpdateZKernel], 4, sizeof(cl_mem), &zCL);
-    handleCLErr(err,"Error: Failed to set args!");
+    err  = clSetKernelArg(clDict->kernels[UpdateZKernel], 0, sizeof(cl_mem), &(clDict->buffers[QCL]));
+    handleCLErr(err,"Error: Failed to set arg 0!");
+    err = clSetKernelArg(clDict->kernels[UpdateZKernel], 1, sizeof(cl_mem), &(clDict->buffers[PCL]));
+    handleCLErr(err,"Error: Failed to set arg 1!");
+    err = clSetKernelArg(clDict->kernels[UpdateZKernel], 2, sizeof(cl_mem), &(clDict->buffers[GENOCL]));
+    handleCLErr(err,"Error: Failed to set arg 2!");
+    err = clSetKernelArg(clDict->kernels[UpdateZKernel], 3, sizeof(cl_mem), &(clDict->buffers[RANDCL]));
+    handleCLErr(err,"Error: Failed to set arg 3!");
+    err = clSetKernelArg(clDict->kernels[UpdateZKernel], 4, sizeof(cl_mem), &(clDict->buffers[ZCL]));
+    handleCLErr(err,"Error: Failed to set arg 4!");
 
     err = clGetKernelWorkGroupInfo(clDict->kernels[UpdateZKernel], clDict->device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL);
     handleCLErr(err,"Error: Failed to retrieve kernel work group info!");
 
-    /*err = clEnqueueNDRangeKernel(clDict->commands, kernel, 2, NULL, &global, &local, 0, NULL, NULL);*/
     err = clEnqueueNDRangeKernel(clDict->commands, clDict->kernels[UpdateZKernel], 2, NULL, global, NULL, 0, NULL, NULL);
     handleCLErr(err,"Error: Failed to execute kernel!");
 
     err = clFinish(clDict->commands);
 
-    err = clEnqueueReadBuffer(clDict->commands, zCL, CL_TRUE, 0, sizeof(int) * ZSIZE, Z, 0, NULL, NULL );
+    err = clEnqueueReadBuffer(clDict->commands, clDict->buffers[ZCL], CL_TRUE, 0, sizeof(int) * ZSIZE, Z, 0, NULL, NULL );
     free(global);
-    clReleaseMemObject(qCL);
-    clReleaseMemObject(pCL);
-    clReleaseMemObject(zCL);
-    clReleaseMemObject(genoCL);
-    clReleaseMemObject(randCL);
 }
 
 
