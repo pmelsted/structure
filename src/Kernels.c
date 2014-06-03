@@ -63,78 +63,6 @@ void printCLErr(cl_int err)
     }
 }
 
-/*
- * Inits the dict, but the program must still be compiled.
- */
-int InitCLDict(CLDict *clDictToInit){
-    cl_kernel *kernels;
-    cl_mem *buffers;
-    cl_platform_id platform_id;
-    cl_uint ret_num_devices;
-    cl_uint ret_num_platforms;
-    cl_int ret;
-    cl_context context;
-    cl_device_id device_id; 
-    cl_command_queue commands;
-    int DEVICETYPE;
-    int err;
-    DEVICETYPE =  USEGPU ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU;
-
-    ret = clGetPlatformIDs(1, &platform_id, &ret_num_platforms);
-    err = clGetDeviceIDs(platform_id, DEVICETYPE, 1, &device_id, &ret_num_devices);
-    if (err != CL_SUCCESS)
-    {
-        printf("retval %d\n",(int) ret);
-    switch(err){
-    case CL_INVALID_PLATFORM:
-    	printf("invalid platform!");
-                break;
-    case CL_INVALID_VALUE:
-    	printf("invalid value");
-                break;
-    case CL_DEVICE_NOT_FOUND:
-    	printf("device not found");
-                break;
-    case CL_INVALID_DEVICE_TYPE:
-            if(USEGPU){
-    	    printf("invalid device: GPU\n");
-    	} else {
-    	    printf("invalid device: CPU\n");
-    	}
-                break;
-    }
-        printf("Error: Failed to create a device group!\n");
-        return EXIT_FAILURE;
-    }
-    
-    context = clCreateContext(0, 1, &device_id, NULL, NULL, &err);
-    if (!context)
-    {
-        printf("Error: Failed to create a compute context!\n");
-        return EXIT_FAILURE;
-    }
-
-    commands = clCreateCommandQueue(context, device_id, 0, &err);
-    if (!commands)
-    {
-        printf("Error: Failed to create a command commands!\n");
-        return EXIT_FAILURE;
-    }
-
-
-
-    kernels = calloc(NumberOfKernels, sizeof(cl_kernel));
-    buffers = calloc(NumberOfBuffers, sizeof(cl_mem));
-    clDictToInit->kernels = kernels;
-    clDictToInit->buffers = buffers;
-    clDictToInit->platform_id = platform_id;
-    clDictToInit->ret_num_devices = ret_num_devices;
-    clDictToInit->ret_num_platforms = ret_num_platforms;
-    clDictToInit->device_id = device_id;
-    clDictToInit->context = context;
-    clDictToInit->commands = commands;
-    return EXIT_SUCCESS;
-}
 
 void ReleaseCLDict(CLDict *clDict){
     int i;
@@ -319,6 +247,107 @@ void createCLBuffers(CLDict *clDict){
     clDict->buffers[RANDCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,  sizeof(double)*RANDSIZE,NULL, &err);
 
     handleCLErr(err,"Error: Failed create buffer rand!");
+}
+
+/*
+ * Inits the dict, but the program must still be compiled.
+ */
+int InitCLDict(CLDict *clDictToInit){
+    cl_kernel *kernels;
+    cl_mem *buffers;
+    cl_platform_id platform_id;
+    cl_uint ret_num_devices;
+    cl_uint ret_num_platforms;
+    cl_int ret;
+    cl_context context;
+    cl_device_id device_id; 
+    cl_command_queue commands;
+    char *names[6];
+    char *vals[6];
+    int i;
+    int DEVICETYPE;
+    int err;
+    int compileret;
+    DEVICETYPE =  USEGPU ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU;
+
+    ret = clGetPlatformIDs(1, &platform_id, &ret_num_platforms);
+    err = clGetDeviceIDs(platform_id, DEVICETYPE, 1, &device_id, &ret_num_devices);
+    if (err != CL_SUCCESS)
+    {
+        printf("retval %d\n",(int) ret);
+    switch(err){
+    case CL_INVALID_PLATFORM:
+    	printf("invalid platform!");
+                break;
+    case CL_INVALID_VALUE:
+    	printf("invalid value");
+                break;
+    case CL_DEVICE_NOT_FOUND:
+    	printf("device not found");
+                break;
+    case CL_INVALID_DEVICE_TYPE:
+            if(USEGPU){
+    	    printf("invalid device: GPU\n");
+    	} else {
+    	    printf("invalid device: CPU\n");
+    	}
+                break;
+    }
+        printf("Error: Failed to create a device group!\n");
+        return EXIT_FAILURE;
+    }
+    
+    context = clCreateContext(0, 1, &device_id, NULL, NULL, &err);
+    if (!context)
+    {
+        printf("Error: Failed to create a compute context!\n");
+        return EXIT_FAILURE;
+    }
+
+    commands = clCreateCommandQueue(context, device_id, 0, &err);
+    if (!commands)
+    {
+        printf("Error: Failed to create a command commands!\n");
+        return EXIT_FAILURE;
+    }
+
+
+
+    kernels = calloc(NumberOfKernels, sizeof(cl_kernel));
+    buffers = calloc(NumberOfBuffers, sizeof(cl_mem));
+    clDictToInit->kernels = kernels;
+    clDictToInit->buffers = buffers;
+    clDictToInit->platform_id = platform_id;
+    clDictToInit->ret_num_devices = ret_num_devices;
+    clDictToInit->ret_num_platforms = ret_num_platforms;
+    clDictToInit->device_id = device_id;
+    clDictToInit->context = context;
+    clDictToInit->commands = commands;
+    /* compile OpenCL kernels */ 
+    /*Define the constants in the kernels */
+
+    for(i = 0; i < 6; ++i){
+      vals[i] = calloc(255, sizeof(char));
+    }
+
+    names[0] = "%maxpops%"; sprintf(vals[0],"%d",MAXPOPS);
+    names[1] = "%missing%"; sprintf(vals[1],"%d",MISSING);
+    names[2] = "%maxalleles%"; sprintf(vals[2],"%d",MAXALLELES);
+    names[3] = "%numloci%"; sprintf(vals[3],"%d",NUMLOCI);
+    names[4] = "%lines%"; sprintf(vals[4],"%d",LINES);
+    names[5] = "%numinds%"; sprintf(vals[5],"%d",NUMINDS);
+
+    compileret = CompileKernels(clDictToInit,names,vals,6);
+    for(i = 0; i < 6; ++i){
+      free(vals[i]);
+    }
+
+    if(compileret != EXIT_SUCCESS){
+        printf("Kernels failed to compile!\n");
+        exit(EXIT_FAILURE);
+    }
+    createCLBuffers(clDictToInit);
+    return EXIT_SUCCESS;
 }
 
 /*

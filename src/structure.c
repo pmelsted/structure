@@ -58,7 +58,7 @@ void compareZAndOldZ(int Z[], int OldZ[]){
 void compareZCLandZ(CLDict *clDict,int *OrigZ, double *Q, double *P,int *Geno, double *randomArr){
     int *OldZ;
     int *Z;
-    int i;
+
     /*Allocate memory and copy the original over, so that it doesn't interfere */
     OldZ = calloc(ZSIZE,sizeof(int));
     Z = calloc(ZSIZE,sizeof(int));
@@ -144,11 +144,7 @@ int main (int argc, char *argv[])
 
   /* ======================= GPU Structure ======================== */
   /*Dict to that keeps track of CL info */
-  int ret;
-  int i = 0;
   CLDict *clDict = NULL;
-  char *names[6];
-  char *vals[6];
   double * randomArr; /* array of random numbers */
 
   clDict = malloc(sizeof (*clDict));
@@ -296,34 +292,9 @@ int main (int argc, char *argv[])
 
   
   /* ==================== GPU Structure ==================== */  
-  /* compile OpenCL kernels */ 
-  /*Define the constants in the kernels */
 
-  for(i = 0; i < 6; ++i){
-    vals[i] = calloc(255, sizeof(char));
-  }
-
-  names[0] = "%maxpops%"; sprintf(vals[0],"%d",MAXPOPS);
-  names[1] = "%missing%"; sprintf(vals[1],"%d",MISSING);
-  names[2] = "%maxalleles%"; sprintf(vals[2],"%d",MAXALLELES);
-  names[3] = "%numloci%"; sprintf(vals[3],"%d",NUMLOCI);
-  names[4] = "%lines%"; sprintf(vals[4],"%d",LINES);
-  names[5] = "%numinds%"; sprintf(vals[5],"%d",NUMINDS);
-
-  ret = CompileKernels(clDict,names,vals,6);
-  for(i = 0; i < 6; ++i){
-    free(vals[i]);
-  }
-
-  if(ret != EXIT_SUCCESS){
-      printf("Kernels failed to compile!\n");
-      exit(EXIT_FAILURE);
-  }
-
-  /*Create the memory buffers */
-  createCLBuffers(clDict);
-
-
+  /*Allocate an array of random numbers. Primarily used so that we can compare
+   CL implementation to the original */
   randomArr = calloc(NUMINDS*NUMLOCI,sizeof(double));
  
   /* ====== OpenCL initialized ====== */

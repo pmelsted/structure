@@ -6,8 +6,9 @@ to rewrite it so that it runs on GPUs using OpenCL. It is done as a project for 
 The structure software website can be found at:
 http://pritchardlab.stanford.edu/structure.html
 
-A license will be added later, when I've figured out what license structure is under, but structure is free and open source software, and this project will be as well.
+License will be added later, but structure is currently all rights reserved.
 
 
 Changes from structure:
+
     No Site by Site.
