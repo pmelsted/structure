@@ -13,6 +13,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include <float.h>
 #include <assert.h>
@@ -37,8 +38,7 @@
 #include "Init.h"
 #include "Util.h"
 
-
-void compareZAndOldZ(int *Z, int *OldZ){
+void compareZAndOldZ(int Z[], int OldZ[]){
     int i;
     int notSame=0;
     int same =ZSIZE;
@@ -54,6 +54,26 @@ void compareZAndOldZ(int *Z, int *OldZ){
        exit(EXIT_FAILURE);     
     }
 }
+
+void compareZCLandZ(CLDict *clDict,int *OrigZ, double *Q, double *P,int *Geno, double *randomArr){
+    int *OldZ;
+    int *Z;
+    int i;
+    /*Allocate memory and copy the original over, so that it doesn't interfere */
+    OldZ = calloc(ZSIZE,sizeof(int));
+    Z = calloc(ZSIZE,sizeof(int));
+    memcpy(Z,OrigZ,ZSIZE*sizeof(int));
+    
+    /*UpdateZ only writes to Z */
+    UpdateZ(Z,Q,P,Geno,randomArr);
+    memcpy(OldZ,Z,ZSIZE*sizeof(int));
+    UpdateZCL(clDict,Z,Q,P,Geno,randomArr);
+    compareZAndOldZ(Z,OldZ);
+
+    free(OldZ);
+    free(Z);
+}
+
 
 /*=============MAIN======================================*/
 
@@ -127,13 +147,11 @@ int main (int argc, char *argv[])
   int ret;
   int i = 0;
   CLDict *clDict = NULL;
-  /*int *OldZ; */
   char *names[6];
   char *vals[6];
   double * randomArr; /* array of random numbers */
 
-  clDict = malloc(sizeof *clDict);
-  /* OldZ = calloc (NUMINDS * LINES * NUMLOCI, sizeof (int));*/
+  clDict = malloc(sizeof (*clDict));
   /*=====Code for getting started=============================*/
 
   Welcome (stdout);             /*welcome */
@@ -342,11 +360,11 @@ int main (int argc, char *argv[])
       }
     } else {
       FillArrayWithRandom(randomArr,NUMINDS*NUMLOCI);
+      compareZCLandZ(clDict,Z,Q,P,Geno,randomArr);
       UpdateZCL (clDict,Z,  Q, P, Geno,randomArr);
       /*
-      memcpy(OldZ,Z,ZSIZE*sizeof(int));
       UpdateZ (Z,  Q, P, Geno,randomArr);
-      compareZAndOldZ(Z,OldZ);*/
+      */
       /*      printf("done updatez alpha[2]=%e\n", Alpha[2]); */
     }
 
@@ -424,7 +442,6 @@ int main (int argc, char *argv[])
             Fst, FstSum, NumLociPop, PSum, QSum,  AncestDist, UsePopProbs, LocPrior,
             sumLocPrior, Alpha, sumAlpha, sumIndLikes, indLikesNorm, clDict);
   free(randomArr);
-  /*free(OldZ);*/
   return (0);
 }
 

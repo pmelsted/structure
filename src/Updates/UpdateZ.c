@@ -59,7 +59,6 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,double *
 {
     cl_mem qCL,pCL,genoCL,randCL,zCL;
     cl_int err;
-    int i;
     size_t local;                      
     size_t *global;
 
