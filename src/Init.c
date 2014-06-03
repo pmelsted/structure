@@ -340,7 +340,7 @@ void Initialization (int *Geno, int *PreGeno,
      * parameters to appropriate values
      */
 {
-  int pop, ind, loc, i;
+  int pop, ind, loc, i,ret;
 
   NOALPHA = 0;   /*initialize the alphas*/
   for (pop=0; pop<MAXPOPS; pop++) {
@@ -428,5 +428,9 @@ void Initialization (int *Geno, int *PreGeno,
     sumIndLikes[ind] = indlike_norm[ind] = 0.0;
   }
 
-  InitCLDict(clDict);
+  ret = InitCLDict(clDict);
+  if(ret != EXIT_SUCCESS){
+      printf("CL failed to initialize!\n");
+      exit(EXIT_FAILURE);
+  }
 }
