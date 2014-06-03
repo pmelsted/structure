@@ -284,6 +284,15 @@ int CompileKernels(CLDict *clDict, char *names[],char *vals[], int numVals){
 
     return EXIT_SUCCESS;
 }
+void handleCLErr(cl_int err, char * message)
+{
+    if (err != CL_SUCCESS) {
+        printf("CL Error:\n");
+        printf("%s\n",message);
+        printCLErr(err);
+        exit(1);
+    }
+}
 
 /*
 int main(int argc, char *argv[]){

@@ -70,97 +70,56 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,double *
 
     
     /*This can also be CL_MEM_READ_ONLY, but then we have to explicitly write the memory*/
-    qCL = clCreateBuffer(clDict->context,  CL_MEM_COPY_HOST_PTR,  sizeof(double)*QSIZE,Q, &err);
-    if (err != CL_SUCCESS) {
-        printf("Error: Failed create buffer Q!\n");
-        printCLErr(err);
-        exit(1);
-    }
+    qCL = clCreateBuffer(clDict->context,  CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,  sizeof(double)*QSIZE,Q, &err);
+    handleCLErr(err,"Error: Failed create buffer Q!");
 
 
-    pCL = clCreateBuffer(clDict->context,  CL_MEM_COPY_HOST_PTR,  sizeof(double)*PSIZE,P, &err);
-    if (err != CL_SUCCESS) {
-        printf("Error: Failed create buffer P!\n");
-        printCLErr(err);
-        exit(1);
-    }
+    pCL = clCreateBuffer(clDict->context,  CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,  sizeof(double)*PSIZE,P, &err);
+    handleCLErr(err,"Error: Failed create buffer P!");
     
-    genoCL = clCreateBuffer(clDict->context,  CL_MEM_COPY_HOST_PTR,  sizeof(int)*GENOSIZE,Geno, &err);
-    if (err != CL_SUCCESS) {
-        printf("Error: Failed create buffer Geno!\n");
-        printCLErr(err);
-        exit(1);
-    }
+    genoCL = clCreateBuffer(clDict->context,  CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,  sizeof(int)*GENOSIZE,Geno, &err);
+    handleCLErr(err,"Error: Failed create buffer Geno!");
 
-r   randCL = clCreateBuffer(clDict->context,  CL_MEM_COPY_HOST_PTR,  sizeof(double)*RANDSIZE,randomArr, &err);
-    if (err != CL_SUCCESS) {
-        printf("Error: Failed create buffer Rand!\n");
-        printCLErr(err);
-        exit(1);
-    }
+   randCL = clCreateBuffer(clDict->context,  CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,  sizeof(double)*RANDSIZE,randomArr, &err);
+    handleCLErr(err,"Error: Failed create buffer rand!");
 
     zCL = clCreateBuffer(clDict->context,  CL_MEM_WRITE_ONLY,  sizeof(int)*ZSIZE,Z, &err);
-    if (err != CL_SUCCESS) {
-        printf("Error: Failed create buffer Z!\n");
-        printCLErr(err);
-        exit(1);
-    }
+    handleCLErr(err,"Error: Failed create buffer Z!");
     
-    /* //Needed if we elect to use CL_MEM_READ_ONLY for Q,P,Geno and rand
+    /* //Needed if we elect to use only CL_MEM_READ_ONLY for Q,P,Geno and rand, and not CL_MEM_COPY_HOST_PTR
     err = 0;
     err = clEnqueueWriteBuffer(clDict->commands, qCL, CL_TRUE, 0, sizeof(double) * QSIZE, Q, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("Error: Failed to write buffer Q!\n");
-        printCLErr(err);
-        exit(1);
-    }
+    handleCLErr(err,"Error: Failed to write buffer Q!");
+
     err = clEnqueueWriteBuffer(clDict->commands, pCL, CL_TRUE, 0, sizeof(double) * PSIZE, P, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("Error: Failed to write buffer P!\n");
-        printCLErr(err);
-        exit(1);
-    }
+    handleCLErr(err,"Error: Failed to write buffer P!");
+
     err = clEnqueueWriteBuffer(clDict->commands, genoCL, CL_TRUE, 0, sizeof(int) * GENOSIZE, Geno, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("Error: Failed to write buffer geno!\n");
-        printCLErr(err);
-        exit(1);
-    }
+    handleCLErr(err,"Error: Failed to write buffer geno!");
+
     err = clEnqueueWriteBuffer(clDict->commands, randCL, CL_TRUE, 0, sizeof(double) * RANDSIZE, randomArr, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("Error: Failed to write buffer rand!\n");
-        printCLErr(err);
-        exit(1);
-    }
+    handleCLErr(err,"Error: Failed to write buffer rand!");
     */
 
 
     err = 0;
     err  = clSetKernelArg(clDict->kernels[UpdateZKernel], 0, sizeof(cl_mem), &qCL);
-    err |= clSetKernelArg(clDict->kernels[UpdateZKernel], 1, sizeof(cl_mem), &pCL);
-    err |= clSetKernelArg(clDict->kernels[UpdateZKernel], 2, sizeof(cl_mem), &genoCL);
-    err |= clSetKernelArg(clDict->kernels[UpdateZKernel], 3, sizeof(cl_mem), &randCL);
-    err |= clSetKernelArg(clDict->kernels[UpdateZKernel], 4, sizeof(cl_mem), &zCL);
-
-    if (err != CL_SUCCESS) {
-        printf("Error: Failed set args! %d\n", err);
-        exit(1);
-    }
+    handleCLErr(err,"Error: Failed to set args!");
+    err = clSetKernelArg(clDict->kernels[UpdateZKernel], 1, sizeof(cl_mem), &pCL);
+    handleCLErr(err,"Error: Failed to set args!");
+    err = clSetKernelArg(clDict->kernels[UpdateZKernel], 2, sizeof(cl_mem), &genoCL);
+    handleCLErr(err,"Error: Failed to set args!");
+    err = clSetKernelArg(clDict->kernels[UpdateZKernel], 3, sizeof(cl_mem), &randCL);
+    handleCLErr(err,"Error: Failed to set args!");
+    err = clSetKernelArg(clDict->kernels[UpdateZKernel], 4, sizeof(cl_mem), &zCL);
+    handleCLErr(err,"Error: Failed to set args!");
 
     err = clGetKernelWorkGroupInfo(clDict->kernels[UpdateZKernel], clDict->device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL);
-    if (err != CL_SUCCESS)
-    {
-        printf("Error: Failed to retrieve kernel work group info! %d\n", err);
-        exit(1);
-    }
+    handleCLErr(err,"Error: Failed to retrieve kernel work group info!");
+
     /*err = clEnqueueNDRangeKernel(clDict->commands, kernel, 2, NULL, &global, &local, 0, NULL, NULL);*/
     err = clEnqueueNDRangeKernel(clDict->commands, clDict->kernels[UpdateZKernel], 2, NULL, global, NULL, 0, NULL, NULL);
-    if (err)
-    {
-        printf("Error: Failed to execute kernel!\n");
-        printCLErr(err);
-        exit(EXIT_FAILURE);
-    }
+    handleCLErr(err,"Error: Failed to execute kernel!");
 
     err = clFinish(clDict->commands);
 
