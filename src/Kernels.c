@@ -13,7 +13,7 @@ void printCLErr(cl_int err)
 {
     switch (err)
     {
-        case CL_SUCCESS: printf("CL_SUCCESS\n"); break;
+        case CL_SUCCESS: printf("CL_SUCCES S\n"); break;
         case CL_DEVICE_NOT_FOUND: printf("CL_DEVICE_NOT_FOUND\n"); break;
         case CL_DEVICE_NOT_AVAILABLE: printf("CL_DEVICE_NOT_AVAILABLE\n"); break;
         case CL_COMPILER_NOT_AVAILABLE: printf("CL_COMPILER_NOT_AVAILABLE\n"); break;
@@ -351,16 +351,15 @@ int InitCLDict(CLDict *clDictToInit){
     return EXIT_SUCCESS;
 }
 
-/*
-int main(int argc, char *argv[]){
+/*int main(int argc, char *argv[]){
     CLDict *clDict = NULL;
     int numVals;
     int ret;
-    char *names[5] = {"%maxpops%", "%missing%", "%maxalleles%","%numloci%","%lines%"};
-    char *vals[5] = {"2", "-999", "15","15","2"};
+    char *names[6] = {"%maxpops%", "%missing%", "%maxalleles%","%numloci%","%lines%","%numinds%"};
+    char *vals[6] = {"2", "-999", "15","15","2","20"};
     clDict = malloc(sizeof *clDict);
 
-    numVals = 5;
+    numVals = 6;
     InitCLDict(clDict);
     ret = CompileKernels(clDict,names,vals,numVals);
     printf("return code: %d\n",ret);
