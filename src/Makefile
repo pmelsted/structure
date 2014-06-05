@@ -3,7 +3,7 @@ OPT = -O3
 #OPT = -Wall -g 
 
 CFLAGS = -Wall -pedantic
-CC = gcc
+CC = clang
 LIBS = -lm -lOpenCL
 
 all: target

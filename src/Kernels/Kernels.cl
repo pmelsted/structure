@@ -15,20 +15,20 @@
 #define PPos(loc,pop,allele) ((loc)*(MAXPOPS)*(MAXALLELES)+(pop)*(MAXALLELES)+(allele))
 #define QPos(ind,pop) ((ind)*(MAXPOPS)+(pop))
 
-__kernel void UpdateZ (                                                       
+__kernel void UpdateZ (
    __global double* Q, /* input */
-   __global double* P,  /* input */                                           
+   __global double* P,  /* input */
    __global int* Geno,/* input */
-   __global double* randArr, /*random numbers*/                                   
-   __global int* Z /* output */                                                   
-   )                                      
-{                                                                      
+   __global double* randArr, /*random numbers*/
+   __global int* Z /* output */
+   )
+{
    int allele;
    int pop;
    int line;
    double Cutoffs[MAXPOPS];
    double sum;
-   
+
    int ind = get_global_id(0);
    int loc = get_global_id(1); /* is this correct? */
 
@@ -48,4 +48,4 @@ __kernel void UpdateZ (
            }
        }
    }
-}                                                                    
+}

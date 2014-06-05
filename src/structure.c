@@ -51,7 +51,7 @@ void compareZAndOldZ(int Z[], int OldZ[]){
     if(notSame > 0){
        printf("Z and Old Z differ!\n");
        printf("Difference between Z and OldZ: same: %d, not same %d\n",same,notSame);
-       exit(EXIT_FAILURE);     
+       exit(EXIT_FAILURE);
     }
 }
 
@@ -63,7 +63,7 @@ void compareZCLandZ(CLDict *clDict,int *OrigZ, double *Q, double *P,int *Geno, d
     OldZ = calloc(ZSIZE,sizeof(int));
     Z = calloc(ZSIZE,sizeof(int));
     memcpy(Z,OrigZ,ZSIZE*sizeof(int));
-    
+
     /*UpdateZ only writes to Z */
     UpdateZ(Z,Q,P,Geno,randomArr);
     memcpy(OldZ,Z,ZSIZE*sizeof(int));
@@ -154,7 +154,6 @@ int main (int argc, char *argv[])
   GetParams (0,argc,argv);      /*read in parameter values */
 
   CheckParamCombinations();     /*check that some parameter combinations are valid*/
-   
 
   Mapdistance = calloc (NUMLOCI, sizeof (double));
   Phase = calloc (NUMLOCI * NUMINDS, sizeof (double));
@@ -170,8 +169,7 @@ int main (int argc, char *argv[])
       }
     }
   }
- 
-  
+
   lambda=calloc(MAXPOPS, sizeof (double));
   sumlambda=calloc(MAXPOPS, sizeof (double));
 
@@ -252,7 +250,7 @@ int main (int argc, char *argv[])
     LocPrior = malloc(LocPriorLen*sizeof(double));
     sumLocPrior = malloc(LocPriorLen*sizeof(double));
   }
-  
+
   if (LOCPRIOR && NOADMIX==0) {
     Alpha = malloc(MAXPOPS*(NUMLOCATIONS+1)*sizeof(double));
     sumAlpha = malloc(MAXPOPS*(NUMLOCATIONS+1)*sizeof(double));
@@ -290,13 +288,12 @@ int main (int argc, char *argv[])
                   sumAlpha, sumR, varR, &sumlikes, &sumsqlikes, &savefreq, R, lambda,
                   sumlambda,Phase,Recessive, LocPrior, sumLocPrior, LocPriorLen, sumIndLikes, indLikesNorm, clDict);
 
-  
-  /* ==================== GPU Structure ==================== */  
+  /* ==================== GPU Structure ==================== */
 
   /*Allocate an array of random numbers. Primarily used so that we can compare
    CL implementation to the original */
   randomArr = calloc(NUMINDS*NUMLOCI,sizeof(double));
- 
+
   /* ====== OpenCL initialized ====== */
 
   printf ("\n\n--------------------------------------\n\n");
@@ -319,12 +316,12 @@ int main (int argc, char *argv[])
     if (LOCPRIOR && UPDATELOCPRIOR) {
       UpdateLocPrior(Q, LocPrior, Alpha, Individual);
     }
-    
+
     if (RECESSIVEALLELES) {
       UpdateGeno (PreGeno, Geno, P, Z, Recessive, NumAlleles, Q);
     /*The Zs are not correct after UpdateGeno, until UpdateZ is run */
     }
-    
+
     if (LINKAGE && rep > ADMBURNIN) {
       if (!INDIVIDUALR) {
         recomblikelihood = UpdateZandSingleR(Z,  Q, P, Geno,
@@ -348,7 +345,7 @@ int main (int argc, char *argv[])
     } else if (INFERALPHA) {
       UpdateAlpha (Q, Alpha, Individual, rep);
     }
-    
+
     if (INFERLAMBDA) {
       if  (POPSPECIFICLAMBDA) {
         UpdatePopLambda(LogP,lambda,NumAlleles);
@@ -371,7 +368,7 @@ int main (int argc, char *argv[])
                       &sumlikes, &sumsqlikes, R, Epsilon,SumEpsilon,recomblikelihood,
                       lambda, sumlambda, Recessive, LocPrior, sumLocPrior, LocPriorLen, sumIndLikes, indLikesNorm, rep);
     }
-    
+
     if ((savefreq) && ((rep + 1) > BURNIN) && (((rep + 1 - BURNIN) % savefreq) == 0)
         && ((rep + 1) != NUMREPS + BURNIN)) {
       OutPutResults (Geno, rep + 1, savefreq, Individual, PSum, QSum,
@@ -387,7 +384,7 @@ int main (int argc, char *argv[])
     if (PRINTLIKES) {
       PrintLike (like, rep, Geno, PreGeno, Q, P,recomblikelihood);
     }
-    
+
     if (((rep + 1) % UPDATEFREQ) == 0) {
       PrintUpdate (rep + 1, Geno, PreGeno, Alpha, Fst, P, Q, like,
                    sumlikes, sumsqlikes, NumAlleles, R, lambda,Individual,

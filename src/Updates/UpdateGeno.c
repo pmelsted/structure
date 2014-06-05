@@ -8,7 +8,7 @@
 /*------------------------------------------*/
 void UpdateGeno (int *PreGeno, int *Geno, double *P, int *Z,
                  int *Recessive, int *NumAlleles, double *Q)
-    /* 
+    /*
      * this function updates the imputed genotypes when the genotypes are
      * ambiguous due to recessive markers or inbreeding.
      */
@@ -34,8 +34,7 @@ void UpdateGeno (int *PreGeno, int *Geno, double *P, int *Z,
       for (loc = 0; loc < NUMLOCI; loc++) {
         if (PreGeno[GenPos (ind, 0, loc)] != MISSING
             && PreGeno[GenPos (ind, 1, loc)] != MISSING) {
-          if (PreGeno[GenPos (ind, 0, loc)] ==
-              PreGeno[GenPos (ind, 1, loc)]) {
+          if (PreGeno[GenPos (ind, 0, loc)] == PreGeno[GenPos (ind, 1, loc)]) {
             for (dom = 0; dom < 4; dom++) {
               AlleleProbs[dom] = 0.0;
             }
@@ -61,11 +60,12 @@ void UpdateGeno (int *PreGeno, int *Geno, double *P, int *Z,
             if (dom == 0) {
               Geno[GenPos (ind, 0, loc)] = Recessive[loc];
               Geno[GenPos (ind, 1, loc)] = PreGeno[GenPos (ind, 0, loc)];
-            } else if (dom == 1) {
-              Geno[GenPos (ind, 1, loc)] = Recessive[loc];
-              Geno[GenPos (ind, 0, loc)] = PreGeno[GenPos (ind, 0, loc)];
-            } else if (dom == 2) {
-              Geno[GenPos (ind, 1, loc)] = PreGeno[GenPos (ind, 0, loc)];
+            } else if (dom <= 2) {
+                if (dom == 1){
+                    Geno[GenPos (ind, 1, loc)] = Recessive[loc];
+                } else {
+                    Geno[GenPos (ind, 1, loc)] = PreGeno[GenPos (ind, 0, loc)];
+                }
               Geno[GenPos (ind, 0, loc)] = PreGeno[GenPos (ind, 0, loc)];
             } else {
               printf ("surely some mistake in UpdateGeno\n");
@@ -85,11 +85,11 @@ void UpdateGeno (int *PreGeno, int *Geno, double *P, int *Z,
         } else {
           allelecount=0;
           notmissingcount=0;
-          
+
           for (allele = 0; allele < NumAlleles[loc]; allele++) {
             AllelePresent[allele] = 0;
           }
-          
+
           for (line = 0; line < LINES; line++) {
             if (PreGeno[GenPos (ind, line, loc)] != MISSING) {
               notmissingcount+=1;
@@ -99,7 +99,7 @@ void UpdateGeno (int *PreGeno, int *Geno, double *P, int *Z,
               }
             }
           }
-          
+
           if (allelecount==notmissingcount) {  /* if number of alleles equal to number of slots then nothing to do */
             for (line=0;line<LINES;line++) {
               Geno[GenPos(ind,line,loc)]=PreGeno[GenPos(ind,line,loc)];
@@ -112,7 +112,7 @@ void UpdateGeno (int *PreGeno, int *Geno, double *P, int *Z,
               for (allele = 0; allele < NumAlleles[loc]; allele++) {
                 AlleleUsed[allele] = 0;
               }
-              
+
               for (line = 0; line < LINES; line++) {
                 if (PreGeno[GenPos (ind, line, loc)] != MISSING) {
                   for (allele = 0; allele < NumAlleles[loc]; allele++) {
@@ -132,7 +132,7 @@ void UpdateGeno (int *PreGeno, int *Geno, double *P, int *Z,
                   AlleleUsed[dom] = 1;
                 }
               }
-              
+
               toggle = 0;
               for (allele = 0; allele < NumAlleles[loc]; allele++) {
                 if (AlleleUsed[allele] == 0 && AllelePresent[allele] == 1) {
@@ -140,7 +140,7 @@ void UpdateGeno (int *PreGeno, int *Geno, double *P, int *Z,
                 }
               }
             }
-            
+
             if (toggle==1) {
               /* rejection method failed, set a lower rejection threshold for future iterations */
               if (RejectionThreshold > 100) {
@@ -148,7 +148,7 @@ void UpdateGeno (int *PreGeno, int *Geno, double *P, int *Z,
                 if (RejectionThreshold <100) {
                   RejectionThreshold = 100;
                 }
-              } 
+              }
               /*
                 printf("sorry, STRUCTURE has tried to simulate alleles for individual %d at locus %d 1,000,000 times by a rejection method and failed", ind+1, loc+1);
                 Kill();

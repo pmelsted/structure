@@ -9,7 +9,7 @@
 #define USEGPU 1
 
 
-void printCLErr(cl_int err) 
+void printCLErr(cl_int err)
 {
     switch (err)
     {
@@ -69,11 +69,11 @@ void ReleaseCLDict(CLDict *clDict){
     clReleaseProgram(clDict->program);
     for(i = 0; i < NumberOfKernels; ++i){
         clReleaseKernel(clDict->kernels[i]);
-    } 
+    }
     free(clDict->kernels);
     for(i = 0; i < NumberOfBuffers; ++i){
         clReleaseMemObject(clDict->buffers[i]);
-    } 
+    }
     free(clDict->buffers);
     clReleaseCommandQueue(clDict->commands);
     clReleaseContext(clDict->context);
@@ -98,9 +98,9 @@ char * searchReplace(char * string,  char *toReplace[], char *replacements[], in
            printf("Warning: %s not found in string!\n",toRep);
            continue;
         }
-        lenToRep = strlen(toRep); 
-        lenStr = strlen(buffer); 
-        lenAfterLocRep = strlen(locOfToRep); 
+        lenToRep = strlen(toRep);
+        lenStr = strlen(buffer);
+        lenAfterLocRep = strlen(locOfToRep);
         /*Print the string upto the pointer, then the val, and then the rest of the string.*/
         sprintf(buffer, "%.*s%s%s", lenStr-lenAfterLocRep, buffer,rep,locOfToRep+lenToRep);
         /*Will break if buffer is longer than string, so we restrict ourselves to the longest length.*/
@@ -123,37 +123,38 @@ int initKernel(CLDict *clDict,char * kernelName, enum KERNEL kernelEnumVal){
     kernel = clCreateKernel(clDict->program, kernelName, &err);
     if (!kernel || err != CL_SUCCESS)
     {
-    	switch(err){
-    	case CL_INVALID_PROGRAM:
-    		printf("invalid program\n");
-    		break;
-    	case CL_INVALID_PROGRAM_EXECUTABLE:
-    		printf("invalid exec\n");
-    		break;
-    	case CL_INVALID_KERNEL_NAME:
-    		printf("invalid name\n");
-    		break;
-    	case CL_INVALID_KERNEL_DEFINITION:
-    		printf("invalid def\n");
-    		break;
-    	case CL_INVALID_VALUE:
-    		printf("invalid val\n");
-    		break;
-    	case CL_OUT_OF_HOST_MEMORY:
-    		printf("invalid mem\n");
-    		break;
-    	case CL_SUCCESS:
-    		printf("no kernel\n");
-    		break;
-    	default:
-    		printf("%d\n", err);
-    	}
+        switch(err){
+        case CL_INVALID_PROGRAM:
+            printf("invalid program\n");
+            break;
+        case CL_INVALID_PROGRAM_EXECUTABLE:
+            printf("invalid exec\n");
+            break;
+        case CL_INVALID_KERNEL_NAME:
+            printf("invalid name\n");
+            break;
+        case CL_INVALID_KERNEL_DEFINITION:
+            printf("invalid def\n");
+            break;
+        case CL_INVALID_VALUE:
+            printf("invalid val\n");
+            break;
+        case CL_OUT_OF_HOST_MEMORY:
+            printf("invalid mem\n");
+            break;
+        case CL_SUCCESS:
+            printf("no kernel\n");
+            break;
+        default:
+            printf("%d\n", err);
+        }
         printf("Error: Failed to create compute kernel %s!\n", kernelName);
         return EXIT_FAILURE;
     }
     clDict->kernels[kernelEnumVal] = kernel;
     return EXIT_SUCCESS;
 }
+
 
 /*
  * compiles the program with filename programFilename, and replaces the names in names with the values in vals.
@@ -162,7 +163,7 @@ int CompileKernels(CLDict *clDict, char *names[],char *vals[], int numVals){
     FILE *fp;
     char *KernelSource;
     size_t source_size;
-    
+
     int err;
     int i;
     cl_program program;
@@ -175,7 +176,7 @@ int CompileKernels(CLDict *clDict, char *names[],char *vals[], int numVals){
     /* Load the source code containing the kernels*/
     fp = fopen("Kernels/Kernels.cl", "r");
     if (!fp) {
-    	fprintf(stderr, "Failed to load kernel file Kernels.cl\n");
+        fprintf(stderr, "Failed to load kernel file Kernels.cl\n");
         return EXIT_FAILURE;
     }
 
@@ -184,7 +185,7 @@ int CompileKernels(CLDict *clDict, char *names[],char *vals[], int numVals){
     source_size = fread(KernelSource, 1, MAX_SOURCE_SIZE, fp);
     fclose(fp);
 
-    preProcessSource(KernelSource, &source_size, names,vals,numVals); 
+    preProcessSource(KernelSource, &source_size, names,vals,numVals);
     program = clCreateProgramWithSource(clDict->context, 1, (const char **) & KernelSource, NULL, &err);
     if (!program)
     {
@@ -240,7 +241,7 @@ void createCLBuffers(CLDict *clDict){
 
     clDict->buffers[ZCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,  sizeof(int)*ZSIZE,NULL, &err);
     handleCLErr(err,"Error: Failed create buffer Z!");
-    
+
     clDict->buffers[GENOCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,  sizeof(int)*GENOSIZE,NULL, &err);
     handleCLErr(err,"Error: Failed create buffer Geno!");
 
@@ -260,7 +261,7 @@ int InitCLDict(CLDict *clDictToInit){
     cl_uint ret_num_platforms;
     cl_int ret;
     cl_context context;
-    cl_device_id device_id; 
+    cl_device_id device_id;
     cl_command_queue commands;
     char *names[6];
     char *vals[6];
@@ -277,26 +278,26 @@ int InitCLDict(CLDict *clDictToInit){
         printf("retval %d\n",(int) ret);
     switch(err){
     case CL_INVALID_PLATFORM:
-    	printf("invalid platform!");
+        printf("invalid platform!");
                 break;
     case CL_INVALID_VALUE:
-    	printf("invalid value");
+        printf("invalid value");
                 break;
     case CL_DEVICE_NOT_FOUND:
-    	printf("device not found");
+        printf("device not found");
                 break;
     case CL_INVALID_DEVICE_TYPE:
             if(USEGPU){
-    	    printf("invalid device: GPU\n");
-    	} else {
-    	    printf("invalid device: CPU\n");
-    	}
+            printf("invalid device: GPU\n");
+        } else {
+            printf("invalid device: CPU\n");
+        }
                 break;
     }
         printf("Error: Failed to create a device group!\n");
         return EXIT_FAILURE;
     }
-    
+
     context = clCreateContext(0, 1, &device_id, NULL, NULL, &err);
     if (!context)
     {
@@ -323,7 +324,7 @@ int InitCLDict(CLDict *clDictToInit){
     clDictToInit->device_id = device_id;
     clDictToInit->context = context;
     clDictToInit->commands = commands;
-    /* compile OpenCL kernels */ 
+    /* compile OpenCL kernels */
     /*Define the constants in the kernels */
 
     for(i = 0; i < 6; ++i){
@@ -358,7 +359,7 @@ int main(int argc, char *argv[]){
     char *names[5] = {"%maxpops%", "%missing%", "%maxalleles%","%numloci%","%lines%"};
     char *vals[5] = {"2", "-999", "15","15","2"};
     clDict = malloc(sizeof *clDict);
-    
+
     numVals = 5;
     InitCLDict(clDict);
     ret = CompileKernels(clDict,names,vals,numVals);
