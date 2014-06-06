@@ -12,7 +12,6 @@ VERSION 4-4-00
 #include <math.h>
 #include "ran.h"
 
- 
 /*                                 RETURNS:
 Square(x)                          square
 SampleVar(sumsq,sum,numreps)       sample variance

@@ -19,7 +19,7 @@ snorm()                  (Standard normal)
 Binomial(n, p)           (Binomial rv)
 
 
-extern void Randomize(void);  
+extern void Randomize(void);
 extern double RandomReal(double low, double high);
 extern int RandomInteger(int low, int high);
 extern double rnd();
@@ -31,10 +31,10 @@ extern double RNormal(double mu,double sd) ;
 extern double fsign( double num, double sign );
 extern double sexpo(void);
 extern double snorm();
-extern double genexp(double av);   
-extern long ignpoi(double mean);  
-extern long ignuin(int low, int high);   
-extern double genunf(double low, double high);   
+extern double genexp(double av);
+extern long ignpoi(double mean);
+extern long ignuin(int low, int high);
+extern double genunf(double low, double high);
 extern long Binomial(int n, double p)
 
 MORE DETAILS BELOW:
@@ -43,26 +43,26 @@ MORE DETAILS BELOW:
 
 
 
- Random number functions from random.c by Eric Roberts 
-void Randomize(void);    
-                 Seed the random number generator 
+ Random number functions from random.c by Eric Roberts
+void Randomize(void);
+                 Seed the random number generator
 double RandomReal(double low, double high);
-                 Get a random number between low and high 
+                 Get a random number between low and high
 int RandomInteger(int low, int high);
                  Get a random integer between low and high INCLUSIVE
 double rnd();
                  Uniform(0,1) random number generation
 
 
- Random number functions from Matthew Stephens 
-  
+ Random number functions from Matthew Stephens
+
 double RGamma(double n,double lambda);
-                gamma random generator from Ripley, 1987, P230 
+                gamma random generator from Ripley, 1987, P230
 void RDirichlet(const double * a, const int k, double * b);
                 Dirichlet random generator
    a and b are arrays of length k, containing doubles.
    a is the array of parameters
-   b is the output array, where b ~ Dirichlet(a)  
+   b is the output array, where b ~ Dirichlet(a)
 
 
 Functions from Brown and Lovato
@@ -77,12 +77,12 @@ double RNormal(double mu,double sigsq) ;
 double fsign( double num, double sign );
 double sexpo(void);
                  exponential with parameter 1
-double snorm(); 
-                 standard normal N(0,1)  
+double snorm();
+                 standard normal N(0,1)
 
 
-double genexp(double av);   return RExpon(av); 
-long ignpoi(double mean);   return RPoisson(mean); 
+double genexp(double av);   return RExpon(av);
+long ignpoi(double mean);   return RPoisson(mean);
 long ignuin(int low, int high);    return RandomInteger(low,high);
 double genunf(double low, double high);   return RandomReal(low,high);
 */
@@ -112,9 +112,9 @@ double genunf(double low, double high);   return RandomReal(low,high);
 /*Melissa modified in 1/08 so that it either calls srand with given seed or generates one*/
 void Randomize(int RANDOMIZE, int *seed)
 /* Seed the random number generator */
-{   
+{
   FILE *outfile;
-  if (RANDOMIZE) 
+  if (RANDOMIZE)
     *seed = (int)time(NULL);
   srand(*seed);
   outfile = fopen("seed.txt", "a");
@@ -128,7 +128,7 @@ double RandomReal(double low, double high)
 
 {
   double d;
- 
+
   d = (double) rand() / ((double) RAND_MAX + 1);
   return (low + d * (high - low) );
 }
@@ -138,7 +138,7 @@ int RandomInteger(int low, int high)
 {
   int k;
   double d;
- 
+
   d = (double) rand() / ((double) RAND_MAX + 1);
   k = (int) (d * (high - low + 1));
   return (low + k);
@@ -173,20 +173,20 @@ double RGamma(double n,double lambda)
 		const double E=2.71828182;
 		const double b=(n+E)/E;
 		double p=0.0;
-		one: 
+		one:
 		p=b*rnd();
 		if(p>1) goto two;
 		x=exp(log(p)/n);
 		if(x>-log(rnd())) goto one;
 		goto three;
-		two: 
+		two:
 		x=-log((b-p)/n);
 		if (((n-1)*log(x))<log(rnd())) goto one;
-		three:;	
+		three:;
 	}
 	else if(n==1.0)
 
-	  /* exponential random variable, from Ripley, 1987, P230  */	
+	  /* exponential random variable, from Ripley, 1987, P230  */
 	{
 		double a=0.0;
 		double u,u0,ustar;
@@ -233,9 +233,9 @@ double RGamma(double n,double lambda)
 		if(c3*u1+w+1.0/w < c4) goto six;
 		if(c3*log(u1)-log(w)+w >=1) goto four;
 		six:
-		x=c1*w;		
+		x=c1*w;
 		nprev=n;
-	}	
+	}
 
 	return x/lambda;
 }
@@ -275,7 +275,7 @@ LogRGamma (double n, double lambda)
 return logx-log(lambda);
 }
 else
-//otherwise log the standard version 
+//otherwise log the standard version
 return log(RGamma(n,lambda));
 }*/
 
@@ -298,7 +298,7 @@ double LogRGamma(double n, double lambda)
     for (i=0; i<3; i++) {
       v[i] = rnd();
     }
-    
+
     if (v[0] <= v0) {
       logem = 1.0/n*log(v[1]);
       em = exp(logem);
@@ -321,7 +321,7 @@ double LogRGamma(double n, double lambda)
 /* Dirichlet random generator
    a and b are arrays of length k, containing doubles.
    a is the array of parameters
-   b is the output array, where b ~ Dirichlet(a)  
+   b is the output array, where b ~ Dirichlet(a)
    */
 
 void RDirichlet(const double * a, const int k, double * b)
@@ -358,9 +358,9 @@ LogRDirichlet (const double *a, const int k, double *b,double *c)
     b[i]=exp(c[i]);
     sum += b[i];
   }
-  
-  /* patch added May 2007 to set gene frequencies equal if all draws 
-     from the Gamma distribution are very low. 
+
+  /* patch added May 2007 to set gene frequencies equal if all draws
+     from the Gamma distribution are very low.
      Ensures that P and logP remain defined in this rare event */
   if(sum<UNDERFLO) {
     for(i=0;i<k;i++) {
@@ -405,23 +405,23 @@ long RPoisson(double mu)
                (June 1982),163-179
 **********************************************************************
 **********************************************************************
-                                                                      
-                                                                      
-     P O I S S O N  DISTRIBUTION                                      
-                                                                      
-                                                                      
+
+
+     P O I S S O N  DISTRIBUTION
+
+
 **********************************************************************
 **********************************************************************
-                                                                      
-     FOR DETAILS SEE:                                                 
-                                                                      
-               AHRENS, J.H. AND DIETER, U.                            
-               COMPUTER GENERATION OF POISSON DEVIATES                
-               FROM MODIFIED NORMAL DISTRIBUTIONS.                    
-               ACM TRANS. MATH. SOFTWARE, 8,2 (JUNE 1982), 163 - 179. 
-                                                                      
-     (SLIGHTLY MODIFIED VERSION OF THE PROGRAM IN THE ABOVE ARTICLE)  
-                                                                      
+
+     FOR DETAILS SEE:
+
+               AHRENS, J.H. AND DIETER, U.
+               COMPUTER GENERATION OF POISSON DEVIATES
+               FROM MODIFIED NORMAL DISTRIBUTIONS.
+               ACM TRANS. MATH. SOFTWARE, 8,2 (JUNE 1982), 163 - 179.
+
+     (SLIGHTLY MODIFIED VERSION OF THE PROGRAM IN THE ABOVE ARTICLE)
+
 **********************************************************************
       INTEGER FUNCTION RPOISSONIR,MU)
      INPUT:  IR=CURRENT STATE OF BASIC RANDOM NUMBER GENERATOR
@@ -623,8 +623,8 @@ S180:
 }
 
 /*-----------------------------------*/
-double RNormal(double mu,double sd) 
-     /* Returns Normal rv with mean mu, variance sigsq.   
+double RNormal(double mu,double sd)
+     /* Returns Normal rv with mean mu, variance sigsq.
         Uses snorm function of Brown and Lovato.  By JKP*/
 {
 
@@ -633,27 +633,27 @@ double RNormal(double mu,double sd)
 }
 /*
 **********************************************************************
-                                                                      
-                                                                      
-     (STANDARD-)  N O R M A L  DISTRIBUTION                           
-                                                                      
-                                                                      
+
+
+     (STANDARD-)  N O R M A L  DISTRIBUTION
+
+
 **********************************************************************
 **********************************************************************
-                                                                      
-     FOR DETAILS SEE:                                                 
-                                                                      
-               AHRENS, J.H. AND DIETER, U.                            
-               EXTENSIONS OF FORSYTHE'S METHOD FOR RANDOM             
-               SAMPLING FROM THE NORMAL DISTRIBUTION.                 
-               MATH. COMPUT., 27,124 (OCT. 1973), 927 - 937.          
-                                                                      
-     ALL STATEMENT NUMBERS CORRESPOND TO THE STEPS OF ALGORITHM 'FL'  
-     (M=5) IN THE ABOVE PAPER     (SLIGHTLY MODIFIED IMPLEMENTATION)  
-                                                                      
-     Modified by Barry W. Brown, Feb 3, 1988 to use RANF instead of   
-     SUNIF.  The argument IR thus goes away.                          
-                                                                      
+
+     FOR DETAILS SEE:
+
+               AHRENS, J.H. AND DIETER, U.
+               EXTENSIONS OF FORSYTHE'S METHOD FOR RANDOM
+               SAMPLING FROM THE NORMAL DISTRIBUTION.
+               MATH. COMPUT., 27,124 (OCT. 1973), 927 - 937.
+
+     ALL STATEMENT NUMBERS CORRESPOND TO THE STEPS OF ALGORITHM 'FL'
+     (M=5) IN THE ABOVE PAPER     (SLIGHTLY MODIFIED IMPLEMENTATION)
+
+     Modified by Barry W. Brown, Feb 3, 1988 to use RANF instead of
+     SUNIF.  The argument IR thus goes away.
+
 **********************************************************************
      THE DEFINITIONS OF THE CONSTANTS A(K), D(K), T(K) AND
      H(K) ARE ACCORDING TO THE ABOVEMENTIONED ARTICLE
@@ -789,27 +789,27 @@ static double RExpon;
 
 /*
 **********************************************************************
-                                                                      
-                                                                      
-     (STANDARD-)  E X P O N E N T I A L   DISTRIBUTION                
-                                                                      
-                                                                      
+
+
+     (STANDARD-)  E X P O N E N T I A L   DISTRIBUTION
+
+
 **********************************************************************
 **********************************************************************
-                                                                      
-     FOR DETAILS SEE:                                                 
-                                                                      
-               AHRENS, J.H. AND DIETER, U.                            
-               COMPUTER METHODS FOR SAMPLING FROM THE                 
-               EXPONENTIAL AND NORMAL DISTRIBUTIONS.                  
-               COMM. ACM, 15,10 (OCT. 1972), 873 - 882.               
-                                                                      
-     ALL STATEMENT NUMBERS CORRESPOND TO THE STEPS OF ALGORITHM       
-     'SA' IN THE ABOVE PAPER (SLIGHTLY MODIFIED IMPLEMENTATION)       
-                                                                      
-     Modified by Barry W. Brown, Feb 3, 1988 to use RANF instead of   
-     SUNIF.  The argument IR thus goes away.                          
-                                                                      
+
+     FOR DETAILS SEE:
+
+               AHRENS, J.H. AND DIETER, U.
+               COMPUTER METHODS FOR SAMPLING FROM THE
+               EXPONENTIAL AND NORMAL DISTRIBUTIONS.
+               COMM. ACM, 15,10 (OCT. 1972), 873 - 882.
+
+     ALL STATEMENT NUMBERS CORRESPOND TO THE STEPS OF ALGORITHM
+     'SA' IN THE ABOVE PAPER (SLIGHTLY MODIFIED IMPLEMENTATION)
+
+     Modified by Barry W. Brown, Feb 3, 1988 to use RANF instead of
+     SUNIF.  The argument IR thus goes away.
+
 **********************************************************************
      Q(N) = SUM(ALOG(2.0)**K/K!)    K=1,..,N ,      THE HIGHEST N
      (HERE 8) IS DETERMINED BY Q(N)=1.0 WITHIN STANDARD PRECISION
@@ -888,7 +888,7 @@ long Binomial(int n, double p)
   for (i=0; i<n; i++)
     if (rnd() < p) sofar++;
   return sofar;
-  
+
 }
 /*-------------------------------------*/
 long Binomial1(int n, double p)
@@ -900,7 +900,7 @@ the probabilities appears to be substantially slower than the
 simple-minded approach, above.*/
 {
   double cum = 0.0;
-  int up,down; 
+  int up,down;
   /*  double upvalue,downvalue; */
   double rv;
   /*  double q = 1 - p; */
@@ -908,11 +908,11 @@ simple-minded approach, above.*/
   if (p<=0.0) return 0;  /*trivial cases*/
   if (p>=1.0) return 0;
   if (n<1) return 0;
-  
+
   rv = rnd();            /*random number in (0,1)*/
   up = n*p;              /*start at mean and work out, adding probs to the total (cum)*/
   down = up;
-  
+
   do
     {
       if (up <= n)
@@ -923,7 +923,7 @@ simple-minded approach, above.*/
 	}
       down--;
       if (down >= 0)
-	{	  
+	{
 	  cum += BinoProb(n,p,down);
 	  if (rv <= cum) return down;
 	}
@@ -986,7 +986,7 @@ double BinoProb(int n, double p,int i)
   logsum += log(runningtotal);
   logsum += i*log(p);
   logsum += (n-i)*log(1-p);
-  
+
   return exp(logsum);
 }
 

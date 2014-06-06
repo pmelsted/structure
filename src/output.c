@@ -158,7 +158,7 @@ PrintUpdate (int rep, int *Geno, int *PreGeno, double *Alpha, double *Fst, doubl
       printf ("\n\n");
     }
   }
-  
+
   if ((LINKAGE) && (ADMBURNIN> 0)) {
     if ((rep < ADMBURNIN+UPDATEFREQ) && (rep >= ADMBURNIN)) {
       printf ("\nNo recombination Burnin complete.  Current rec = %1.3f",
@@ -171,7 +171,7 @@ PrintUpdate (int rep, int *Geno, int *PreGeno, double *Alpha, double *Fst, doubl
 
   if (LINKAGE) {
     if (rep <= ADMBURNIN) {
-      like = CalcLike (Geno, PreGeno, Q, P, Recessive, NULL, NULL); 
+      like = CalcLike (Geno, PreGeno, Q, P, Recessive, NULL, NULL);
     } else {
       like = recomblikelihood;
     }
@@ -198,7 +198,7 @@ PrintUpdate (int rep, int *Geno, int *PreGeno, double *Alpha, double *Fst, doubl
       PrintBanner (rep, Alpha, Fst, like, lambda);
     }
   }
-  
+
   /*print current values to screen */
   printf ("%5d:    ", rep);
 
@@ -232,7 +232,7 @@ PrintUpdate (int rep, int *Geno, int *PreGeno, double *Alpha, double *Fst, doubl
       printf ("%1.3f  ", Alpha[0]);
     }
   }
-  
+
   if (FREQSCORR) {
     printf ("  ");
     if (ONEFST) {
@@ -256,7 +256,7 @@ PrintUpdate (int rep, int *Geno, int *PreGeno, double *Alpha, double *Fst, doubl
   if (PRINTKLD || PRINTNET) {
     PrintNET (stdout, P, NumAlleles, 1, 0);
   }
-  
+
   if (COMPUTEPROB) {
 
 
@@ -712,7 +712,7 @@ double CalcLikeInd (int *Geno, int *PreGeno, double *AncVector, double *P, int i
           for (pop = 0; pop < MAXPOPS; pop++) {
             term += AncVector[pop] * P[PPos (loc, pop, allele)];
           }
-          
+
           if (term > sqrtunder) {
             runningtotal *= term;
           } else {
@@ -1423,7 +1423,7 @@ double CalcDIC(int rep, double sumlikes, double* sumindlikes,
 void
 OutPutResults (int *Geno, int rep, int savefreq,
                struct IND *Individual,
-               double *PSum, double *QSum, 
+               double *PSum, double *QSum,
                double *FstSum, int *AncestDist, double *UsePopProbs,
                double sumlikes, double sumsqlikes, double *sumAlpha,
                double *sumR, double *varR,
@@ -1452,7 +1452,7 @@ OutPutResults (int *Geno, int rep, int savefreq,
   } else {
     sprintf (outname, "%s_%d", OUTFILE, (rep - BURNIN) / savefreq);
   }
-  
+
   RESULTS = fopen (outname, "w");
   if (RESULTS == NULL) {
     printf ("WARNING: Unable to open output file %s.\n", outname);
@@ -1485,6 +1485,5 @@ OutPutResults (int *Geno, int rep, int savefreq,
     }
   }
   fclose (RESULTS);
-    
-  
+
 }

@@ -39,112 +39,114 @@ void UpdateQMetro (int *Geno, int *PreGeno, double *Q, double *P,
                    double *Alpha, int rep, struct IND *Individual, int *Recessive)
     /*
      * The goal with this function is to improve mixing when alpha is
-	     * small.  The problem is that in that situation the Q's can't move
-	     * efficiently.  What I do here is simply pick a proposal Q from the
-	     * prior, and try to move there.  I move from q0->q1 with prob: Min(1,
-	     * [P(X|q1,P)/P(X|q0,P)]
-	     * --- Notes 28 July 99
-	     */
+     * small.  The problem is that in that situation the Q's can't move
+     * efficiently.  What I do here is simply pick a proposal Q from the
+     * prior, and try to move there.  I move from q0->q1 with prob: Min(1,
+     * [P(X|q1,P)/P(X|q0,P)]
+     * --- Notes 28 July 99
+     */
 
-	    /* note that this code overlaps substantially with updateqmetrorecombine (the
-	     * version used for the linkage model).  Both versions should be updated in tandem. */
+     /*
+      * note that this code overlaps substantially with updateqmetrorecombine (the
+      * version used for the linkage model).  Both versions should be updated in tandem
+      */
 
-	{
-	  double *PriorQ1;    /*[MAXPOPS]; */
-	  double *CurrentQ;             /*[MAXPOPS]; */
-	  double *TestQ;                /*[MAXPOPS]; */
-	  int pop;
-	  double logdiff;
-	  double randomnum;
-	  int ind;
-	  int numhits = 0;
-	  /*  int i, ok; */
+{
+  double *PriorQ1;    /*[MAXPOPS]; */
+  double *CurrentQ;             /*[MAXPOPS]; */
+  double *TestQ;                /*[MAXPOPS]; */
+  int pop;
+  double logdiff;
+  double randomnum;
+  int ind;
+  int numhits = 0;
+  /*  int i, ok; */
 
-	  /*  PriorQ1 = calloc (MAXPOPS, sizeof (double)); */
-	  CurrentQ = calloc (MAXPOPS, sizeof (double));
-	  TestQ = calloc (MAXPOPS, sizeof (double));
+  /*  PriorQ1 = calloc (MAXPOPS, sizeof (double)); */
+  CurrentQ = calloc (MAXPOPS, sizeof (double));
+  TestQ = calloc (MAXPOPS, sizeof (double));
 
-	  if ((CurrentQ == NULL) || (TestQ == NULL)) {
-	    printf ("WARNING: error in assigning memory in function UpdateQMetro\n");
-	    Kill ();
-	  }
+  if ((CurrentQ == NULL) || (TestQ == NULL)) {
+    printf ("WARNING: error in assigning memory in function UpdateQMetro\n");
+    Kill ();
+  }
 
-	  /*  for (pop = 0; pop < MAXPOPS; pop++)
-	      PriorQ1[pop] = Alpha[pop];
-	  */
+  /*  for (pop = 0; pop < MAXPOPS; pop++)
+      PriorQ1[pop] = Alpha[pop];
+  */
 
-	  PriorQ1 = Alpha;
+  PriorQ1 = Alpha;
 
-	  for (ind = 0; ind < NUMINDS; ind++) {
-	    if (!((USEPOPINFO) && (Individual[ind].PopFlag))) {
-	      /* ie don't use individuals for whom prior pop info is used */
+  for (ind = 0; ind < NUMINDS; ind++) {
+    if (!((USEPOPINFO) && (Individual[ind].PopFlag))) {
+      /* ie don't use individuals for whom prior pop info is used */
 
-	      /*-------compute/record newq and oldq----------*/
-	      /*ok = 1;
-		do
-		{ */
+      /*-------compute/record newq and oldq----------*/
+      /*ok = 1;
+    do
+    { */
 
-	      if (LOCPRIOR) {
-		PriorQ1 = &Alpha[AlphaPos(Individual[ind].myloc, 0)];
-	      }
+      if (LOCPRIOR) {
+    PriorQ1 = &Alpha[AlphaPos(Individual[ind].myloc, 0)];
+      }
 
-	      RDirichlet (PriorQ1, MAXPOPS, TestQ);     /*return TestQ, sampled from the prior */
-	      /*  for (i=0;i<MAXPOPS;i++)
-		  if (TestQ[i]==0) { ok=0; break;}
-		  }
-		  while (ok==0); */
+      RDirichlet (PriorQ1, MAXPOPS, TestQ);     /*return TestQ, sampled from the prior */
+      /*  for (i=0;i<MAXPOPS;i++)
+      if (TestQ[i]==0) { ok=0; break;}
+      }
+      while (ok==0); */
 
 
-	      if (rep == 0) {             /*If this is the first rep, Q will not be initialized */
-		for (pop = 0; pop < MAXPOPS; pop++) {
-		  Q[QPos (ind, pop)] = (double) 1 / MAXPOPS;
-		}
-	      }
+      if (rep == 0) {             /*If this is the first rep, Q will not be initialized */
+    for (pop = 0; pop < MAXPOPS; pop++) {
+      Q[QPos (ind, pop)] = (double) 1 / MAXPOPS;
+    }
+      }
 
-	      for (pop = 0; pop < MAXPOPS; pop++) {
-		CurrentQ[pop] = Q[QPos (ind, pop)];
-	      }
+      for (pop = 0; pop < MAXPOPS; pop++) {
+    CurrentQ[pop] = Q[QPos (ind, pop)];
+      }
 
-	      /*-------Do metropolis test of newq-------*/
+      /*-------Do metropolis test of newq-------*/
 
-	      logdiff = 0.0;
-	      /* logdiff += log(TestQ[pop]) - log(CurrentQ[pop]);
-		 logdiff = logdiff*(alpha-1.0); removed prior prob bit */
+      logdiff = 0.0;
+      /* logdiff += log(TestQ[pop]) - log(CurrentQ[pop]);
+     logdiff = logdiff*(alpha-1.0); removed prior prob bit */
 
-	      logdiff += CalcLikeInd (Geno, PreGeno, TestQ, P, ind, Recessive);  /*likelihood bit */
-	      logdiff -= CalcLikeInd (Geno, PreGeno, CurrentQ, P, ind, Recessive);
+      logdiff += CalcLikeInd (Geno, PreGeno, TestQ, P, ind, Recessive);  /*likelihood bit */
+      logdiff -= CalcLikeInd (Geno, PreGeno, CurrentQ, P, ind, Recessive);
 
-	      randomnum = RandomReal (0.0, 1.0);
-	      if (randomnum < exp (logdiff)) {    /*accept */
-		for (pop = 0; pop < MAXPOPS; pop++) {
-		  Q[QPos (ind, pop)] = TestQ[pop];
-		}
-		numhits++;
-	      }
-	      /*for (pop=0;pop<MAXPOPS; pop++)
-		printf("%1.3f %1.3f    ",CurrentQ[pop],TestQ[pop]);
-		if (randomnum < exp(logdiff) ) printf("  Accepted ");
-		printf("\n"); */
-	    }
-	  }
-	  if (REPORTHITRATE) {           /*does this once every UPDATEFREQ reps */
-	    if ((int) (rep - METROFREQ) / UPDATEFREQ < (int) rep / UPDATEFREQ) {
-	      printf ("Acceptance rate in UpdateQMetro %1.3f\n",
-		      (double) numhits / NUMINDS);
-	    }
-	  }
+      randomnum = RandomReal (0.0, 1.0);
+      if (randomnum < exp (logdiff)) {    /*accept */
+    for (pop = 0; pop < MAXPOPS; pop++) {
+      Q[QPos (ind, pop)] = TestQ[pop];
+    }
+    numhits++;
+      }
+      /*for (pop=0;pop<MAXPOPS; pop++)
+    printf("%1.3f %1.3f    ",CurrentQ[pop],TestQ[pop]);
+    if (randomnum < exp(logdiff) ) printf("  Accepted ");
+    printf("\n"); */
+    }
+  }
+  if (REPORTHITRATE) {           /*does this once every UPDATEFREQ reps */
+    if ((int) (rep - METROFREQ) / UPDATEFREQ < (int) rep / UPDATEFREQ) {
+      printf ("Acceptance rate in UpdateQMetro %1.3f\n",
+          (double) numhits / NUMINDS);
+    }
+  }
 
-	  /*  free (PriorQ1); */
-	  free (CurrentQ);
-	  free (TestQ);
-	}
+  /*  free (PriorQ1); */
+  free (CurrentQ);
+  free (TestQ);
+}
 
 
 /*----------------------------------------*/
 /*O(NUMINDS*MAXPOPS*LINES*NUMLOCI)*/
 void
 UpdateQNoAdmix (int *Geno, double *Q, double *P, struct IND *Individual, double *LocPrior)
-    /* 
+    /*
      * Assign each individual to exactly one population according to the
      * conditional probabilities.
      */
@@ -159,43 +161,43 @@ UpdateQNoAdmix (int *Geno, double *Q, double *P, struct IND *Individual, double 
   int pickedpop;
 
   ProbsVector = calloc (MAXPOPS, sizeof (double));
-  
+
   for (ind = 0; ind < NUMINDS; ind++) {
     if (!((USEPOPINFO) && (Individual[ind].PopFlag))) {
       /* ie don't use individuals for whom prior pop info is used */
       for (pop = 0; pop < MAXPOPS; pop++) {      /*make a vector of log probs for each pop */
-	sumlogs = 0;
+    sumlogs = 0;
 
-	/*Melissa added 7/12/07*/
-	if (LOCPRIOR) {
-	  prob = LocPrior[LocPriorPos(Individual[ind].myloc, pop)];
-	} else {
-	  prob = 1.0;
-	}
+    /*Melissa added 7/12/07*/
+    if (LOCPRIOR) {
+      prob = LocPrior[LocPriorPos(Individual[ind].myloc, pop)];
+    } else {
+      prob = 1.0;
+    }
 
-	runningtotal = prob;
-	for (line = 0; line < LINES; line++) {
-	  for (loc = 0; loc < NUMLOCI; loc++) {
-	    allele = Geno[GenPos (ind, line, loc)];
-	    if (allele != MISSING) {
-	      runningtotal *= P[PPos (loc, pop, allele)];
-	      if (runningtotal < UNDERFLO) {      /*this is to avoid having to
-						  take logs all the time */
-		sumlogs += log (runningtotal);
-		runningtotal = 1;
-	      }
-	    }
-	  }
-	}
-	ProbsVector[pop] = sumlogs + log (runningtotal);
-	if (pop==0 || ProbsVector[pop] > max) {
-	  max = ProbsVector[pop];
-	}
+    runningtotal = prob;
+    for (line = 0; line < LINES; line++) {
+      for (loc = 0; loc < NUMLOCI; loc++) {
+        allele = Geno[GenPos (ind, line, loc)];
+        if (allele != MISSING) {
+          runningtotal *= P[PPos (loc, pop, allele)];
+          if (runningtotal < UNDERFLO) {      /*this is to avoid having to
+                          take logs all the time */
+        sumlogs += log (runningtotal);
+        runningtotal = 1;
+          }
+        }
+      }
+    }
+    ProbsVector[pop] = sumlogs + log (runningtotal);
+    if (pop==0 || ProbsVector[pop] > max) {
+      max = ProbsVector[pop];
+    }
       }
 
       sum = 0.0;
       for (pop=0; pop < MAXPOPS; pop++) {
-	sum += (ProbsVector[pop] = exp(ProbsVector[pop]-max));
+    sum += (ProbsVector[pop] = exp(ProbsVector[pop]-max));
       }
 
       for (pop = 0; pop < MAXPOPS; pop++) {
@@ -207,7 +209,7 @@ UpdateQNoAdmix (int *Geno, double *Q, double *P, struct IND *Individual, double 
 
     }
   }
-  
+
   free (ProbsVector);
 }
 
@@ -232,7 +234,6 @@ void UpdateQAdmixture (double *Q, int *Z, double *Alpha,
   if (LOCPRIOR==0) {
     usealpha=Alpha;
   }
-  
   for (ind = 0; ind < NUMINDS; ind++) {
     if (!((USEPOPINFO) && (Individual[ind].PopFlag))) {
       /* ie don't use individuals for whom prior pop info is used */
@@ -244,11 +245,10 @@ void UpdateQAdmixture (double *Q, int *Z, double *Alpha,
 
       for (pop = 0; pop < MAXPOPS; pop++) {       /*compute dirichlet parameters */
         Parameters[pop] = usealpha[pop] + NumLociPop[pop];
-      }      
+      }
       RDirichlet (Parameters, MAXPOPS, Q + QPos (ind, 0));      /*generate dirichlet RVs */
     }
   }
-  
   free (NumLociPop);
   free (Parameters);
 }
@@ -309,14 +309,13 @@ UpdateQWithPops (int *Geno, double *Q, double *P, int *Z, double *Alpha,
     Priors[gen] = weights;
     sumweights += weights * (MAXPOPS - 1);
   }
-  
+
   for (gen = 0; gen < GENSBACK + 1; gen++) {
     Priors[gen] = MIGRPRIOR * Priors[gen] / sumweights;
   }
 
 
   /*now compute ancestry */
-  
   for (ind = 0; ind < NUMINDS; ind++) {
     if (Individual[ind].PopFlag) {        /*use prior population information */
       homepop = Individual[ind].Population - 1;
@@ -338,7 +337,7 @@ UpdateQWithPops (int *Geno, double *Q, double *P, int *Z, double *Alpha,
             } else {
               allele2=MISSING;
             }
-            
+
             if ((allele1 != MISSING) && (allele2 != MISSING)) {
               /* no missing alleles */
               if (gen == 0) {             /*both alleles from same population */
@@ -365,7 +364,7 @@ UpdateQWithPops (int *Geno, double *Q, double *P, int *Z, double *Alpha,
             } else {
               runningtotal *= sqrtunder;
             }
-            
+
             if (runningtotal < sqrtunder) {      /*this is to avoid having to
                                                   take logs all the time */
               sumlogs += log (runningtotal);
@@ -457,7 +456,7 @@ UpdateQWithPops (int *Geno, double *Q, double *P, int *Z, double *Alpha,
       }
     }
   }
-  
+
   free (Input);
   free (Output);
   free (PostProbs);
@@ -470,7 +469,7 @@ UpdateQWithPops (int *Geno, double *Q, double *P, int *Z, double *Alpha,
 /*Melissa updated 7/12/07 to incorporate LocPriors*/
 void UpdateQ (int *Geno, int *PreGeno, double *Q, double *P, int *Z, double *Alpha, int rep,
               struct IND *Individual, double *UsePopProbs, int *Recessive, double *LocPrior)
-    /* 
+    /*
      * update Q: proportion of ancest of each ind in each pop. Three
      * main options here.  One is update Q with admixture, one is update
      * Q with no admixture, and one is to use prior population info.
@@ -500,7 +499,6 @@ void UpdateQ (int *Geno, int *PreGeno, double *Q, double *P, int *Z, double *Alp
       UpdateQAdmixture (Q, Z, Alpha, Individual);
     }
   }
-  
 }
 
 void
@@ -508,10 +506,10 @@ UpdateQMetroRecombine (int *Geno, double *Q, int *Z, double *P,
                        double *Alpha, int rep, struct IND *Individual,
                        double *Mapdistance, double *R,
                        double *Phase,int *Phasemodel)
-    /* 
+    /*
      * This function does the same job as UpdateQMetro in the case
      * when there is recombination.
-     * the code is very similar, but a new routine is nevertheless a good idea 
+     * the code is very similar, but a new routine is nevertheless a good idea
      */
 {
   double *PriorQ;               /*[MAXPOPS]; */
@@ -531,7 +529,7 @@ UpdateQMetroRecombine (int *Geno, double *Q, int *Z, double *P,
   } else {
     RTransitProb = calloc (MAXPOPS * MAXPOPS * NUMLOCI, sizeof (double));
   }
-  
+
   PriorQ = calloc (MAXPOPS, sizeof (double));
   CurrentQ = calloc (MAXPOPS, sizeof (double));
   TestQ = calloc (MAXPOPS, sizeof (double));

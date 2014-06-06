@@ -8,7 +8,7 @@
 #define GENELEN 15              /* max length of gene name */
 #define LABELLEN   12		/* max length of string used to store individ label */
 #define VERBOSE    0		/* (B) Print run-time details to screen */
-#define ALLELLEN   10		/* integer data in data file are read in as strings 
+#define ALLELLEN   10		/* integer data in data file are read in as strings
 				   of this length */
 #define MAXINDS    3		/* print 2*MAXINDS-1 individuals when printing data to screen */
 #define BANNERFREQ 10		/*freq of printing banner for update stuff */
@@ -26,7 +26,7 @@
 #define TransPos(loc,pos) ((MAXALLELES)*(loc)+(pos))	/*Translation */
 #define ZPos(ind,line,loc) ((ind)*(LINES)*(NUMLOCI)+(line)*(NUMLOCI)+(loc))	/* Z */
 	/* P */
-	
+
 #define PPos(loc,pop,allele) ((loc)*(MAXPOPS)*(MAXALLELES)+(pop)*(MAXALLELES)+(allele))
 #define QPos(ind,pop) ((ind)*(MAXPOPS)+(pop))	/* Q */
 #define RTransitProbPos(loc,line,pop) ((loc)*MAXPOPS*LINES+(line)*MAXPOPS+(pop))
@@ -64,7 +64,7 @@ struct IND {				/*Non-genotype info for each individual */
   int myloc;
 };
 
-/*when adding new parameters, need to make changes in 4 places: 
+/*when adding new parameters, need to make changes in 4 places:
    (1) here, (2) extraparams, (3) SetValue (params.c), (4) PreSetValues
    (params.c) */
 
@@ -74,7 +74,7 @@ char DATAFILE[STRLEN + 1];
 char OUTFILE[STRLEN + 1];
 int NUMINDS, NUMLOCI, MISSING, LABEL, POPDATA, LINES;
 int POPFLAG, PHENOTYPE, EXTRACOLS;
-int ONEROWPERIND; 
+int ONEROWPERIND;
 int RECESSIVEALLELES;
 int NOTAMBIGUOUS;
 /*Program Parameters */
@@ -83,7 +83,7 @@ int MAXPOPS, BURNIN, NUMREPS;
 int USEPOPINFO, INFERALPHA, INFERLAMBDA,POPSPECIFICLAMBDA, PFROMPOPFLAGONLY;
 int POPALPHAS, COMPUTEPROB, NOADMIX, ADMBURNIN;
 int MAPDISTANCES, MARKERNAMES, LINKAGE, PHASED,PHASEINFO,MARKOVPHASE;
-		   
+
 /*Output Options */
 int UPDATEFREQ, PRINTLIKES, INTERMEDSAVE, PRINTKLD, PRINTNET, PRINTLAMBDA;
 int ECHODATA, ANCESTDIST, NUMBOXES, GENSBACK;

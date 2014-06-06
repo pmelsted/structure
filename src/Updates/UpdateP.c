@@ -69,12 +69,12 @@ void UpdateP (double *P, double *LogP, double *Epsilon, double *Fst,
 
   Parameters = calloc(MAXALLELES, sizeof (double));
   NumAFromPop = calloc(MAXPOPS * MAXALLELES, sizeof (int));
-  
+
   if ((Parameters == NULL) || (NumAFromPop == NULL)) {
     printf ("WARNING: unable to allocate array space in UpdateP\n");
     Kill ();
   }
-   
+
   /* O(NUMLOCI*(MAXPOPS* (max_loc NumAlleles[loc]) + NUMINDS*LINES)) */
   for (loc = 0; loc < NUMLOCI; loc++) {
     /*count number of each allele from each pop */

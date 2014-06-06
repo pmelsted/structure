@@ -245,6 +245,18 @@ void createCLBuffers(CLDict *clDict){
     clDict->buffers[GENOCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,  sizeof(int)*GENOSIZE,NULL, &err);
     handleCLErr(err,"Error: Failed create buffer Geno!");
 
+
+    /*if (RECESSIVEALLELES) {
+          clDict->buffers[PREGENOCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,  sizeof(int)*GENOSIZE,NULL, &err);
+          handleCLErr(err,"Error: Failed create buffer PreGeno!");
+
+          clDict->buffers[RECESSIVECL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,  sizeof(int)*NUMLOCI,NULL, &err);
+          handleCLErr(err,"Error: Failed create buffer Recessive!");
+    }
+    clDict->buffers[NUMALLELESCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,  sizeof(int)*NUMLOCI,NULL, &err);
+    handleCLErr(err,"Error: Failed create buffer NumAlleles!");*/
+
+
     clDict->buffers[RANDCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,  sizeof(double)*RANDSIZE,NULL, &err);
 
     handleCLErr(err,"Error: Failed create buffer rand!");

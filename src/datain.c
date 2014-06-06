@@ -1,9 +1,9 @@
 
 /*
 
-   Part of structure.c.  
+   Part of structure.c.
 
-   This bit is in charge of reading in the information from the datafile, and 
+   This bit is in charge of reading in the information from the datafile, and
    preparing it. */
 
 #include <stdio.h>
@@ -29,7 +29,7 @@ void RecessiveDataCheck(int *Geno, int *Recessive);
 
 
 /*================================================*/
-void 
+void
 ReadInputFile (int *Geno, double *Mapdistance, char *Markername, struct IND *Individual, double *Phase,
                 int *Recessive)
 {
@@ -43,7 +43,7 @@ ReadInputFile (int *Geno, double *Mapdistance, char *Markername, struct IND *Ind
 
 }
 /*-------------------------------------------*/
-void 
+void
 OpenData ()
 {
   /*  int trouble = 0; */
@@ -59,7 +59,7 @@ OpenData ()
 
 
 /*-------------------------------------------*/
-void 
+void
 ReadData (int *Geno, double *Mapdistance, char *Markername, struct IND *Individual, double *Phase, int *Recessive)
 {
   int ind;
@@ -78,7 +78,7 @@ ReadData (int *Geno, double *Mapdistance, char *Markername, struct IND *Individu
   /*  int polymorphismcounter; */
   /* int toggle; */
   int rowsperind;  /*the next 2 variables allow single-row input for data*/
-  int colsperloc;  /*number of columns per locus = 1 or PLOIDY depending on format*/ 
+  int colsperloc;  /*number of columns per locus = 1 or PLOIDY depending on format*/
   int i,j;
   /*  int loc1,loc2,temp; */
   int *inputorder = malloc(NUMLOCI*sizeof(int));
@@ -108,7 +108,7 @@ inputorder[loc2]=temp;
 }
 */
   /*Read in locus information*/
-  
+
     if (MARKERNAMES) {
       for (loc = 0; loc < NUMLOCI; loc++)
       {
@@ -133,16 +133,16 @@ inputorder[loc2]=temp;
 	strlength = ReadString (intstr, ALLELLEN, INPUT);
 	if (strlength == 0)
 	  WarnEOF (ind);
-	
+
 	/* daniel made the change: change from atoi to atof on Dec 24, 2002 */
 	Mapdistance[loc] = (double) atof (intstr);
       }
   /*End reading in locus information-------------------------------
     Read in individual/genotype data-------------------------------*/
-  
+
   if (ONEROWPERIND) {rowsperind = 1; colsperloc = LINES;}
   else {rowsperind = LINES; colsperloc = 1;}
-  
+
   for (ind = 0; ind < NUMINDS; ind++)
     {
       for (line = 0; line < rowsperind; line++)
@@ -200,7 +200,7 @@ inputorder[loc2]=temp;
 									           column to read*/
 
 	      /*printf("phenotypecol = %d; EXTRACOLS = %d\n",phenotypecol, EXTRACOLS);*/
-	      for (col = 0; col < EXTRACOLS + 1; col++) 
+	      for (col = 0; col < EXTRACOLS + 1; col++)
 		{
 		  if (col == phenotypecol)
 		    {
@@ -213,14 +213,14 @@ inputorder[loc2]=temp;
 		    }
 		  else ReadString (intstr, ALLELLEN, INPUT);   /*skip these data*/
 		}
-	    
+
 	    }          /*---End if (Phenotype)----------------------*/
 
 	  else for (col = 0; col < EXTRACOLS; col++)  /*no phenotypes*/
 	    ReadString (intstr, ALLELLEN, INPUT);
 
 
-	  
+
 	  if (line == 0)		/*save the preliminary data */
 	    {
 	      if (LABEL)
@@ -235,7 +235,7 @@ inputorder[loc2]=temp;
 	      /* melissa added 7/12/07 */
 	      if (LOCDATA)
 		Individual[ind].Location = location;
-	      if (LOCISPOP) 
+	      if (LOCISPOP)
 		Individual[ind].Location = pop;
 	    }
 	  if (line > 1)		/*check for consistency across lines */
@@ -266,7 +266,7 @@ inputorder[loc2]=temp;
 		    valid = 0;
 		  }
 	    }
-	  
+
 	  for (loc = 0; loc < NUMLOCI; loc++)    /*read in genotype data here*/
 	    for (i=0; i<colsperloc; i++)
 	      {
@@ -321,7 +321,7 @@ inputorder[loc2]=temp;
 void RecessiveDataCheck(int *Geno, int *Recessive)
     /* this function checks whether any genotypes have both a recessive and dominant
      * allele.  If any do, it terminates the program.
-     * in the polyploid case, it also checks whether the NOTAMBIGUOUS code is anywhere 
+     * in the polyploid case, it also checks whether the NOTAMBIGUOUS code is anywhere
      * in the datset. If it is it also terminates the program. */
 {
   int ind, line, loc;
@@ -335,13 +335,13 @@ void RecessiveDataCheck(int *Geno, int *Recessive)
   int ambiguous_norecessive = 0;
   for (loc=0; loc<NUMLOCI; loc++)
     {
-      
+
       if (Recessive[loc] != MISSING)
 	{
 	  recessive_shown=0;
 	  for (ind=0; ind<NUMINDS; ind++)
 	    {
-	      rec=0; 
+	      rec=0;
 	      dom=0;
 	      for (line=0; line<LINES; line++)
 		{
@@ -351,15 +351,15 @@ void RecessiveDataCheck(int *Geno, int *Recessive)
 		  }
 		  else if (Geno[GenPos (ind,line,loc)] != MISSING) dom=1;
 		}
-	      if (rec*dom==1 && error<100) 
+	      if (rec*dom==1 && error<100)
 		{
 		  printf("WARNING: both recessive and dominant alleles in genotype: ind=%d, loc=%d\n",ind+1,loc+1);
 		  error++;
 		}
 
 	    }
-	  
-	  if(recessive_shown) 
+
+	  if(recessive_shown)
 	    recessive_allele_shown++;
 	  else
 	    if(Recessive[loc]!= NOTAMBIGUOUS)
@@ -370,7 +370,7 @@ void RecessiveDataCheck(int *Geno, int *Recessive)
   if (error>0) {printf("Terminating program.\n"); Kill();}
   if (LINES>2)
     for (loc=0;loc<NUMLOCI;loc++){
-      
+
       if(Recessive[loc] == NOTAMBIGUOUS)
 	unambiguous_loci++;
       if(Recessive[loc] == MISSING)
@@ -382,7 +382,7 @@ void RecessiveDataCheck(int *Geno, int *Recessive)
 	      printf("WARNING: the code for NOTAMBIGUOUS alleles, %d, appears  at least once in the dataset at : ind=%d, loc=%d\n", NOTAMBIGUOUS, ind+1,loc+1);
 	      Kill(); /* modify by William - kill (small case) is not a standard ANSI C function */
 	    }
-  
+
     }
   printf("\n");
   if(LINES>2){
@@ -393,10 +393,10 @@ void RecessiveDataCheck(int *Geno, int *Recessive)
   printf("Number of loci with recessive allele absent in data: %d\n", recessive_allele_not_shown);
   fflush(stdout);
 
-  
+
 }
 /*------------------------------------*/
-void 
+void
 WarnEOF (int ind)
 {
   /*This function is called from ReadData if there is an unexpected end of file */
@@ -409,7 +409,7 @@ WarnEOF (int ind)
   Kill ();
 }
 /*------------------------------------*/
-int 
+int
 CheckIfValidInt (char intstr[ALLELLEN], int ind, int loc)
 {
   /*This function checks for non-numeric data in the input file (not
@@ -437,7 +437,7 @@ CheckIfValidInt (char intstr[ALLELLEN], int ind, int loc)
   return ok;
 }
 /*------------------------------------*/
-int 
+int
 CheckIfValidDouble (char intstr[ALLELLEN], int ind,int loc)
 {
   /*This function checks for non-numeric data in the input file (not
@@ -469,14 +469,14 @@ CheckIfValidDouble (char intstr[ALLELLEN], int ind,int loc)
   return ok;
 }
 /*------------------------------------*/
-void 
+void
 Mismatch (int ind, char description[30])
 {
   printf ("\nWARNING! Possible error in the input file. The value of %s\n", description);
   printf ("does not agree across lines for individual %d\n", ind + 1);
 }
 /*------------------------------------*/
-void 
+void
 ExtraData ()
 {
   printf ("\n\nWARNING:  There may be more data in the input file\n");
@@ -484,7 +484,7 @@ ExtraData ()
   printf ("entered for NUMLOCI and NUMINDS, etc, in the program constants.\n\n\n");
 }
 /*------------------------------------*/
-void 
+void
 PrintSomeData (int *Geno, struct IND *Individual, FILE * file)
 {
   int ind, line;
@@ -602,7 +602,7 @@ void CountLineLens ()
   else printf(" %d rows with %d entries ",LINES * NUMINDS, label + popdata + popflag + phenotype + EXTRACOLS + NUMLOCI);
   if (PHASEINFO)
     printf("\nplus an additional row for each individual (after the first genotypes) \ncontaining %d entries of phase information",NUMLOCI);
-printf (".\n\n");  
+printf (".\n\n");
 
   fclose (INPUT);
   OpenData ();			/*start reading input file from the beginning */
@@ -793,19 +793,20 @@ void CountAlleles (int *Geno, int *NumAlleles, int *Translation, int *Recessive)
   int newmissing,newnotambiguous, recessivecoded;
   /*worry about whether missing data value interferes with recoding */
   ORIGMISSING = MISSING;	/*store value of MISSING in original data */
-  if ((MISSING >= 0) && (MISSING < MAXALLELES+1))
+  if ((MISSING >= 0) && (MISSING < MAXALLELES+1)){
     newmissing = -9;
-  else
+  } else{
     newmissing = MISSING;
+  }
     /*set new value of notambiguous 1 less than missing */
-    newnotambiguous=newmissing-1;
+  newnotambiguous=newmissing-1;
 
   /*recode all data */
   for (loc = 0; loc < NUMLOCI; loc++)
     {
       if (RECESSIVEALLELES && Recessive[loc] == MISSING)
 	Recessive[loc] = newmissing;
-      if (RECESSIVEALLELES && Recessive[loc]==NOTAMBIGUOUS) 
+      if (RECESSIVEALLELES && Recessive[loc]==NOTAMBIGUOUS)
 {
   Recessive[loc]=newnotambiguous;
   /* printf("locus %d is NOTAMBIGUOUS\n" ,loc); */
@@ -836,7 +837,7 @@ void CountAlleles (int *Geno, int *NumAlleles, int *Translation, int *Recessive)
 		Geno[GenPos (ind, line, loc)] = pos;	/*recoding */
 	      }
 	  }
-/*add an extra allele null allele if there are null alleles at the locus but 
+/*add an extra allele null allele if there are null alleles at the locus but
 the homozygous null is present nowhere in the sample*/
       if (RECESSIVEALLELES && Recessive[loc] != newmissing
 	  && recessivecoded == 0  && k>0 && Recessive[loc]!=newnotambiguous)
@@ -847,7 +848,7 @@ the homozygous null is present nowhere in the sample*/
 /*this value chosen as unlikely to be a number that anyone is going to choose */
 	}
       NumAlleles[loc] = k;
-      if (k==0) 
+      if (k==0)
 	printf("WARNING: locus %d has all missing data.  This might cause unexpected behaviour.\n",loc);
 
       if (maxk < k)
