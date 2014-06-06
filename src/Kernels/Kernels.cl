@@ -16,8 +16,7 @@
 #define ZPos(ind,line,loc) ((ind)*(LINES)*(NUMLOCI)+(line)*(NUMLOCI)+(loc))
 #define PPos(loc,pop,allele) ((loc)*(MAXPOPS)*(MAXALLELES)+(pop)*(MAXALLELES)+(allele))
 #define QPos(ind,pop) ((ind)*(MAXPOPS)+(pop))
-#define RandPos(ind,loc) ind*NUMLOCI+loc
-#define RandPos3d(ind,loc,rejectioncount) ind*NUMLOCI*MAXREJECTIONS + loc*MAXREJECTIONS + rejectioncount
+#define RandPos(ind,loc,line) (ind*NUMLOCI*LINES + loc*LINES + line)
 
 __kernel void UpdateZ (
    __global double* Q, /* input */
@@ -32,12 +31,19 @@ __kernel void UpdateZ (
    int line;
    double Cutoffs[MAXPOPS];
    double sum;
+   double localRandom[2];
 
    int ind = get_global_id(0);
    int loc = get_global_id(1); /* is this correct? */
+   int dimMaxs[3] = {NUMINDS,NUMLOCI,LINES};
+   int dims[3] = {ind,loc,0};
+   int randomValsTaken = 0;
+   double randVal;
+   copyToLocal(randArr,localRandom,dims,dimMaxs,3);
 
    if(ind < NUMINDS && loc < NUMLOCI){
        for (line = 0; line < LINES; line++) {
+           dims[2] = line;
            allele = Geno[GenPos (ind,line,loc)];
            if (allele == MISSING) {   /*Missing Data */
              Z[ZPos (ind, line, loc)] = UNASSIGNED;
@@ -48,7 +54,10 @@ __kernel void UpdateZ (
                 Cutoffs[pop] = Q[QPos (ind, pop)] * P[PPos (loc, pop, allele)];
                 sum += Cutoffs[pop];
               }
-              Z[ZPos (ind, line, loc)] = PickAnOptionDiscrete (MAXPOPS, sum, Cutoffs,randArr[RandPos(ind,loc)]);
+              randVal = rnd(localRandom,&randomValsTaken);
+              //randVal = localRandom[line];
+              //Z[ZPos (ind, line, loc)] = PickAnOptionDiscrete (MAXPOPS, sum, Cutoffs,randArr[RandPos(ind,loc,line)]);
+              Z[ZPos (ind, line, loc)] = PickAnOptionDiscrete (MAXPOPS, sum, Cutoffs,randVal);
            }
        }
    }
@@ -102,7 +111,7 @@ __kernel void UpdateGeno (
                 P[PPos(loc, Z[ZPos (ind, 1, loc)], PreGeno[GenPos (ind, 1, loc)])];
 
             Sum = AlleleProbs[0] + AlleleProbs[1] + AlleleProbs[2];
-            dom = PickAnOptionDiscrete (3, Sum, AlleleProbs,randArr[RandPos(ind,loc)]);
+            dom = PickAnOptionDiscrete (3, Sum, AlleleProbs,randArr[RandPos(ind,0,loc)]);
 
             if (dom == 0) {
                 Geno[GenPos (ind, 0, loc)] = Recessive[loc];

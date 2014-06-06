@@ -38,7 +38,7 @@
 #include "Init.h"
 #include "Util.h"
 
-void compareZAndOldZ(int Z[], int OldZ[]){
+int compareZAndOldZ(int Z[], int OldZ[]){
     int i;
     int notSame=0;
     int same =ZSIZE;
@@ -51,13 +51,15 @@ void compareZAndOldZ(int Z[], int OldZ[]){
     if(notSame > 0){
        printf("Z and Old Z differ!\n");
        printf("Difference between Z and OldZ: same: %d, not same %d\n",same,notSame);
-       exit(EXIT_FAILURE);
+       return EXIT_FAILURE;
     }
+    return EXIT_SUCCESS;
 }
 
 void compareZCLandZ(CLDict *clDict,int *OrigZ, double *Q, double *P,int *Geno, double *randomArr){
     int *OldZ;
     int *Z;
+    int ret;
 
     /*Allocate memory and copy the original over, so that it doesn't interfere */
     OldZ = calloc(ZSIZE,sizeof(int));
@@ -68,7 +70,11 @@ void compareZCLandZ(CLDict *clDict,int *OrigZ, double *Q, double *P,int *Geno, d
     UpdateZ(Z,Q,P,Geno,randomArr);
     memcpy(OldZ,Z,ZSIZE*sizeof(int));
     UpdateZCL(clDict,Z,Q,P,Geno,randomArr);
-    compareZAndOldZ(Z,OldZ);
+    ret = compareZAndOldZ(Z,OldZ);
+    if (ret == EXIT_FAILURE){
+        ReleaseCLDict(clDict);
+        exit(EXIT_FAILURE);
+    }
 
     free(OldZ);
     free(Z);
@@ -292,7 +298,7 @@ int main (int argc, char *argv[])
 
   /*Allocate an array of random numbers. Primarily used so that we can compare
    CL implementation to the original */
-  randomArr = calloc(NUMINDS*NUMLOCI,sizeof(double));
+  randomArr = calloc(RANDSIZE,sizeof(double));
 
   /* ====== OpenCL initialized ====== */
 

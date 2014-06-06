@@ -20,6 +20,42 @@ double numToRange(double low, double high, double num)
   return (low + num * (high - low) );
 }
 
+int dimLoc(int * dims, int * dimMaxs, int numDims){
+    int loc = 0;
+    int i, j;
+    for(i = 0; i < numDims;++i){
+        int dimProd =1;
+        for(j = i+1; j < numDims; j++){
+            dimProd *= dimMaxs[j];
+        }
+        loc += dims[i]*dimProd;
+    }
+    return loc;
+}
+/*
+ * Copies the entire last dimension over into localarr
+ */
+void copyToLocal( __global double * globalArr, double *localArr,
+                  int * dims, int * dimMaxs, int numDims){
+    int i;
+    int origLastDim = dims[numDims-1];
+    for(i = 0; i < dimMaxs[numDims-1]; ++i){
+        dims[numDims-1] = i;
+        localArr[i] = globalArr[dimLoc(dims,dimMaxs,numDims)];
+    }
+    dims[numDims-1] = origLastDim;
+}
+
+double rnd(double * localRandom, int * randomValsTaken){
+    return localRandom[(*randomValsTaken)++];
+    /*double value;*/
+    /*do {*/
+        /*value = localRandom[*randomValsTaken];*/
+        /*(*randomValsTaken)++;*/
+    /*} while ((value == 0.0 || value == 1.0));*/
+    /*return value;*/
+}
+
 
 /*
  *  Returns a random number between 0 and n-1, according to a list of
@@ -31,7 +67,7 @@ double numToRange(double low, double high, double num)
 int PickAnOptionDiscrete(int total, double sum, double Probs [], double randNum){
    int option;
    double random;
-   double sumsofar =  0.0; 
+   double sumsofar =  0.0;
 
    random = numToRange(0,sum, randNum);
    for (option=0; option < total; ++option){

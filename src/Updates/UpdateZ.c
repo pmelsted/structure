@@ -18,6 +18,7 @@ void UpdateZ (int *Z,  double *Q, double *P, int *Geno,double * randomArr)
   /*Cutoffs contains unnormalized probabilities of
     an allele coming from each population */
   double sum=0.0;
+  double randVal;
   int allele;
 
   Cutoffs = calloc (MAXPOPS, sizeof (double));
@@ -28,9 +29,8 @@ void UpdateZ (int *Z,  double *Q, double *P, int *Geno,double * randomArr)
 
   /*O*(NUMINDS*LINES*NUMLOCI*MAXPOPS)*/
   for (ind = 0; ind < NUMINDS; ind++) {  /*go through all alleles in sample */
-    for (line = 0; line < LINES; line++) {
-      for (loc = 0; loc < NUMLOCI; loc++) {
-        
+    for (loc = 0; loc < NUMLOCI; loc++) {
+      for (line = 0; line < LINES; line++) {
         allele = Geno[GenPos (ind, line, loc)];
 
         if (allele == MISSING) {
@@ -41,10 +41,9 @@ void UpdateZ (int *Z,  double *Q, double *P, int *Geno,double * randomArr)
             Cutoffs[pop] = Q[QPos (ind, pop)] * P[PPos (loc, pop, allele)];
             sum += Cutoffs[pop];
           }
-
-          Z[ZPos (ind, line, loc)] = PickAnOptionDiscrete (MAXPOPS, sum, Cutoffs,randomArr[ind*NUMLOCI+loc]);
+          randVal = randomArr[ind*NUMLOCI*LINES +loc*LINES+line];
+          Z[ZPos (ind, line, loc)] = PickAnOptionDiscrete (MAXPOPS, sum, Cutoffs,randVal);
         }
-        
       }
     }
   }
@@ -58,7 +57,7 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,double *
     /*update Z: population origin of each allele */
 {
     cl_int err;
-    size_t local;                      
+    size_t local;
     size_t *global;
 
 
@@ -67,8 +66,7 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,double *
     global[0] = NUMINDS;
     global[1] = NUMLOCI;
 
-    
-    
+
     err = 0;
     err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[QCL], CL_TRUE, 0, sizeof(double) * QSIZE, Q, 0, NULL, NULL);
     handleCLErr(err,"Error: Failed to write buffer Q!");
