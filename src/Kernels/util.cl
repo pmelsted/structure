@@ -46,16 +46,9 @@ void copyToLocal( __global double * globalArr, double *localArr,
     dims[numDims-1] = origLastDim;
 }
 
-double rnd(double * localRandom, int * randomValsTaken){
+double rndDisc(double * localRandom, int * randomValsTaken){
     return localRandom[(*randomValsTaken)++];
-    /*double value;*/
-    /*do {*/
-        /*value = localRandom[*randomValsTaken];*/
-        /*(*randomValsTaken)++;*/
-    /*} while ((value == 0.0 || value == 1.0));*/
-    /*return value;*/
 }
-
 
 /*
  *  Returns a random number between 0 and n-1, according to a list of
@@ -64,12 +57,13 @@ double rnd(double * localRandom, int * randomValsTaken){
  *  are "total" possible options, and sum is the sum of the
  *  probabilities.  This comes up in the Gibbs sampler context.
  */
-int PickAnOptionDiscrete(int total, double sum, double Probs [], double randNum){
+int PickAnOptionDiscrete(int total, double sum, double Probs [],
+                         double *randomArr, int * randomValsTaken){
    int option;
    double random;
    double sumsofar =  0.0;
 
-   random = numToRange(0,sum, randNum);
+   random = numToRange(0,sum, rndDisc(randomArr,randomValsTaken));
    for (option=0; option < total; ++option){
        sumsofar += Probs[option];
 	   if (random <= sumsofar) break;

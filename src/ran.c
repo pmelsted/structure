@@ -157,6 +157,17 @@ double rnd()
 
   return value;
 }
+
+/*
+ *  Takes a random number from an array and returns it,
+ *  updating randomValsTaken to keep track of how many
+ *  values have been consumed.
+ */
+double rndDisc(double * localRandom, int * randomValsTaken)
+{
+    return localRandom[(*randomValsTaken)++];
+}
+
 /*-----------Gamma and dirichlet from Matt.----------*/
   /* gamma random generator from Ripley, 1987, P230 */
 

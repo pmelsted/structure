@@ -64,7 +64,8 @@ void printCLErr(cl_int err)
 }
 
 
-void ReleaseCLDict(CLDict *clDict){
+void ReleaseCLDict(CLDict *clDict)
+{
     int i;
     clReleaseProgram(clDict->program);
     for(i = 0; i < NumberOfKernels; ++i){
@@ -82,7 +83,9 @@ void ReleaseCLDict(CLDict *clDict){
 
 
 
-char * searchReplace(char * string,  char *toReplace[], char *replacements[], int numReplacements){
+char * searchReplace(char * string,  char *toReplace[], char *replacements[],
+                     int numReplacements)
+{
     int i = 0;
     char *locOfToRep;
     char *toRep;
@@ -108,7 +111,9 @@ char * searchReplace(char * string,  char *toReplace[], char *replacements[], in
     return buffer;
 }
 
-void preProcessSource(char * kernelSource, size_t *source_size, char *names[], char *vals[], int numVals){
+void preProcessSource(char * kernelSource, size_t *source_size,
+                      char *names[], char *vals[], int numVals)
+{
    char * processedSource;
    processedSource = searchReplace(kernelSource, names, vals, numVals);
    strncpy(kernelSource,processedSource,MAX_SOURCE_SIZE);
@@ -117,7 +122,8 @@ void preProcessSource(char * kernelSource, size_t *source_size, char *names[], c
 
 
 
-int initKernel(CLDict *clDict,char * kernelName, enum KERNEL kernelEnumVal){
+int initKernel(CLDict *clDict,char * kernelName, enum KERNEL kernelEnumVal)
+{
     cl_kernel kernel;
     int err;
     kernel = clCreateKernel(clDict->program, kernelName, &err);
@@ -159,7 +165,8 @@ int initKernel(CLDict *clDict,char * kernelName, enum KERNEL kernelEnumVal){
 /*
  * compiles the program with filename programFilename, and replaces the names in names with the values in vals.
  */
-int CompileKernels(CLDict *clDict, char *names[],char *vals[], int numVals){
+int CompileKernels(CLDict *clDict, char *names[],char *vals[], int numVals)
+{
     FILE *fp;
     char *KernelSource;
     size_t source_size;
@@ -230,7 +237,8 @@ void handleCLErr(cl_int err, char * message)
     }
 }
 
-void createCLBuffers(CLDict *clDict){
+void createCLBuffers(CLDict *clDict)
+{
     cl_int err;
     clDict->buffers[QCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,  sizeof(double)*QSIZE,NULL, &err);
     handleCLErr(err,"Error: Failed create buffer Q!");
@@ -265,7 +273,8 @@ void createCLBuffers(CLDict *clDict){
 /*
  * Inits the dict, but the program must still be compiled.
  */
-int InitCLDict(CLDict *clDictToInit){
+int InitCLDict(CLDict *clDictToInit)
+{
     cl_kernel *kernels;
     cl_mem *buffers;
     cl_platform_id platform_id;
@@ -336,8 +345,14 @@ int InitCLDict(CLDict *clDictToInit){
     clDictToInit->device_id = device_id;
     clDictToInit->context = context;
     clDictToInit->commands = commands;
+
     /* compile OpenCL kernels */
     /*Define the constants in the kernels */
+    /*
+     * These are known and global when we compile the kernels
+     * so we pass them over to the kernel compiler
+     * to be inserted into the kernel code
+     */
 
     for(i = 0; i < 6; ++i){
       vals[i] = calloc(255, sizeof(char));
@@ -362,6 +377,36 @@ int InitCLDict(CLDict *clDictToInit){
     createCLBuffers(clDictToInit);
     return EXIT_SUCCESS;
 }
+
+int dimLoc(int * dims, int * dimMaxs, int numDims)
+{
+    int loc = 0;
+    int i, j;
+    for(i = 0; i < numDims;++i){
+        int dimProd =1;
+        for(j = i+1; j < numDims; j++){
+            dimProd *= dimMaxs[j];
+        }
+        loc += dims[i]*dimProd;
+    }
+    return loc;
+}
+/*
+ * Copies the entire last dimension over into localarr
+ */
+void copyToLocal( double * globalArr, double *localArr,
+                  int * dims, int * dimMaxs, int numDims)
+{
+    int i;
+    int origLastDim = dims[numDims-1];
+    for(i = 0; i < dimMaxs[numDims-1]; ++i){
+        dims[numDims-1] = i;
+        localArr[i] = globalArr[dimLoc(dims,dimMaxs,numDims)];
+    }
+    dims[numDims-1] = origLastDim;
+}
+
+
 
 /*int main(int argc, char *argv[]){
     CLDict *clDict = NULL;

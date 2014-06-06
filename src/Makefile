@@ -1,6 +1,6 @@
 OPT = -O3
 #OPT = -O3 -m64 -static
-#OPT = -Wall -g 
+#OPT = -Wall -g
 
 CFLAGS = -Wall -pedantic
 CC = clang
@@ -8,7 +8,7 @@ LIBS = -lm -lOpenCL
 
 all: target
 
-target: structure 
+target: structure
 
 
 #valgrind: OPT = -g -O1

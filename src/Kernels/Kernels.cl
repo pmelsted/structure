@@ -1,5 +1,4 @@
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable
-#include "Kernels/util.cl"
 #define UNASSIGNED -9
 
 //These are inserted during PreProcessingDuringCompilation.
@@ -16,7 +15,8 @@
 #define ZPos(ind,line,loc) ((ind)*(LINES)*(NUMLOCI)+(line)*(NUMLOCI)+(loc))
 #define PPos(loc,pop,allele) ((loc)*(MAXPOPS)*(MAXALLELES)+(pop)*(MAXALLELES)+(allele))
 #define QPos(ind,pop) ((ind)*(MAXPOPS)+(pop))
-#define RandPos(ind,loc,line) (ind*NUMLOCI*LINES + loc*LINES + line)
+
+#include "Kernels/util.cl"
 
 __kernel void UpdateZ (
    __global double* Q, /* input */
@@ -26,6 +26,10 @@ __kernel void UpdateZ (
    __global int* Z /* output */
    )
 {
+   // TODO: Add a global variable that can be set to an error code
+   // seeing as opencl does not crash on kernel segmentation faul
+   // giving us no way to know (currently) if we had enough random
+   // numbers.
    int allele;
    int pop;
    int line;
@@ -54,29 +58,26 @@ __kernel void UpdateZ (
                 Cutoffs[pop] = Q[QPos (ind, pop)] * P[PPos (loc, pop, allele)];
                 sum += Cutoffs[pop];
               }
-              randVal = rnd(localRandom,&randomValsTaken);
-              //randVal = localRandom[line];
-              //Z[ZPos (ind, line, loc)] = PickAnOptionDiscrete (MAXPOPS, sum, Cutoffs,randArr[RandPos(ind,loc,line)]);
-              Z[ZPos (ind, line, loc)] = PickAnOptionDiscrete (MAXPOPS, sum, Cutoffs,randVal);
+              Z[ZPos (ind, line, loc)] = PickAnOptionDiscrete (MAXPOPS, sum, Cutoffs,localRandom, &randomValsTaken);
            }
        }
    }
 }
 
 
-/*
+/*[>
  *  untested!
- */
+ <]
 #if LINES == 2
 __kernel void UpdateGeno (
-   __global double* Q, /* input */
-   __global double* P,  /* input */
-   __global int* PreGeno, /* input */
-   __global int* Recessive, /* input */
-   __global int* NumAlleles, /* input */
-   __global int* Z, /* input */
-   __global double* randArr, /*random numbers*/
-   __global int* Geno/* output */
+   __global double* Q, [> input <]
+   __global double* P,  [> input <]
+   __global int* PreGeno, [> input <]
+   __global int* Recessive, [> input <]
+   __global int* NumAlleles, [> input <]
+   __global int* Z, [> input <]
+   __global double* randArr, [>random numbers<]
+   __global int* Geno[> output <]
    )
 {
     int dom;
@@ -93,11 +94,11 @@ __kernel void UpdateGeno (
             for (dom = 0; dom < 4; dom++) {
                 AlleleProbs[dom] = 0.0;
             }
-            /*
+            [>
              * this will always be true, as UpdateGeno is not run if
              * there arent recessive alleles
-             */
-            if (Recessive[loc] != MISSING    /* bug fixed 05072007 */
+             <]
+            if (Recessive[loc] != MISSING    [> bug fixed 05072007 <]
                 && PreGeno[GenPos (ind, 0, loc)] != Recessive[loc]) {
                 AlleleProbs[0] =
                     P[PPos(loc, Z[ZPos(ind, 0, loc)], Recessive[loc])] *
@@ -128,23 +129,23 @@ __kernel void UpdateGeno (
 }
 #else
 __kernel void UpdateGeno (
-   __global double* Q, /* input */
-   __global double* P,  /* input */
-   __global int* PreGeno, /* input */
-   __global int* Recessive, /* input */
-   __global int* NumAlleles, /* input */
-   __global int* Z, /* input */
-   __global double* randArr, /*random numbers*/
+   __global double* Q, [> input <]
+   __global double* P,  [> input <]
+   __global int* PreGeno, [> input <]
+   __global int* Recessive, [> input <]
+   __global int* NumAlleles, [> input <]
+   __global int* Z, [> input <]
+   __global double* randArr, [>random numbers<]
            const int MAXREJECTIONS,
-   __global int* Geno,/* output */
+   __global int* Geno,[> output <]
    )
 {
 
-    /*
+    [>
      * not yet fully implemented
-     */
+     <]
 
-    /*int ind = get_global_id(0);
+    [>int ind = get_global_id(0);
     int loc = get_global_id(1);
     double AlleleProbs[MAXALLELES];
     int AlleleUsed[MAXALLELES];
@@ -186,6 +187,6 @@ __kernel void UpdateGeno (
 
             }
         }
-    }*/
+    }<]
 }
-#endif
+#endif*/

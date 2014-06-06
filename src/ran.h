@@ -20,4 +20,5 @@ extern double BinoProb(int n, double p,int i);
 extern void LogRDirichlet (const double *a, const int k, double *b,double *c);
 extern void FillArrayWithRandom(double *random, int n);
 extern double numToRange(double low, double high, double num);
+extern double rndDisc(double * localRandom, int * randomValsTaken);
 
