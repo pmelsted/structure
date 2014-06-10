@@ -20,6 +20,7 @@
 #define ZSIZE NUMINDS*LINES*NUMLOCI
 #define GENOSIZE LINES*NUMLOCI*NUMINDS
 #define RANDSIZE NUMINDS*NUMLOCI*LINES
+#define MAXRANDOM 2
 
 /*return appropriate positions in each array... */
 #define GenPos(ind,line,loc) ((ind)*(LINES)*(NUMLOCI)+(line)*(NUMLOCI)+(loc))	/*Geno */

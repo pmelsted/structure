@@ -8,9 +8,9 @@
 #define NUMLOCI %numloci%
 #define LINES %lines%
 #define NUMINDS %numinds%
+#define MAXRANDOM %maxrandom%
 //#define NOTAMBIGUOUS %notambiguous%
 #define NOTAMBIGUOUS -1
-#define MAXRANDOM 2
 
 #define GenPos(ind,line,loc) ((ind)*(LINES)*(NUMLOCI)+(line)*(NUMLOCI)+(loc))
 #define ZPos(ind,line,loc) ((ind)*(LINES)*(NUMLOCI)+(line)*(NUMLOCI)+(loc))
@@ -29,10 +29,6 @@ __kernel void UpdateZ (
    __global int* error
    )
 {
-   // TODO: Add a global variable that can be set to an error code
-   // seeing as opencl does not crash on kernel segmentation faul
-   // giving us no way to know (currently) if we had enough random
-   // numbers.
    int allele;
    int pop;
    int line;

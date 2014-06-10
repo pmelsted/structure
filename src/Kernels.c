@@ -274,6 +274,10 @@ void createCLBuffers(CLDict *clDict)
     clDict->buffers[RANDCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,  sizeof(double)*RANDSIZE,NULL, &err);
 
     handleCLErr(err,"Error: Failed create buffer rand!");
+
+    clDict->buffers[ERRORCL] = clCreateBuffer(clDict->context,  CL_MEM_WRITE_ONLY,  sizeof(int),NULL, &err);
+
+    handleCLErr(err,"Error: Failed create error buffer!");
 }
 
 /*
@@ -290,8 +294,8 @@ int InitCLDict(CLDict *clDictToInit)
     cl_context context;
     cl_device_id device_id;
     cl_command_queue commands;
-    char *names[6];
-    char *vals[6];
+    char *names[7];
+    char *vals[7];
     int i;
     int DEVICETYPE;
     int err;
@@ -360,7 +364,7 @@ int InitCLDict(CLDict *clDictToInit)
      * to be inserted into the kernel code
      */
 
-    for(i = 0; i < 6; ++i){
+    for(i = 0; i < 7; ++i){
       vals[i] = calloc(255, sizeof(char));
     }
 
@@ -370,9 +374,10 @@ int InitCLDict(CLDict *clDictToInit)
     names[3] = "%numloci%"; sprintf(vals[3],"%d",NUMLOCI);
     names[4] = "%lines%"; sprintf(vals[4],"%d",LINES);
     names[5] = "%numinds%"; sprintf(vals[5],"%d",NUMINDS);
+    names[6] = "%maxrandom%"; sprintf(vals[6],"%d",MAXRANDOM);
 
-    compileret = CompileKernels(clDictToInit,names,vals,6);
-    for(i = 0; i < 6; ++i){
+    compileret = CompileKernels(clDictToInit,names,vals,7);
+    for(i = 0; i < 7; ++i){
       free(vals[i]);
     }
 
@@ -418,11 +423,11 @@ void copyToLocal( double * globalArr, double *localArr,
     CLDict *clDict = NULL;
     int numVals;
     int ret;
-    char *names[6] = {"%maxpops%", "%missing%", "%maxalleles%","%numloci%","%lines%","%numinds%"};
-    char *vals[6] = {"2", "-999", "15","15","2","20"};
+    char *names[7] = {"%maxpops%", "%missing%", "%maxalleles%","%numloci%","%lines%","%numinds%","%maxrandom%"};
+    char *vals[7] = {"2", "-999", "15","15","2","20","2"};
     clDict = malloc(sizeof *clDict);
 
-    numVals = 6;
+    numVals = 7;
     InitCLDict(clDict);
     ret = CompileKernels(clDict,names,vals,numVals);
     printf("return code: %d\n",ret);

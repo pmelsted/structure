@@ -15,7 +15,8 @@ enum BUFFER {
     PREGENOCL,
     RECESSIVECL,
     NUMALLELESCL,
-    RANDCL,
+    RANDCL, /* buffer for random numbers */
+    ERRORCL, /* buffer for error codes */
     NumberOfBuffers
 };
 typedef struct CLDict {

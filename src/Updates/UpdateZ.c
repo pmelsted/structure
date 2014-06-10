@@ -66,8 +66,10 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,double *
     size_t local;
     size_t *global;
     /* for error handling in kernel */
-    int *error = calloc(1,sizeof(int));
+    int *error;
 
+    error = calloc(1,sizeof(int));
+    *error = 0;
     global = calloc(2,sizeof(size_t));
     global[0] = NUMINDS;
     global[1] = NUMLOCI;
@@ -86,6 +88,9 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,double *
     err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[RANDCL], CL_TRUE, 0, sizeof(double) * RANDSIZE, randomArr, 0, NULL, NULL);
     handleCLErr(err,"Error: Failed to write buffer rand!");
 
+    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[ERRORCL], CL_TRUE, 0, sizeof(int), error, 0, NULL, NULL);
+    handleCLErr(err,"Error: Failed to write error buffer!");
+
 
     err = 0;
     err  = clSetKernelArg(clDict->kernels[UpdateZKernel], 0, sizeof(cl_mem), &(clDict->buffers[QCL]));
@@ -99,7 +104,7 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,double *
     err = clSetKernelArg(clDict->kernels[UpdateZKernel], 4, sizeof(cl_mem), &(clDict->buffers[ZCL]));
     handleCLErr(err,"Error: Failed to set arg 4!");
 
-    err = clSetKernelArg(clDict->kernels[UpdateZKernel], 5, sizeof(int*),error);
+    err = clSetKernelArg(clDict->kernels[UpdateZKernel], 5, sizeof(cl_mem), &(clDict->buffers[ERRORCL]));
     handleCLErr(err,"Error: Failed to set arg 5!");
 
     err = clGetKernelWorkGroupInfo(clDict->kernels[UpdateZKernel], clDict->device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL);
@@ -112,14 +117,18 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,double *
 
     err = clEnqueueReadBuffer(clDict->commands, clDict->buffers[ZCL], CL_TRUE, 0, sizeof(int) * ZSIZE, Z, 0, NULL, NULL );
 
+    err = clEnqueueReadBuffer(clDict->commands, clDict->buffers[ERRORCL], CL_TRUE, 0, sizeof(int), error, 0, NULL, NULL );
+
+    free(global);
+
+    /* some error handling */
     if (*error != KERNEL_SUCCESS ){
-        ReleaseCLDict(clDict);
-        printf("Error in Kernel\n");
+        printf("Error in Kernel:\n");
         PrintKernelError(*error);
+        ReleaseCLDict(clDict);
         exit(EXIT_FAILURE);
     }
 
-    free(global);
 }
 
 
@@ -145,7 +154,7 @@ UpdateZandSingleR (int *Z,  double *Q, double *P, int *Geno,
   } else {
     RTransitProb = calloc (MAXPOPS * MAXPOPS * NUMLOCI, sizeof (double));
   }
-  
+
   IndividualQ = calloc (MAXPOPS, sizeof (double));
   /*this form ensures compatibility with UpdateQMetroRecombine */
 
@@ -153,7 +162,7 @@ UpdateZandSingleR (int *Z,  double *Q, double *P, int *Geno,
     printf ("WARNING: unable to allocate array space in UpdateZandSingleR\n");
     Kill ();
   }
-  
+
   currentloglikelihood = 0.0;
   trialloglikelihood = 0.0;
   logtrialR = RNormal(log(R[0])/2.30259,LOG10RPROPSD);
@@ -164,7 +173,7 @@ UpdateZandSingleR (int *Z,  double *Q, double *P, int *Geno,
   if (logtrialR>LOG10RMAX) {
     logtrialR=2*LOG10RMAX-logtrialR;
   }
-  
+
   trialR=exp(2.30259*logtrialR);
   for (ind = 0; ind < NUMINDS; ind++) {
     for (pop = 0; pop < MAXPOPS; pop++) {
@@ -189,11 +198,11 @@ UpdateZandSingleR (int *Z,  double *Q, double *P, int *Geno,
     R[0] = trialR;
     /*currentloglikelihood=trialloglikelihood;  commented out by JKP--see email from Daniel 9 Dec 02*/
   }
-  
+
   for (ind = 0; ind < NUMINDS; ind++) {
     R[ind] = R[0];
   }
-  
+
   free (RTransitProb);
   free (IndividualQ);
 
@@ -220,7 +229,7 @@ UpdateZandR (int *Z,  double *Q, double *P, int *Geno,
   } else {
     RTransitProb = calloc (MAXPOPS * MAXPOPS * NUMLOCI, sizeof (double));
   }
-  
+
   IndividualQ = calloc (MAXPOPS, sizeof (double));
   /*this form ensures compatibility with UpdateQMetroRecombine */
 
@@ -228,7 +237,7 @@ UpdateZandR (int *Z,  double *Q, double *P, int *Geno,
     printf ("WARNING: unable to allocate array space in UpdateZandR\n");
     Kill ();
   }
-  
+
   sumlikelihood=0.0;
   for (ind = 0; ind < NUMINDS; ind++) {
     for (pop = 0; pop < MAXPOPS; pop++) {
@@ -239,7 +248,7 @@ UpdateZandR (int *Z,  double *Q, double *P, int *Geno,
                                     Mapdistance, Phase,Phasemodel);
     Backward (Z,  IndividualQ, R[ind], ind, Mapdistance, RTransitProb,
               rep, Z1, Phase, P, Geno,Phasemodel);
-    
+
     logtrialR = RNormal(log(R[ind])/2.30259,LOG10RPROPSD);
     if (logtrialR<LOG10RMIN) {
       logtrialR=2*LOG10RMIN-logtrialR;
