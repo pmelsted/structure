@@ -34,12 +34,12 @@ __kernel void UpdateZ (
    int line;
    double Cutoffs[MAXPOPS];
    double sum;
-   double localRandom[MAXRANDOM];
+   double localRandom[LINES];
 
    int ind = get_global_id(0);
    int loc = get_global_id(1); /* is this correct? */
    int dims[3];
-   int dimMaxs[3] = {NUMINDS,NUMLOCI,MAXRANDOM};
+   int dimMaxs[3] = {NUMINDS,NUMLOCI,LINES};
    int randomValsTaken = 0;
 
    if(ind < NUMINDS && loc < NUMLOCI){

@@ -339,7 +339,7 @@ int main (int argc, char *argv[])
                                        Mapdistance, rep, Phase, Z1,Phasemodel, rep+1 > BURNIN ? sumIndLikes:NULL, indLikesNorm);
       }
     } else {
-      FillArrayWithRandom(randomArr,RANDSIZE);
+      FillArrayWithRandom(randomArr,NUMINDS*NUMLOCI*LINES);
       compareZCLandZ(clDict,Z,Q,P,Geno,randomArr);
       UpdateZCL (clDict,Z,  Q, P, Geno,randomArr);
       /*

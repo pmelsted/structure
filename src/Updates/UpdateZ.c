@@ -20,11 +20,11 @@ void UpdateZ (int *Z,  double *Q, double *P, int *Geno,double * randomArr)
   double sum=0.0;
   double * localRandom;
   int dims[3];
-  int dimMaxs[3] = {NUMINDS,NUMLOCI,MAXRANDOM};
+  int dimMaxs[3] = {NUMINDS,NUMLOCI,LINES};
   int randomValsTaken;
   int allele;
 
-  localRandom = calloc(MAXRANDOM,sizeof(double));
+  localRandom = calloc(LINES,sizeof(double));
   Cutoffs = calloc (MAXPOPS, sizeof (double));
   if (Cutoffs == NULL) {
     printf ("WARNING: unable to allocate array space in UpdateZ\n");
@@ -87,7 +87,7 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,double *
     err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[GENOCL], CL_TRUE, 0, sizeof(int) * GENOSIZE, Geno, 0, NULL, NULL);
     handleCLErr(err,"Error: Failed to write buffer geno!");
 
-    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[RANDCL], CL_TRUE, 0, sizeof(double) * RANDSIZE, randomArr, 0, NULL, NULL);
+    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[RANDCL], CL_TRUE, 0, sizeof(double) * NUMINDS*NUMLOCI*LINES, randomArr, 0, NULL, NULL);
     handleCLErr(err,"Error: Failed to write buffer rand!");
 
     err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[ERRORCL], CL_TRUE, 0, sizeof(int), error, 0, NULL, NULL);
