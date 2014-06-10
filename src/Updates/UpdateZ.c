@@ -65,8 +65,8 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,double *
     cl_int err;
     size_t local;
     size_t *global;
-
-
+    /* for error handling in kernel */
+    int *error = calloc(1,sizeof(int));
 
     global = calloc(2,sizeof(size_t));
     global[0] = NUMINDS;
@@ -99,6 +99,9 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,double *
     err = clSetKernelArg(clDict->kernels[UpdateZKernel], 4, sizeof(cl_mem), &(clDict->buffers[ZCL]));
     handleCLErr(err,"Error: Failed to set arg 4!");
 
+    err = clSetKernelArg(clDict->kernels[UpdateZKernel], 5, sizeof(int*),error);
+    handleCLErr(err,"Error: Failed to set arg 5!");
+
     err = clGetKernelWorkGroupInfo(clDict->kernels[UpdateZKernel], clDict->device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL);
     handleCLErr(err,"Error: Failed to retrieve kernel work group info!");
 
@@ -108,6 +111,14 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,double *
     err = clFinish(clDict->commands);
 
     err = clEnqueueReadBuffer(clDict->commands, clDict->buffers[ZCL], CL_TRUE, 0, sizeof(int) * ZSIZE, Z, 0, NULL, NULL );
+
+    if (*error != KERNEL_SUCCESS ){
+        ReleaseCLDict(clDict);
+        printf("Error in Kernel\n");
+        PrintKernelError(*error);
+        exit(EXIT_FAILURE);
+    }
+
     free(global);
 }
 

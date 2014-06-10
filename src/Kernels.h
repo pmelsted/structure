@@ -3,6 +3,7 @@ extern int InitCLDict(CLDict *clDictToInit);
 extern void ReleaseCLDict(CLDict *clDict);
 extern int CompileKernels(CLDict *clDict, char * names[], char *vals[],int numVals);
 extern void printCLErr(cl_int err);
+extern void PrintKernelError(int error);
 extern void handleCLErr(cl_int err,char * message);
 extern void createCLBuffers(CLDict *clDict);
 extern void copyToLocal( double * globalArr, double *localArr,

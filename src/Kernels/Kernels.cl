@@ -10,6 +10,7 @@
 #define NUMINDS %numinds%
 //#define NOTAMBIGUOUS %notambiguous%
 #define NOTAMBIGUOUS -1
+#define MAXRANDOM 2
 
 #define GenPos(ind,line,loc) ((ind)*(LINES)*(NUMLOCI)+(line)*(NUMLOCI)+(loc))
 #define ZPos(ind,line,loc) ((ind)*(LINES)*(NUMLOCI)+(line)*(NUMLOCI)+(loc))
@@ -17,13 +18,15 @@
 #define QPos(ind,pop) ((ind)*(MAXPOPS)+(pop))
 
 #include "Kernels/util.cl"
+#include "Kernels/KernelErrors.h"
 
 __kernel void UpdateZ (
    __global double* Q, /* input */
    __global double* P,  /* input */
    __global int* Geno,/* input */
    __global double* randArr, /*random numbers*/
-   __global int* Z /* output */
+   __global int* Z, /* output */
+   __global int* error
    )
 {
    // TODO: Add a global variable that can be set to an error code
@@ -60,6 +63,9 @@ __kernel void UpdateZ (
               }
               Z[ZPos (ind, line, loc)] = PickAnOptionDiscrete (MAXPOPS, sum, Cutoffs,localRandom, &randomValsTaken);
            }
+       }
+       if (randomValsTaken > MAXRANDOM){
+           *error = KERNEL_OUT_OF_BOUNDS;
        }
    }
 }

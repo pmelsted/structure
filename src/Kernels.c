@@ -63,6 +63,12 @@ void printCLErr(cl_int err)
     }
 }
 
+void PrintKernelError(int error){
+    switch(error){
+        case KERNEL_SUCCESS: printf("No error, Kernel success\n"); break;
+        case KERNEL_OUT_OF_BOUNDS: printf("Kernel out of bounds\n"); break;
+    }
+}
 
 void ReleaseCLDict(CLDict *clDict)
 {

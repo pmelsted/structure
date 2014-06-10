@@ -1,4 +1,5 @@
 #include <CL/cl.h>
+#include "Kernels/KernelErrors.h"
 
 enum KERNEL {
     UpdateZKernel,
