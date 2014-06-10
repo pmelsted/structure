@@ -21,7 +21,7 @@ void UpdateZ (int *Z,  double *Q, double *P, int *Geno,double * randomArr)
   double * localRandom;
   int dims[3];
   int dimMaxs[3] = {NUMINDS,NUMLOCI,MAXRANDOM};
-  int randomValsTaken =0;
+  int randomValsTaken;
   int allele;
 
   localRandom = calloc(MAXRANDOM,sizeof(double));
@@ -50,6 +50,7 @@ void UpdateZ (int *Z,  double *Q, double *P, int *Geno,double * randomArr)
             sum += Cutoffs[pop];
           }
           Z[ZPos (ind, line, loc)] = PickAnOptionDiscrete (MAXPOPS, sum, Cutoffs,localRandom,&randomValsTaken);
+          /*Z[ZPos (ind, line, loc)] = PickAnOptionDiscrete (MAXPOPS, sum, Cutoffs,randomArr,&randomValsTaken);*/
         }
       }
     }
