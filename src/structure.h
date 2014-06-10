@@ -15,12 +15,7 @@
 #define LAMBDAMAX  10           /*max value of lambda*/
 #define LAMBDAPROPSD 0.3          /*SD for proposal for lambda*/
 
-#define QSIZE NUMINDS*MAXPOPS
-#define PSIZE NUMLOCI*MAXPOPS*MAXALLELES
-#define ZSIZE NUMINDS*LINES*NUMLOCI
-#define GENOSIZE LINES*NUMLOCI*NUMINDS
-#define RANDSIZE NUMINDS*NUMLOCI*LINES
-#define MAXRANDOM 2
+#include "structuredefs.h"
 
 /*return appropriate positions in each array... */
 #define GenPos(ind,line,loc) ((ind)*(LINES)*(NUMLOCI)+(line)*(NUMLOCI)+(loc))	/*Geno */

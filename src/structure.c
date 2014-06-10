@@ -312,11 +312,13 @@ int main (int argc, char *argv[])
 
     UpdateP (P,LogP, Epsilon, Fst, NumAlleles, Geno, Z, lambda, Individual);
 
+    /* Update Q */
+    FillArrayWithRandom(randomArr,NUMINDS*MAXRANDOM);
     if (LINKAGE && rep >= ADMBURNIN) {
       UpdateQMetroRecombine (Geno, Q, Z, P, Alpha, rep,
-                             Individual, Mapdistance, R, Phase,Phasemodel);
+                             Individual, Mapdistance, R, Phase,Phasemodel,randomArr);
     } else {
-      UpdateQ (Geno, PreGeno, Q, P, Z, Alpha, rep, Individual, UsePopProbs, Recessive, LocPrior);
+      UpdateQ (Geno, PreGeno, Q, P, Z, Alpha, rep, Individual, UsePopProbs, Recessive, LocPrior,randomArr);
     }
 
     if (LOCPRIOR && UPDATELOCPRIOR) {
@@ -337,7 +339,7 @@ int main (int argc, char *argv[])
                                        Mapdistance, rep, Phase, Z1,Phasemodel, rep+1 > BURNIN ? sumIndLikes:NULL, indLikesNorm);
       }
     } else {
-      FillArrayWithRandom(randomArr,NUMINDS*NUMLOCI);
+      FillArrayWithRandom(randomArr,RANDSIZE);
       compareZCLandZ(clDict,Z,Q,P,Geno,randomArr);
       UpdateZCL (clDict,Z,  Q, P, Geno,randomArr);
       /*

@@ -34,19 +34,18 @@ __kernel void UpdateZ (
    int line;
    double Cutoffs[MAXPOPS];
    double sum;
-   double localRandom[2];
+   double localRandom[MAXRANDOM];
 
    int ind = get_global_id(0);
    int loc = get_global_id(1); /* is this correct? */
-   int dimMaxs[3] = {NUMINDS,NUMLOCI,LINES};
-   int dims[3] = {ind,loc,0};
+   int dims[3];
+   int dimMaxs[3] = {NUMINDS,NUMLOCI,MAXRANDOM};
    int randomValsTaken = 0;
-   double randVal;
-   copyToLocal(randArr,localRandom,dims,dimMaxs,3);
 
    if(ind < NUMINDS && loc < NUMLOCI){
+       dims[0] = ind; dims[1] = loc; dims[2] = 0;
+       copyToLocal(randArr,localRandom,dims,dimMaxs,3);
        for (line = 0; line < LINES; line++) {
-           dims[2] = line;
            allele = Geno[GenPos (ind,line,loc)];
            if (allele == MISSING) {   /*Missing Data */
              Z[ZPos (ind, line, loc)] = UNASSIGNED;

@@ -5,9 +5,10 @@
 #include "../mymath.h"
 #include "../structure.h"
 #include "../output.h"
+#include "../Kernels.h"
 #include "ForwardAndBackward.h"
 
-void UpdateQAdmixture (double *Q, int *Z, double *Alpha, struct IND *Individual);
+void UpdateQAdmixture (double *Q, int *Z, double *Alpha, struct IND *Individual, double * randomArr);
 
 
 /*------------------------------------------*/
@@ -36,7 +37,8 @@ void GetNumLociPop (int *NumLociPop, int *Z, int ind)
 /*----------------------------------------*/
 /*Melissa updated 7/12/07 to incorporate locprior*/
 void UpdateQMetro (int *Geno, int *PreGeno, double *Q, double *P,
-                   double *Alpha, int rep, struct IND *Individual, int *Recessive)
+                   double *Alpha, int rep, struct IND *Individual, int *Recessive,
+                   double * randomArr)
     /*
      * The goal with this function is to improve mixing when alpha is
      * small.  The problem is that in that situation the Q's can't move
@@ -60,8 +62,14 @@ void UpdateQMetro (int *Geno, int *PreGeno, double *Q, double *P,
   double randomnum;
   int ind;
   int numhits = 0;
+
+  int randomValsTaken;
+  double * localRandom;
+  int dims[2];
+  int dimMaxs[2] = {NUMINDS,MAXRANDOM};
   /*  int i, ok; */
 
+  localRandom = calloc(MAXRANDOM,sizeof(double));
   /*  PriorQ1 = calloc (MAXPOPS, sizeof (double)); */
   CurrentQ = calloc (MAXPOPS, sizeof (double));
   TestQ = calloc (MAXPOPS, sizeof (double));
@@ -78,6 +86,9 @@ void UpdateQMetro (int *Geno, int *PreGeno, double *Q, double *P,
   PriorQ1 = Alpha;
 
   for (ind = 0; ind < NUMINDS; ind++) {
+    dims[0] = ind; dims[1] =  0;
+    copyToLocal(randomArr,localRandom,dims,dimMaxs,2);
+    randomValsTaken =0;
     if (!((USEPOPINFO) && (Individual[ind].PopFlag))) {
       /* ie don't use individuals for whom prior pop info is used */
 
@@ -89,8 +100,8 @@ void UpdateQMetro (int *Geno, int *PreGeno, double *Q, double *P,
       if (LOCPRIOR) {
     PriorQ1 = &Alpha[AlphaPos(Individual[ind].myloc, 0)];
       }
+      RDirichletDisc (PriorQ1, MAXPOPS, TestQ,localRandom,&randomValsTaken);     /*return TestQ, sampled from the prior */
 
-      RDirichlet (PriorQ1, MAXPOPS, TestQ);     /*return TestQ, sampled from the prior */
       /*  for (i=0;i<MAXPOPS;i++)
       if (TestQ[i]==0) { ok=0; break;}
       }
@@ -116,7 +127,7 @@ void UpdateQMetro (int *Geno, int *PreGeno, double *Q, double *P,
       logdiff += CalcLikeInd (Geno, PreGeno, TestQ, P, ind, Recessive);  /*likelihood bit */
       logdiff -= CalcLikeInd (Geno, PreGeno, CurrentQ, P, ind, Recessive);
 
-      randomnum = RandomReal (0.0, 1.0);
+      randomnum = rndDisc(localRandom,&randomValsTaken);
       if (randomnum < exp (logdiff)) {    /*accept */
     for (pop = 0; pop < MAXPOPS; pop++) {
       Q[QPos (ind, pop)] = TestQ[pop];
@@ -145,7 +156,7 @@ void UpdateQMetro (int *Geno, int *PreGeno, double *Q, double *P,
 /*----------------------------------------*/
 /*O(NUMINDS*MAXPOPS*LINES*NUMLOCI)*/
 void
-UpdateQNoAdmix (int *Geno, double *Q, double *P, struct IND *Individual, double *LocPrior)
+UpdateQNoAdmix (int *Geno, double *Q, double *P, struct IND *Individual, double *LocPrior,double * randomArr)
     /*
      * Assign each individual to exactly one population according to the
      * conditional probabilities.
@@ -216,7 +227,7 @@ UpdateQNoAdmix (int *Geno, double *Q, double *P, struct IND *Individual, double 
 
 /*-----------------------------------------*/
 void UpdateQAdmixture (double *Q, int *Z, double *Alpha,
-                       struct IND *Individual)
+                       struct IND *Individual,double * randomArr)
     /*update Q: proportion of ancest of each ind in each pop. */
 {
   int *NumLociPop;              /*[MAXPOPS] -- number of alleles from each pop (by ind) */
@@ -258,7 +269,8 @@ void UpdateQAdmixture (double *Q, int *Z, double *Alpha,
 /*-----------------------------------------*/
 void
 UpdateQWithPops (int *Geno, double *Q, double *P, int *Z, double *Alpha,
-                 int rep, struct IND *Individual, double *UsePopProbs)
+                 int rep, struct IND *Individual, double *UsePopProbs,
+                 double * randomArr)
     /*
      * This version of UpdateQ is used when the USEPOPINFO flag is
      * turned on, indicating that the prior information about population
@@ -468,7 +480,7 @@ UpdateQWithPops (int *Geno, double *Q, double *P, int *Z, double *Alpha,
 /*-----------------------------------------*/
 /*Melissa updated 7/12/07 to incorporate LocPriors*/
 void UpdateQ (int *Geno, int *PreGeno, double *Q, double *P, int *Z, double *Alpha, int rep,
-              struct IND *Individual, double *UsePopProbs, int *Recessive, double *LocPrior)
+              struct IND *Individual, double *UsePopProbs, int *Recessive, double *LocPrior,double * randomArr)
     /*
      * update Q: proportion of ancest of each ind in each pop. Three
      * main options here.  One is update Q with admixture, one is update
@@ -481,22 +493,22 @@ void UpdateQ (int *Geno, int *PreGeno, double *Q, double *P, int *Z, double *Alp
 {
 
   if (USEPOPINFO) {               /*update with prior population information */
-    UpdateQWithPops (Geno, Q, P, Z, Alpha, rep, Individual, UsePopProbs);
+    UpdateQWithPops (Geno, Q, P, Z, Alpha, rep, Individual, UsePopProbs,randomArr);
   }
 
   if (NOADMIX) {                  /*no admixture model */
     /* don't use ADMIBURNIN with LOCPRIOR models */
     if ((rep > ADMBURNIN) || (rep > BURNIN) || LOCPRIOR) {
-      UpdateQNoAdmix (Geno, Q, P, Individual, LocPrior);
+      UpdateQNoAdmix (Geno, Q, P, Individual, LocPrior,randomArr);
     } else {
-      UpdateQAdmixture (Q, Z, Alpha, Individual);       /*initial burnin */
+      UpdateQAdmixture (Q, Z, Alpha, Individual,randomArr);       /*initial burnin */
     }
   } else {
     /*admixture model */
     if (METROFREQ > 0 && rep%METROFREQ==0) {
-      UpdateQMetro (Geno, PreGeno, Q, P, Alpha, rep, Individual, Recessive);
+      UpdateQMetro (Geno, PreGeno, Q, P, Alpha, rep, Individual, Recessive,randomArr);
     } else {
-      UpdateQAdmixture (Q, Z, Alpha, Individual);
+      UpdateQAdmixture (Q, Z, Alpha, Individual,randomArr);
     }
   }
 }
@@ -505,7 +517,8 @@ void
 UpdateQMetroRecombine (int *Geno, double *Q, int *Z, double *P,
                        double *Alpha, int rep, struct IND *Individual,
                        double *Mapdistance, double *R,
-                       double *Phase,int *Phasemodel)
+                       double *Phase,int *Phasemodel,
+                       double * randomArr)
     /*
      * This function does the same job as UpdateQMetro in the case
      * when there is recombination.

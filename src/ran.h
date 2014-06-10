@@ -21,4 +21,6 @@ extern void LogRDirichlet (const double *a, const int k, double *b,double *c);
 extern void FillArrayWithRandom(double *random, int n);
 extern double numToRange(double low, double high, double num);
 extern double rndDisc(double * localRandom, int * randomValsTaken);
+extern double RGammaDisc(double n,double lambda,double * localRandom, int * randomValsTaken);
+extern void RDirichletDisc(const double * a, const int k, double * b,double * localRandom, int * randomValsTaken);
 

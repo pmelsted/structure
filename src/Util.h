@@ -11,3 +11,4 @@ extern void FreeAll(double *Mapdistance, double *Phase, int *Phasemodel, double 
          int *AncestDist, double *UsePopProbs, double *LocPrior, double *sumLocPrior,
          double *Alpha, double *sumAlpha, double *sumIndLikes, double *indLikesNorm, CLDict *clDict);
 extern double logsumexp(double a, double b);
+
