@@ -1,3 +1,5 @@
+#ifndef KernelDefs
+#define KernelDefs
 #include <CL/cl.h>
 #include "Kernels/KernelErrors.h"
 
@@ -30,3 +32,5 @@ typedef struct CLDict {
     cl_device_id device_id;
     cl_command_queue commands;
 } CLDict;
+#endif
+

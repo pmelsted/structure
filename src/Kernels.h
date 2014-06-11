@@ -1,3 +1,5 @@
+#ifndef Kernels
+#define Kernels
 #include "KernelDefs.h"
 extern int InitCLDict(CLDict *clDictToInit);
 extern void ReleaseCLDict(CLDict *clDict);
@@ -9,3 +11,5 @@ extern void createCLBuffers(CLDict *clDict);
 extern void copyToLocal( double * globalArr, double *localArr,
                   int * dims, int * dimMaxs, int numDims);
 extern int dimLoc(int * dims, int * dimMaxs, int numDims);
+#endif
+
