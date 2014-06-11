@@ -40,8 +40,9 @@ __kernel void UpdateZ (
    /* we can't malloc in opencl, but we need only space for one */
    RndDiscState randState[1];
 
+   initRndDiscState(randState,randArr,LINES);
    if(ind < NUMINDS && loc < NUMLOCI){
-       initRndDiscState(randState,randArr,LINES, ind*NUMLOCI*LINES + loc*LINES);
+       rndDiscStateReset(randState,ind*NUMLOCI*LINES + loc*LINES);
        for (line = 0; line < LINES; line++) {
            allele = Geno[GenPos (ind,line,loc)];
            if (allele == MISSING) {   /*Missing Data */

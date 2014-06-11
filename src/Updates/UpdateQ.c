@@ -81,8 +81,9 @@ void UpdateQMetro (int *Geno, int *PreGeno, double *Q, double *P,
 
   PriorQ1 = Alpha;
 
+  initRndDiscState(randState,randomArr,MAXRANDOM);
   for (ind = 0; ind < NUMINDS; ind++) {
-    initRndDiscState(randState,randomArr,MAXRANDOM, ind*MAXRANDOM);
+    rndDiscStateReset(randState, ind*MAXRANDOM);
     if (!((USEPOPINFO) && (Individual[ind].PopFlag))) {
       /* ie don't use individuals for whom prior pop info is used */
 

@@ -2,11 +2,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void initRndDiscState(RndDiscState *state, double * randomArr,
-                     int maxrandom, int baseOffset)
+void initRndDiscState(RndDiscState *state, double * randomArr, int maxrandom)
 {
     state->randomArr = randomArr;
     state->maxrandom = maxrandom;
+    state->baseOffset = 0;
+    state->randomValsTaken = 0;
+}
+
+void rndDiscStateReset(RndDiscState *state, int baseOffset)
+{
     state->baseOffset = baseOffset;
     state->randomValsTaken = 0;
 }

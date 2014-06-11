@@ -30,10 +30,11 @@ void UpdateZ (int *Z,  double *Q, double *P, int *Geno,double * randomArr)
     Kill ();
   }
 
+  initRndDiscState(randState,randomArr,LINES);
   /*O*(NUMINDS*LINES*NUMLOCI*MAXPOPS)*/
   for (ind = 0; ind < NUMINDS; ind++) {  /*go through all alleles in sample */
     for (loc = 0; loc < NUMLOCI; loc++) {
-      initRndDiscState(randState,randomArr,LINES, ind*NUMLOCI*LINES + loc*LINES);
+      rndDiscStateReset(randState, ind*NUMLOCI*LINES + loc*LINES);
       for (line = 0; line < LINES; line++) {
         allele = Geno[GenPos (ind, line, loc)];
 
