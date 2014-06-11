@@ -1,4 +1,5 @@
 #include "structuredefs.h"
+#include "randGen.h"
 
 /*Library of random number generating functions.
 
@@ -1011,26 +1012,11 @@ double numToRange(double low, double high, double num)
 }
 
 
-/*
- *  Takes a random number from an array and returns it,
- *  updating randomValsTaken to keep track of how many
- *  values have been consumed.
- */
-double rndDisc(double * localRandom, int * randomValsTaken)
-{
-    if (*randomValsTaken > MAXRANDOM){
-        printf("Too many random vals taken!\n");
-        printf("Random values taken %d\n", *randomValsTaken -1);
-        exit(1);
-    }
-    return localRandom[(*randomValsTaken)++];
-}
-
 /*-----------Gamma and dirichlet from Matt.----------*/
   /* gamma random generator from Ripley, 1987, P230 */
 
 
-double RGammaDisc(double n,double lambda,double * localRandom, int * randomValsTaken)
+double RGammaDisc(double n,double lambda,RndDiscState *randState)
 {
 
   double aa;
@@ -1044,86 +1030,86 @@ double RGammaDisc(double n,double lambda,double * localRandom, int * randomValsT
 		const double b=(n+E)/E;
 		double p=0.0;
 		one:
-		p=b*rndDisc(localRandom,randomValsTaken);
-		if(p>1) goto two;
-		x=exp(log(p)/n);
-		if(x>-log(rndDisc(localRandom,randomValsTaken))) goto one;
-		goto three;
-		two:
-		x=-log((b-p)/n);
-		if (((n-1)*log(x))<log(rndDisc(localRandom,randomValsTaken))) goto one;
-		three:;
-	}
-	else if(n==1.0)
+		p=b*rndDisc(randState);
+            if(p>1) goto two;
+            x=exp(log(p)/n);
+            if(x>-log(rndDisc(randState))) goto one;
+            goto three;
+            two:
+            x=-log((b-p)/n);
+            if (((n-1)*log(x))<log(rndDisc(randState))) goto one;
+            three:;
+        }
+        else if(n==1.0)
 
-	  /* exponential random variable, from Ripley, 1987, P230  */
-	{
-		double a=0.0;
-		double u,u0,ustar;
-	ten:
-		u=rndDisc(localRandom,randomValsTaken);
-		u0=u;
-	twenty:
-		ustar=rndDisc(localRandom,randomValsTaken);
-		if(u<ustar) goto thirty;
-		u=rndDisc(localRandom,randomValsTaken);
-		if(u<ustar) goto twenty;
-		a++;
-		goto ten;
-	thirty:
-		return (a+u0)/lambda;
-	}
-	else
-	{
-		double static nprev=0.0;
-		double static c1=0.0;
-		double static c2=0.0;
-		double static c3=0.0;
-		double static c4=0.0;
-		double static c5=0.0;
-		double u1;
-		double u2;
-		if(n!=nprev)
-		{
-			c1=n-1.0;
-			aa=1.0/c1;
-			c2=aa*(n-1/(6*n));
-			c3=2*aa;
-			c4=c3+2;
-			if(n>2.5) c5=1/sqrt(n);
-		}
-		four:
-		u1=rndDisc(localRandom,randomValsTaken);
-		u2=rndDisc(localRandom,randomValsTaken);
-		if(n<=2.5) goto five;
-		u1=u2+c5*(1-1.86*u1);
-		if ((u1<=0) || (u1>=1)) goto four;
-		five:
-		w=c2*u2/u1;
-		if(c3*u1+w+1.0/w < c4) goto six;
-		if(c3*log(u1)-log(w)+w >=1) goto four;
-		six:
-		x=c1*w;
-            nprev=n;
-	}
+          /* exponential random variable, from Ripley, 1987, P230  */
+        {
+            double a=0.0;
+            double u,u0,ustar;
+        ten:
+            u=rndDisc(randState);
+            u0=u;
+        twenty:
+            ustar=rndDisc(randState);
+            if(u<ustar) goto thirty;
+            u=rndDisc(randState);
+            if(u<ustar) goto twenty;
+            a++;
+            goto ten;
+        thirty:
+            return (a+u0)/lambda;
+        }
+        else
+        {
+            double static nprev=0.0;
+            double static c1=0.0;
+            double static c2=0.0;
+            double static c3=0.0;
+            double static c4=0.0;
+            double static c5=0.0;
+            double u1;
+            double u2;
+            if(n!=nprev)
+            {
+                c1=n-1.0;
+                aa=1.0/c1;
+                c2=aa*(n-1/(6*n));
+                c3=2*aa;
+                c4=c3+2;
+                if(n>2.5) c5=1/sqrt(n);
+            }
+            four:
+            u1=rndDisc(randState);
+            u2=rndDisc(randState);
+            if(n<=2.5) goto five;
+            u1=u2+c5*(1-1.86*u1);
+            if ((u1<=0) || (u1>=1)) goto four;
+            five:
+            w=c2*u2/u1;
+            if(c3*u1+w+1.0/w < c4) goto six;
+            if(c3*log(u1)-log(w)+w >=1) goto four;
+            six:
+            x=c1*w;
+                nprev=n;
+        }
 
-	return x/lambda;
-}
+        return x/lambda;
+    }
 
 
-/* Dirichlet random generator
-   a and b are arrays of length k, containing doubles.
-   a is the array of parameters
-   b is the output array, where b ~ Dirichlet(a)
-   */
+    /* Dirichlet random generator
+       a and b are arrays of length k, containing doubles.
+       a is the array of parameters
+       b is the output array, where b ~ Dirichlet(a)
+       */
 
-void RDirichletDisc(const double * a, const int k, double * b,double * localRandom, int * randomValsTaken)
-{
-    int i;
-	double sum=0.0;
-	for(i=0;i<k;i++)
-	{
-		b[i]=RGammaDisc(a[i],1,localRandom,randomValsTaken);
+    void RDirichletDisc(const double * a, const int k, double * b,RndDiscState *randState)
+    {
+        int i;
+        double sum=0.0;
+        for(i=0;i<k;i++)
+        {
+		b[i]=RGammaDisc(a[i],1,randState);
 		sum += b[i];
 	}
 	for(i=0;i<k;i++)

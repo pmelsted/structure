@@ -1,7 +1,9 @@
+#include "randGen.h"
 extern double Square(double x);
 extern double SampleVar(double sumsq,double sum,long num);
 extern int PickAnOption(int total,double sum,double cutoffs[]);
-extern int PickAnOptionDiscrete(int total,double sum,double cutoffs[],double * randomArr, int * randomValsTaken);
+extern int PickAnOptionDiscrete(int total,double sum,double Probs[],
+                         RndDiscState *randState);
 extern double SD(double sumsq, double sum, long num);
 extern double LDirichletProb(double prior[],double post[],int length);
 extern double LGammaDistProb(double alpha,double beta, double y);

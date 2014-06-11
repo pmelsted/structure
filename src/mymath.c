@@ -102,7 +102,7 @@ int PickAnOption(int total,double sum,double Probs[])
 
 
 int PickAnOptionDiscrete(int total,double sum,double Probs[],
-                         double * randomArr, int * randomValsTaken)
+                         RndDiscState *randState)
 {
   /*Returns a random number between 0 and n-1, according to a list of
     probabilities.  The function takes a (possibly) unnormalized
@@ -114,7 +114,7 @@ int PickAnOptionDiscrete(int total,double sum,double Probs[],
   double random;
   double sumsofar = 0.0;
 
-  random = numToRange(0,sum, rndDisc(randomArr,randomValsTaken));     /*Get uniform random real in this range*/
+  random = numToRange(0,sum, rndDisc(randState));     /*Get uniform random real in this range*/
   for (option=0; option<total; option++) /*Figure out which popn this is*/
     {
       sumsofar += Probs[option];
@@ -128,7 +128,7 @@ int PickAnOptionDiscrete(int total,double sum,double Probs[],
 
 /*---------------------------------*/
 double LDirichletProb(double prior[],double post[],int length)
-/*returns the log probability of a vector "post" of length "length", 
+/*returns the log probability of a vector "post" of length "length",
   given a Dirichlet process with prior "prior". */
 {
   double sumprior = 0.0;
@@ -141,12 +141,12 @@ double LDirichletProb(double prior[],double post[],int length)
   logsum = mylgamma(sumprior);
   for (i=0; i<length; i++)
     logsum += (prior[i]-1.0)*log(post[i]) - mylgamma(prior[i]);
-  
+
   return logsum;
 }
 /*---------------------------------*/
 double LGammaDistProb(double alpha,double beta, double y)
-/* 
+/*
  * returns the log probability of a gamma-distributed random
  * variable "y", with parameters alpha and beta, where the mean
  * is alpha*beta, and the variance is alpha*beta*beta

@@ -63,13 +63,10 @@ void UpdateQMetro (int *Geno, int *PreGeno, double *Q, double *P,
   int ind;
   int numhits = 0;
 
-  int randomValsTaken;
-  double * localRandom;
-  int dims[2];
-  int dimMaxs[2] = {NUMINDS,MAXRANDOM};
+  RndDiscState *randState;
   /*  int i, ok; */
 
-  localRandom = calloc(MAXRANDOM,sizeof(double));
+  randState = malloc(sizeof(RndDiscState));
   /*  PriorQ1 = calloc (MAXPOPS, sizeof (double)); */
   CurrentQ = calloc (MAXPOPS, sizeof (double));
   TestQ = calloc (MAXPOPS, sizeof (double));
@@ -86,9 +83,7 @@ void UpdateQMetro (int *Geno, int *PreGeno, double *Q, double *P,
   PriorQ1 = Alpha;
 
   for (ind = 0; ind < NUMINDS; ind++) {
-    dims[0] = ind; dims[1] =  0;
-    copyToLocal(randomArr,localRandom,dims,dimMaxs,2);
-    randomValsTaken =0;
+    initRndDiscState(randState,randomArr,MAXRANDOM, ind*MAXRANDOM);
     if (!((USEPOPINFO) && (Individual[ind].PopFlag))) {
       /* ie don't use individuals for whom prior pop info is used */
 
@@ -100,7 +95,7 @@ void UpdateQMetro (int *Geno, int *PreGeno, double *Q, double *P,
       if (LOCPRIOR) {
     PriorQ1 = &Alpha[AlphaPos(Individual[ind].myloc, 0)];
       }
-      RDirichletDisc (PriorQ1, MAXPOPS, TestQ,localRandom,&randomValsTaken);     /*return TestQ, sampled from the prior */
+      RDirichletDisc (PriorQ1, MAXPOPS, TestQ,randState);     /*return TestQ, sampled from the prior */
 
       /*  for (i=0;i<MAXPOPS;i++)
       if (TestQ[i]==0) { ok=0; break;}
@@ -127,7 +122,7 @@ void UpdateQMetro (int *Geno, int *PreGeno, double *Q, double *P,
       logdiff += CalcLikeInd (Geno, PreGeno, TestQ, P, ind, Recessive);  /*likelihood bit */
       logdiff -= CalcLikeInd (Geno, PreGeno, CurrentQ, P, ind, Recessive);
 
-      randomnum = rndDisc(localRandom,&randomValsTaken);
+      randomnum = rndDisc(randState);
       if (randomnum < exp (logdiff)) {    /*accept */
     for (pop = 0; pop < MAXPOPS; pop++) {
       Q[QPos (ind, pop)] = TestQ[pop];
@@ -150,6 +145,7 @@ void UpdateQMetro (int *Geno, int *PreGeno, double *Q, double *P,
   /*  free (PriorQ1); */
   free (CurrentQ);
   free (TestQ);
+  free(randState);
 }
 
 
