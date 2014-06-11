@@ -34,17 +34,14 @@ __kernel void UpdateZ (
    int line;
    double Cutoffs[MAXPOPS];
    double sum;
-   double localRandom[LINES];
 
    int ind = get_global_id(0);
    int loc = get_global_id(1); /* is this correct? */
-   int dims[3];
-   int dimMaxs[3] = {NUMINDS,NUMLOCI,LINES};
-   int randomValsTaken = 0;
+   /* we can't malloc in opencl, but we need only space for one */
+   RndDiscState randState[1];
 
    if(ind < NUMINDS && loc < NUMLOCI){
-       dims[0] = ind; dims[1] = loc; dims[2] = 0;
-       copyToLocal(randArr,localRandom,dims,dimMaxs,3);
+       initRndDiscState(randState,randArr,LINES, ind*NUMLOCI*LINES + loc*LINES);
        for (line = 0; line < LINES; line++) {
            allele = Geno[GenPos (ind,line,loc)];
            if (allele == MISSING) {   /*Missing Data */
@@ -56,10 +53,10 @@ __kernel void UpdateZ (
                 Cutoffs[pop] = Q[QPos (ind, pop)] * P[PPos (loc, pop, allele)];
                 sum += Cutoffs[pop];
               }
-              Z[ZPos (ind, line, loc)] = PickAnOptionDiscrete (MAXPOPS, sum, Cutoffs,localRandom, &randomValsTaken);
+              Z[ZPos (ind, line, loc)] = PickAnOptionDiscrete (MAXPOPS, sum, Cutoffs,randState);
            }
        }
-       if (randomValsTaken > MAXRANDOM){
+       if (randState->randomValsTaken > randState->maxrandom){
            *error = KERNEL_OUT_OF_BOUNDS;
        }
    }

@@ -63,10 +63,9 @@ void UpdateQMetro (int *Geno, int *PreGeno, double *Q, double *P,
   int ind;
   int numhits = 0;
 
-  RndDiscState *randState;
+  RndDiscState randState[1];
   /*  int i, ok; */
 
-  randState = malloc(sizeof(RndDiscState));
   /*  PriorQ1 = calloc (MAXPOPS, sizeof (double)); */
   CurrentQ = calloc (MAXPOPS, sizeof (double));
   TestQ = calloc (MAXPOPS, sizeof (double));
@@ -145,7 +144,6 @@ void UpdateQMetro (int *Geno, int *PreGeno, double *Q, double *P,
   /*  free (PriorQ1); */
   free (CurrentQ);
   free (TestQ);
-  free(randState);
 }
 
 

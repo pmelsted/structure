@@ -1,4 +1,5 @@
 #include "mwc64x.cl"
+#include "randGen.cl"
 #define RAND_MAX 4294967296.0f
 
 /*
@@ -46,9 +47,6 @@ void copyToLocal( __global double * globalArr, double *localArr,
     dims[numDims-1] = origLastDim;
 }
 
-double rndDisc(double * localRandom, int * randomValsTaken){
-    return localRandom[(*randomValsTaken)++];
-}
 
 /*
  *  Returns a random number between 0 and n-1, according to a list of
@@ -58,12 +56,12 @@ double rndDisc(double * localRandom, int * randomValsTaken){
  *  probabilities.  This comes up in the Gibbs sampler context.
  */
 int PickAnOptionDiscrete(int total, double sum, double Probs [],
-                         double *randomArr, int * randomValsTaken){
+                         RndDiscState *randState){
    int option;
    double random;
    double sumsofar =  0.0;
 
-   random = numToRange(0,sum, rndDisc(randomArr,randomValsTaken));
+   random = numToRange(0,sum, rndDisc(randState));
    for (option=0; option < total; ++option){
        sumsofar += Probs[option];
 	   if (random <= sumsofar) break;

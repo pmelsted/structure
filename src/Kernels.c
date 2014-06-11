@@ -384,6 +384,8 @@ int InitCLDict(CLDict *clDictToInit)
     if(compileret != EXIT_SUCCESS){
         printf("Kernels failed to compile!\n");
         return EXIT_FAILURE;
+    } else {
+        printf("Kernels compiled!\n");
     }
     createCLBuffers(clDictToInit);
     return EXIT_SUCCESS;
