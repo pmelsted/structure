@@ -7,6 +7,7 @@
 
 #define MAX_SOURCE_SIZE (0x100000)
 #define USEGPU 1
+#define NUMVALS 11
 
 
 void printCLErr(cl_int err)
@@ -294,8 +295,8 @@ int InitCLDict(CLDict *clDictToInit)
     cl_context context;
     cl_device_id device_id;
     cl_command_queue commands;
-    char *names[7];
-    char *vals[7];
+    char *names[NUMVALS];
+    char *vals[NUMVALS];
     int i;
     int DEVICETYPE;
     int err;
@@ -364,7 +365,7 @@ int InitCLDict(CLDict *clDictToInit)
      * to be inserted into the kernel code
      */
 
-    for(i = 0; i < 7; ++i){
+    for(i = 0; i < NUMVALS; ++i){
       vals[i] = calloc(255, sizeof(char));
     }
 
@@ -375,9 +376,13 @@ int InitCLDict(CLDict *clDictToInit)
     names[4] = "%lines%"; sprintf(vals[4],"%d",LINES);
     names[5] = "%numinds%"; sprintf(vals[5],"%d",NUMINDS);
     names[6] = "%maxrandom%"; sprintf(vals[6],"%d",MAXRANDOM);
+    names[7] = "%usepopinfo%"; sprintf(vals[7],"%d",USEPOPINFO);
+    names[8] = "%locprior%"; sprintf(vals[8],"%d",LOCPRIOR);
+    names[9] = "%notambiguous%"; sprintf(vals[9],"%d",NOTAMBIGUOUS);
+    names[10] = "%numlocations%"; sprintf(vals[10],"%d",NUMLOCATIONS);
 
-    compileret = CompileKernels(clDictToInit,names,vals,7);
-    for(i = 0; i < 7; ++i){
+    compileret = CompileKernels(clDictToInit,names,vals,NUMVALS);
+    for(i = 0; i < NUMVALS; ++i){
       free(vals[i]);
     }
 
@@ -423,15 +428,13 @@ void copyToLocal( double * globalArr, double *localArr,
 
 /*int main(int argc, char *argv[]){
     CLDict *clDict = NULL;
-    int numVals;
     int ret;
-    char *names[7] = {"%maxpops%", "%missing%", "%maxalleles%","%numloci%","%lines%","%numinds%","%maxrandom%"};
-    char *vals[7] = {"2", "-999", "15","15","2","20","2"};
+    char *names[NUMVALS] = {"%maxpops%", "%missing%", "%maxalleles%","%numloci%","%lines%","%numinds%","%maxrandom%","%usepopinfo%","%locprior%","%notambiguous%","%numlocations%"};
+    char *vals[NUMVALS] = {"2", "-999", "15","15","2","20","2","1","1","-1","5"};
     clDict = malloc(sizeof *clDict);
 
-    numVals = 7;
     InitCLDict(clDict);
-    ret = CompileKernels(clDict,names,vals,numVals);
+    ret = CompileKernels(clDict,names,vals,NUMVALS);
     printf("return code: %d\n",ret);
     ReleaseCLDict(clDict);
     return ret;
