@@ -69,14 +69,14 @@ int PickAnOptionDiscrete(int total, double sum, double Probs [],
    return option;
 }
 
-/*
+
 int AlphaPos(int loc, int pop){
     if((loc)==NUMLOCATIONS){
         return pop;
     } else {
         return (MAXPOPS*((loc)+1)+(pop));
     }
-}*/
+}
 
 /*-----------Gamma and dirichlet from Matt.----------*/
   /* gamma random generator from Ripley, 1987, P230 */
