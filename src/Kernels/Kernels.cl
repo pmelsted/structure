@@ -1,7 +1,7 @@
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable
-#define UNASSIGNED -9
 
 //These are inserted during PreProcessingDuringCompilation.
+#define UNASSIGNED -9
 #define MISSING %missing%
 #define MAXPOPS %maxpops%
 #define MAXALLELES %maxalleles%

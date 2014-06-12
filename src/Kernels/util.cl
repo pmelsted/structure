@@ -81,7 +81,7 @@ int AlphaPos(int loc, int pop){
 /*-----------Gamma and dirichlet from Matt.----------*/
   /* gamma random generator from Ripley, 1987, P230 */
 
-/*double RGammaDisc(double n,double lambda,RndDiscState *randState)
+double RGammaDisc(double n,double lambda,RndDiscState *randState)
 {
 
     double aa;
@@ -159,7 +159,7 @@ int AlphaPos(int loc, int pop){
     }
 
     return x/lambda;
-}*/
+}
 
 
 /* Dirichlet random generator
@@ -168,17 +168,17 @@ int AlphaPos(int loc, int pop){
    b is the output array, where b ~ Dirichlet(a)
    */
 
-/*void RDirichletDisc(double * a, int k, double * b,RndDiscState *randState)
+void RDirichletDisc(double * a, int k, double * b,RndDiscState *randState)
 {
     int i;
     double sum=0.0;
     for(i=0;i<k;i++)
     {
-        [>b[i]=RGammaDisc(a[i],1,randState);<]
+        b[i]=RGammaDisc(a[i],1,randState);
         sum += b[i];
     }
     for(i=0;i<k;i++)
     {
         b[i] /= sum;
     }
-}*/
+}

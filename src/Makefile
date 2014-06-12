@@ -96,11 +96,11 @@ Util.o: Util.c
 Kernels.o: Kernels.c
 	$(CC) -c Kernels.c $(OPT) $(CFLAGS)
 
-KernelsTest: Kernels.c
+KernelTest: Kernels.c
 	$(CC) -o KernelTest Kernels.c  -Wall -pedantic -lOpenCL
 
 clean:
-	@rm -f *.o structure
+	@rm -f *.o structure KernelTest
 
 test: structure
 	./structure -m testdata/mainparams -i testdata/testdata1.str -o testdata1.out
