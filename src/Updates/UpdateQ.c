@@ -119,11 +119,15 @@ void UpdateQMetro (int *Geno, int *PreGeno, double *Q, double *P,
       /* logdiff += log(TestQ[pop]) - log(CurrentQ[pop]);
      logdiff = logdiff*(alpha-1.0); removed prior prob bit */
 
-      logdiff += CalcLikeInd (Geno, PreGeno, TestQ, P, ind, Recessive);  /*likelihood bit */
-      logdiff -= CalcLikeInd (Geno, PreGeno, CurrentQ, P, ind, Recessive);
+    if (LINES==2 && RECESSIVEALLELES) {
+        logdiff += CalcLikeInd (Geno, PreGeno, TestQ, P, ind, Recessive);  /*likelihood bit */
+        logdiff -= CalcLikeInd (Geno, PreGeno, CurrentQ, P, ind, Recessive);
+    } else {
+        logdiff = CalcLikeIndDiff (Geno, PreGeno, TestQ, CurrentQ, P, ind, Recessive);
+    }
 
-      randomnum = rndDisc(randState);
-      if (randomnum < exp (logdiff)) {    /*accept */
+    randomnum = rndDisc(randState);
+    if (randomnum < exp (logdiff)) {    /*accept */
     for (pop = 0; pop < MAXPOPS; pop++) {
       Q[QPos (ind, pop)] = TestQ[pop];
     }

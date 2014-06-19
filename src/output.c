@@ -734,6 +734,69 @@ double CalcLikeInd (int *Geno, int *PreGeno, double *AncVector, double *P, int i
   return loglike;
 }
 
+
+double CalcLikeIndDiff (int *Geno, int *PreGeno, double *AncVectorPlus,double *AncVectorMinus, double *P, int ind, int *Recessive)
+{
+  /*returns log(likelihood) of Data for one individual:  log[ P(Data|p,q) ]
+    See notes 19 March 99 */
+
+  /*This likelihood is used for the metropolis update of Q*/
+
+  /* when there is genotypic ambiguity (eg in the recessive model) the likelihood
+     is computed in one of two ways: (1) for diploids it sums over possible
+     genotypes, and (2) for other ploidy it is computed based on the current
+     imputed genotypes
+
+     note code overlap with CalcLike, CalcLikeIndRecessive;
+     make any updates to all functions
+
+     Notice use of AncVector (Q for current individual only), not full Q)
+  */
+
+    double runningtotalPlus = 1, runningtotalMinus =1;
+    double logdiff = 0;
+    double termPlus, termMinus;
+    int allele;
+    int line, loc, pop;
+    double sqrtunder = sqrt (UNDERFLO);
+
+    for (line = 0; line < LINES; line++) {
+      for (loc = 0; loc < NUMLOCI; loc++) {
+        allele = Geno[GenPos (ind, line, loc)];
+        if (allele != MISSING) {
+          termPlus = 0.0;
+          termMinus = 0.0;
+          for (pop = 0; pop < MAXPOPS; pop++) {
+            termPlus += AncVectorPlus[pop] * P[PPos (loc, pop, allele)];
+            termMinus += AncVectorMinus[pop] * P[PPos (loc, pop, allele)];
+          }
+
+          runningtotalPlus *= termPlus > sqrtunder ? termPlus : sqrtunder;
+          runningtotalMinus *= termMinus > sqrtunder ? termMinus : sqrtunder;
+
+          if (runningtotalPlus < sqrtunder) { /*this is to avoid having to take logs all the time */
+            if (runningtotalPlus == 0.0) {
+              printf ("Error in CalcLikeInd\n");
+            }
+            logdiff += log (runningtotalPlus);
+            runningtotalPlus = 1;
+          }
+
+          if (runningtotalMinus < sqrtunder) { /*this is to avoid having to take logs all the time */
+            if (runningtotalMinus == 0.0) {
+              printf ("Error in CalcLikeInd\n");
+            }
+            logdiff -= log (runningtotalMinus);
+            runningtotalMinus = 1;
+          }
+        }
+      }
+    }
+
+    logdiff += log (runningtotalPlus);
+    logdiff -= log(runningtotalMinus);
+    return logdiff;
+}
 /*-----------------------------------------*/
 
 double CalcLikeRecessive(int *Geno, int *PreGeno, double *Q, double *P, int *Recessive, double *sumindlike, double *indlike_norm)

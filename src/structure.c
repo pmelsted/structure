@@ -310,7 +310,8 @@ int main (int argc, char *argv[])
 
   for (rep = 0; rep < (NUMREPS + BURNIN); rep++) {
 
-    UpdateP (P,LogP, Epsilon, Fst, NumAlleles, Geno, Z, lambda, Individual);
+    FillArrayWithRandom(randomArr,MAXALLELES*NUMLOCI*MAXRANDOM);
+    UpdateP (P,LogP, Epsilon, Fst, NumAlleles, Geno, Z, lambda, Individual,randomArr);
 
     /* Update Q */
     FillArrayWithRandom(randomArr,NUMINDS*MAXRANDOM);

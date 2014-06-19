@@ -1019,9 +1019,9 @@ double numToRange(double low, double high, double num)
 double RGammaDisc(double n,double lambda,RndDiscState *randState)
 {
 
-  double aa;
-  double w;
-  /*  int i; */
+    double aa;
+    double w;
+    /*  int i; */
 
 	double x=0.0;
 	if(n<1)
@@ -1030,90 +1030,153 @@ double RGammaDisc(double n,double lambda,RndDiscState *randState)
 		const double b=(n+E)/E;
 		double p=0.0;
 		one:
-		p=b*rndDisc(randState);
+            p=b*rndDisc(randState);
             if(p>1) goto two;
             x=exp(log(p)/n);
             if(x>-log(rndDisc(randState))) goto one;
             goto three;
-            two:
+        two:
             x=-log((b-p)/n);
             if (((n-1)*log(x))<log(rndDisc(randState))) goto one;
-            three:;
-        }
-        else if(n==1.0)
+        three:;
+    }
+    else if(n==1.0)
 
-          /* exponential random variable, from Ripley, 1987, P230  */
+      /* exponential random variable, from Ripley, 1987, P230  */
+    {
+        double a=0.0;
+        double u,u0,ustar;
+    ten:
+        u=rndDisc(randState);
+        u0=u;
+    twenty:
+        ustar=rndDisc(randState);
+        if(u<ustar) goto thirty;
+        u=rndDisc(randState);
+        if(u<ustar) goto twenty;
+        a++;
+        goto ten;
+    thirty:
+        return (a+u0)/lambda;
+    }
+    else
+    {
+        double static nprev=0.0;
+        double static c1=0.0;
+        double static c2=0.0;
+        double static c3=0.0;
+        double static c4=0.0;
+        double static c5=0.0;
+        double u1;
+        double u2;
+        if(n!=nprev)
         {
-            double a=0.0;
-            double u,u0,ustar;
-        ten:
-            u=rndDisc(randState);
-            u0=u;
-        twenty:
-            ustar=rndDisc(randState);
-            if(u<ustar) goto thirty;
-            u=rndDisc(randState);
-            if(u<ustar) goto twenty;
-            a++;
-            goto ten;
-        thirty:
-            return (a+u0)/lambda;
+            c1=n-1.0;
+            aa=1.0/c1;
+            c2=aa*(n-1/(6*n));
+            c3=2*aa;
+            c4=c3+2;
+            if(n>2.5) c5=1/sqrt(n);
         }
-        else
-        {
-            double static nprev=0.0;
-            double static c1=0.0;
-            double static c2=0.0;
-            double static c3=0.0;
-            double static c4=0.0;
-            double static c5=0.0;
-            double u1;
-            double u2;
-            if(n!=nprev)
-            {
-                c1=n-1.0;
-                aa=1.0/c1;
-                c2=aa*(n-1/(6*n));
-                c3=2*aa;
-                c4=c3+2;
-                if(n>2.5) c5=1/sqrt(n);
-            }
-            four:
-            u1=rndDisc(randState);
-            u2=rndDisc(randState);
-            if(n<=2.5) goto five;
-            u1=u2+c5*(1-1.86*u1);
-            if ((u1<=0) || (u1>=1)) goto four;
-            five:
-            w=c2*u2/u1;
-            if(c3*u1+w+1.0/w < c4) goto six;
-            if(c3*log(u1)-log(w)+w >=1) goto four;
-            six:
-            x=c1*w;
-                nprev=n;
-        }
-
-        return x/lambda;
+        four:
+        u1=rndDisc(randState);
+        u2=rndDisc(randState);
+        if(n<=2.5) goto five;
+        u1=u2+c5*(1-1.86*u1);
+        if ((u1<=0) || (u1>=1)) goto four;
+        five:
+        w=c2*u2/u1;
+        if(c3*u1+w+1.0/w < c4) goto six;
+        if(c3*log(u1)-log(w)+w >=1) goto four;
+        six:
+        x=c1*w;
+            nprev=n;
     }
 
+    return x/lambda;
+}
 
-    /* Dirichlet random generator
-       a and b are arrays of length k, containing doubles.
-       a is the array of parameters
-       b is the output array, where b ~ Dirichlet(a)
-       */
 
-    void RDirichletDisc(const double * a, const int k, double * b,RndDiscState *randState)
+/*
+ * Dirichlet random generator
+ * a and b are arrays of length k, containing doubles.
+ * a is the array of parameters
+ * b is the output array, where b ~ Dirichlet(a)
+ */
+
+void RDirichletDisc(const double * a, const int k, double * b,RndDiscState *randState)
+{
+    int i;
+    double sum=0.0;
+    for(i=0;i<k;i++)
     {
-        int i;
-        double sum=0.0;
-        for(i=0;i<k;i++)
-        {
-		b[i]=RGammaDisc(a[i],1,randState);
-		sum += b[i];
+        b[i]=RGammaDisc(a[i],1,randState);
+        sum += b[i];
 	}
 	for(i=0;i<k;i++)
 	{
 		b[i] /= sum;
 	}
+}
+
+/* Melissa's version, adapted from an algorithm on wikipedia.  January 08 */
+double LogRGammaDisc(double n, double lambda, RndDiscState *randState)
+{
+  double v0, v[3], E=2.71828182, em, logem, lognm;
+  int i;
+  if (lambda!=1.0) {
+    printf("lambda=%e!\n", lambda); exit(-1);
+  }
+  if (n >= 1.0) {
+    return log(RGammaDisc(n, lambda,randState));
+  }
+  v0 = E/(E+n);
+  while (1) {
+    for (i=0; i<3; i++) {
+      v[i] = rndDisc(randState);
+    }
+
+    if (v[0] <= v0) {
+      logem = 1.0/n*log(v[1]);
+      em = exp(logem);
+      lognm = log(v[2])+(n-1)*logem;
+    } else {
+      em = 1.0-log(v[1]);
+      logem = log(em);
+      lognm = log(v[2]) - em;
+    }
+    if (lognm <= (n-1)*logem - em) {
+      return logem - log(lambda);
+    }
+  }
+}
+
+/*O(k)*/
+void
+LogRDirichletDisc (const double *a, const int k, double *b,double *c, RndDiscState *randState)
+{
+  int i;
+  double sum = 0.0;
+  double sum2;
+  for (i = 0; i < k; i++) {
+    c[i] = LogRGammaDisc (a[i], 1,randState);
+    b[i]=exp(c[i]);
+    sum += b[i];
+  }
+
+  /* patch added May 2007 to set gene frequencies equal if all draws
+     from the Gamma distribution are very low.
+     Ensures that P and logP remain defined in this rare event */
+  if(sum<UNDERFLO) {
+    for(i=0;i<k;i++) {
+      b[i] = 1.0/(double)(k);
+      c[i] = log(b[i]);
+    }
+  } else {
+    sum2=log(sum);
+    for (i = 0; i < k; i++) {
+      c[i]-=sum2;
+      b[i]/=sum;
+    }
+  }
 }

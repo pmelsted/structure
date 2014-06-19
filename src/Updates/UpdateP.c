@@ -60,12 +60,13 @@ GetNumFromPop (int *NumAFromPop, int *Geno, int *Z, int loc,
  * O(NUMLOCI*(MAXPOPS*MAXALLELES + NUMINDS*LINES))
  */
 void UpdateP (double *P, double *LogP, double *Epsilon, double *Fst,
-              int *NumAlleles, int *Geno, int *Z, double *lambda, struct IND *Individual)
+              int *NumAlleles, int *Geno, int *Z, double *lambda, struct IND *Individual, double * randomArr)
     /*Simulate new allele frequencies from Dirichlet distribution */
 {
   int loc, pop, allele;
   double *Parameters;           /*[MAXALLS] **Parameters of posterior on P */
   int *NumAFromPop;             /*[MAXPOPS][MAXALLS] **number of each allele from each pop */
+  RndDiscState randState[1];
 
   Parameters = calloc(MAXALLELES, sizeof (double));
   NumAFromPop = calloc(MAXPOPS * MAXALLELES, sizeof (int));
@@ -75,7 +76,9 @@ void UpdateP (double *P, double *LogP, double *Epsilon, double *Fst,
     Kill ();
   }
 
+
   /* O(NUMLOCI*(MAXPOPS* (max_loc NumAlleles[loc]) + NUMINDS*LINES)) */
+  initRndDiscState(randState,randomArr,NUMLOCI*MAXALLELES*MAXRANDOM);
   for (loc = 0; loc < NUMLOCI; loc++) {
     /*count number of each allele from each pop */
     /*O(MAXPOPS*NumAlleles[loc] + NUMINDS*LINES) */
@@ -94,9 +97,10 @@ void UpdateP (double *P, double *LogP, double *Epsilon, double *Fst,
       }
       /*return a value of P simulated from the posterior Di(Parameters) */
       /*O(NumAlleles[loc]) */
-      LogRDirichlet (Parameters, NumAlleles[loc],
+      LogRDirichletDisc (Parameters, NumAlleles[loc],
 		     P + PPos (loc, pop, 0),
-		     LogP +PPos(loc,pop,0));
+		     LogP +PPos(loc,pop,0),
+             randState);
 
       /*need to worry about underflow in UpdateEpsilon due to
         allele frequencies being set to zero---hence previously used the
