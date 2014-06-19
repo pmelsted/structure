@@ -1,11 +1,11 @@
 __kernel void UpdateZ (
-   __global double* Q, /* input */
-   __global double* P,  /* input */
-   __global int* Geno,/* input */
-   __global double* randArr, /*random numbers*/
-   __global int* Z, /* output */
-   __global int* error
-   )
+    __global double* Q, /* input */
+    __global double* P,  /* input */
+    __global int* Geno,/* input */
+    __global double* randArr, /*random numbers*/
+    __global int* Z, /* output */
+    __global int* error
+)
 {
     int allele;
     int pop;
@@ -19,7 +19,7 @@ __kernel void UpdateZ (
     RndDiscState randState[1];
 
     initRndDiscState(randState,randArr,LINES);
-    if(ind < NUMINDS && loc < NUMLOCI){
+    if(ind < NUMINDS && loc < NUMLOCI) {
         rndDiscStateReset(randState,ind*NUMLOCI*LINES + loc*LINES);
         for (line = 0; line < LINES; line++) {
             allele = Geno[GenPos (ind,line,loc)];
@@ -29,15 +29,17 @@ __kernel void UpdateZ (
                 /*Data present */
                 sum = 0.0;    /*compute prob of each allele being from each pop */
                 for (pop = 0; pop < MAXPOPS; pop++) {
-                   Cutoffs[pop] = Q[QPos (ind, pop)] * P[PPos (loc, pop, allele)];
-                   sum += Cutoffs[pop];
+                    Cutoffs[pop] = Q[QPos (ind, pop)] *
+                                   P[PPos (loc, pop, allele)];
+                    sum += Cutoffs[pop];
                 }
-                Z[ZPos (ind, line, loc)] = PickAnOptionDiscrete (MAXPOPS, sum, Cutoffs,randState);
-           }
-       }
-       if (randState->randomValsTaken > randState->maxrandom){
+                Z[ZPos (ind, line, loc)] = PickAnOptionDiscrete (MAXPOPS,
+                                           sum, Cutoffs,randState);
+            }
+        }
+        if (randState->randomValsTaken > randState->maxrandom) {
             *error = KERNEL_OUT_OF_BOUNDS;
-       }
+        }
     }
 }
 

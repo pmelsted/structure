@@ -111,3 +111,5 @@ callgrind: prof structure
 cleanTest:
 	rm -f testdata1.out_f
 
+beautify:
+	astyle --style=kr -xC60 -c -j -Y -xw -R "*.c" "*.h" "*.cl"

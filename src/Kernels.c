@@ -12,62 +12,160 @@
 
 void printCLErr(cl_int err)
 {
-    switch (err)
-    {
-        case CL_SUCCESS: printf("CL_SUCCES S\n"); break;
-        case CL_DEVICE_NOT_FOUND: printf("CL_DEVICE_NOT_FOUND\n"); break;
-        case CL_DEVICE_NOT_AVAILABLE: printf("CL_DEVICE_NOT_AVAILABLE\n"); break;
-        case CL_COMPILER_NOT_AVAILABLE: printf("CL_COMPILER_NOT_AVAILABLE\n"); break;
-        case CL_MEM_OBJECT_ALLOCATION_FAILURE: printf("CL_MEM_OBJECT_ALLOCATION_FAILURE\n"); break;
-        case CL_OUT_OF_RESOURCES: printf("CL_OUT_OF_RESOURCES\n"); break;
-        case CL_OUT_OF_HOST_MEMORY: printf("CL_OUT_OF_HOST_MEMORY\n"); break;
-        case CL_PROFILING_INFO_NOT_AVAILABLE: printf("CL_PROFILING_INFO_NOT_AVAILABLE\n"); break;
-        case CL_MEM_COPY_OVERLAP: printf("CL_MEM_COPY_OVERLAP\n"); break;
-        case CL_IMAGE_FORMAT_MISMATCH: printf("CL_IMAGE_FORMAT_MISMATCH\n"); break;
-        case CL_IMAGE_FORMAT_NOT_SUPPORTED: printf("CL_IMAGE_FORMAT_NOT_SUPPORTED\n"); break;
-        case CL_BUILD_PROGRAM_FAILURE: printf("CL_BUILD_PROGRAM_FAILURE\n"); break;
-        case CL_MAP_FAILURE: printf("CL_MAP_FAILURE\n"); break;
-        case CL_INVALID_VALUE: printf("CL_INVALID_VALUE\n"); break;
-        case CL_INVALID_DEVICE_TYPE: printf("CL_INVALID_DEVICE_TYPE\n"); break;
-        case CL_INVALID_PLATFORM: printf("CL_INVALID_PLATFORM\n"); break;
-        case CL_INVALID_DEVICE: printf("CL_INVALID_DEVICE\n"); break;
-        case CL_INVALID_CONTEXT: printf("CL_INVALID_CONTEXT\n"); break;
-        case CL_INVALID_QUEUE_PROPERTIES: printf("CL_INVALID_QUEUE_PROPERTIES\n"); break;
-        case CL_INVALID_COMMAND_QUEUE: printf("CL_INVALID_COMMAND_QUEUE\n"); break;
-        case CL_INVALID_HOST_PTR: printf("CL_INVALID_HOST_PTR\n"); break;
-        case CL_INVALID_MEM_OBJECT: printf("CL_INVALID_MEM_OBJECT\n"); break;
-        case CL_INVALID_IMAGE_FORMAT_DESCRIPTOR: printf("CL_INVALID_IMAGE_FORMAT_DESCRIPTOR\n"); break;
-        case CL_INVALID_IMAGE_SIZE: printf("CL_INVALID_IMAGE_SIZE\n"); break;
-        case CL_INVALID_SAMPLER: printf("CL_INVALID_SAMPLER\n"); break;
-        case CL_INVALID_BINARY: printf("CL_INVALID_BINARY\n"); break;
-        case CL_INVALID_BUILD_OPTIONS: printf("CL_INVALID_BUILD_OPTIONS\n"); break;
-        case CL_INVALID_PROGRAM: printf("CL_INVALID_PROGRAM\n"); break;
-        case CL_INVALID_PROGRAM_EXECUTABLE: printf("CL_INVALID_PROGRAM_EXECUTABLE\n"); break;
-        case CL_INVALID_KERNEL_NAME: printf("CL_INVALID_KERNEL_NAME\n"); break;
-        case CL_INVALID_KERNEL_DEFINITION: printf("CL_INVALID_KERNEL_DEFINITION\n"); break;
-        case CL_INVALID_KERNEL: printf("CL_INVALID_KERNEL\n"); break;
-        case CL_INVALID_ARG_INDEX: printf("CL_INVALID_ARG_INDEX\n"); break;
-        case CL_INVALID_ARG_VALUE: printf("CL_INVALID_ARG_VALUE\n"); break;
-        case CL_INVALID_ARG_SIZE: printf("CL_INVALID_ARG_SIZE\n"); break;
-        case CL_INVALID_KERNEL_ARGS: printf("CL_INVALID_KERNEL_ARGS\n"); break;
-        case CL_INVALID_WORK_DIMENSION: printf("CL_INVALID_WORK_DIMENSION\n"); break;
-        case CL_INVALID_WORK_GROUP_SIZE: printf("CL_INVALID_WORK_GROUP_SIZE\n"); break;
-        case CL_INVALID_WORK_ITEM_SIZE: printf("CL_INVALID_WORK_ITEM_SIZE\n"); break;
-        case CL_INVALID_GLOBAL_OFFSET: printf("CL_INVALID_GLOBAL_OFFSET\n"); break;
-        case CL_INVALID_EVENT_WAIT_LIST: printf("CL_INVALID_EVENT_WAIT_LIST\n"); break;
-        case CL_INVALID_EVENT: printf("CL_INVALID_EVENT\n"); break;
-        case CL_INVALID_OPERATION: printf("CL_INVALID_OPERATION\n"); break;
-        case CL_INVALID_GL_OBJECT: printf("CL_INVALID_GL_OBJECT\n"); break;
-        case CL_INVALID_BUFFER_SIZE: printf("CL_INVALID_BUFFER_SIZE\n"); break;
-        case CL_INVALID_MIP_LEVEL: printf("CL_INVALID_MIP_LEVEL\n"); break;
-        case CL_INVALID_GLOBAL_WORK_SIZE: printf("CL_INVALID_GLOBAL_WORK_SIZE\n"); break;
+    switch (err) {
+    case CL_SUCCESS:
+        printf("CL_SUCCES S\n");
+        break;
+    case CL_DEVICE_NOT_FOUND:
+        printf("CL_DEVICE_NOT_FOUND\n");
+        break;
+    case CL_DEVICE_NOT_AVAILABLE:
+        printf("CL_DEVICE_NOT_AVAILABLE\n");
+        break;
+    case CL_COMPILER_NOT_AVAILABLE:
+        printf("CL_COMPILER_NOT_AVAILABLE\n");
+        break;
+    case CL_MEM_OBJECT_ALLOCATION_FAILURE:
+        printf("CL_MEM_OBJECT_ALLOCATION_FAILURE\n");
+        break;
+    case CL_OUT_OF_RESOURCES:
+        printf("CL_OUT_OF_RESOURCES\n");
+        break;
+    case CL_OUT_OF_HOST_MEMORY:
+        printf("CL_OUT_OF_HOST_MEMORY\n");
+        break;
+    case CL_PROFILING_INFO_NOT_AVAILABLE:
+        printf("CL_PROFILING_INFO_NOT_AVAILABLE\n");
+        break;
+    case CL_MEM_COPY_OVERLAP:
+        printf("CL_MEM_COPY_OVERLAP\n");
+        break;
+    case CL_IMAGE_FORMAT_MISMATCH:
+        printf("CL_IMAGE_FORMAT_MISMATCH\n");
+        break;
+    case CL_IMAGE_FORMAT_NOT_SUPPORTED:
+        printf("CL_IMAGE_FORMAT_NOT_SUPPORTED\n");
+        break;
+    case CL_BUILD_PROGRAM_FAILURE:
+        printf("CL_BUILD_PROGRAM_FAILURE\n");
+        break;
+    case CL_MAP_FAILURE:
+        printf("CL_MAP_FAILURE\n");
+        break;
+    case CL_INVALID_VALUE:
+        printf("CL_INVALID_VALUE\n");
+        break;
+    case CL_INVALID_DEVICE_TYPE:
+        printf("CL_INVALID_DEVICE_TYPE\n");
+        break;
+    case CL_INVALID_PLATFORM:
+        printf("CL_INVALID_PLATFORM\n");
+        break;
+    case CL_INVALID_DEVICE:
+        printf("CL_INVALID_DEVICE\n");
+        break;
+    case CL_INVALID_CONTEXT:
+        printf("CL_INVALID_CONTEXT\n");
+        break;
+    case CL_INVALID_QUEUE_PROPERTIES:
+        printf("CL_INVALID_QUEUE_PROPERTIES\n");
+        break;
+    case CL_INVALID_COMMAND_QUEUE:
+        printf("CL_INVALID_COMMAND_QUEUE\n");
+        break;
+    case CL_INVALID_HOST_PTR:
+        printf("CL_INVALID_HOST_PTR\n");
+        break;
+    case CL_INVALID_MEM_OBJECT:
+        printf("CL_INVALID_MEM_OBJECT\n");
+        break;
+    case CL_INVALID_IMAGE_FORMAT_DESCRIPTOR:
+        printf("CL_INVALID_IMAGE_FORMAT_DESCRIPTOR\n");
+        break;
+    case CL_INVALID_IMAGE_SIZE:
+        printf("CL_INVALID_IMAGE_SIZE\n");
+        break;
+    case CL_INVALID_SAMPLER:
+        printf("CL_INVALID_SAMPLER\n");
+        break;
+    case CL_INVALID_BINARY:
+        printf("CL_INVALID_BINARY\n");
+        break;
+    case CL_INVALID_BUILD_OPTIONS:
+        printf("CL_INVALID_BUILD_OPTIONS\n");
+        break;
+    case CL_INVALID_PROGRAM:
+        printf("CL_INVALID_PROGRAM\n");
+        break;
+    case CL_INVALID_PROGRAM_EXECUTABLE:
+        printf("CL_INVALID_PROGRAM_EXECUTABLE\n");
+        break;
+    case CL_INVALID_KERNEL_NAME:
+        printf("CL_INVALID_KERNEL_NAME\n");
+        break;
+    case CL_INVALID_KERNEL_DEFINITION:
+        printf("CL_INVALID_KERNEL_DEFINITION\n");
+        break;
+    case CL_INVALID_KERNEL:
+        printf("CL_INVALID_KERNEL\n");
+        break;
+    case CL_INVALID_ARG_INDEX:
+        printf("CL_INVALID_ARG_INDEX\n");
+        break;
+    case CL_INVALID_ARG_VALUE:
+        printf("CL_INVALID_ARG_VALUE\n");
+        break;
+    case CL_INVALID_ARG_SIZE:
+        printf("CL_INVALID_ARG_SIZE\n");
+        break;
+    case CL_INVALID_KERNEL_ARGS:
+        printf("CL_INVALID_KERNEL_ARGS\n");
+        break;
+    case CL_INVALID_WORK_DIMENSION:
+        printf("CL_INVALID_WORK_DIMENSION\n");
+        break;
+    case CL_INVALID_WORK_GROUP_SIZE:
+        printf("CL_INVALID_WORK_GROUP_SIZE\n");
+        break;
+    case CL_INVALID_WORK_ITEM_SIZE:
+        printf("CL_INVALID_WORK_ITEM_SIZE\n");
+        break;
+    case CL_INVALID_GLOBAL_OFFSET:
+        printf("CL_INVALID_GLOBAL_OFFSET\n");
+        break;
+    case CL_INVALID_EVENT_WAIT_LIST:
+        printf("CL_INVALID_EVENT_WAIT_LIST\n");
+        break;
+    case CL_INVALID_EVENT:
+        printf("CL_INVALID_EVENT\n");
+        break;
+    case CL_INVALID_OPERATION:
+        printf("CL_INVALID_OPERATION\n");
+        break;
+    case CL_INVALID_GL_OBJECT:
+        printf("CL_INVALID_GL_OBJECT\n");
+        break;
+    case CL_INVALID_BUFFER_SIZE:
+        printf("CL_INVALID_BUFFER_SIZE\n");
+        break;
+    case CL_INVALID_MIP_LEVEL:
+        printf("CL_INVALID_MIP_LEVEL\n");
+        break;
+    case CL_INVALID_GLOBAL_WORK_SIZE:
+        printf("CL_INVALID_GLOBAL_WORK_SIZE\n");
+        break;
     }
 }
 
-void PrintKernelError(int error){
-    switch(error){
-        case KERNEL_SUCCESS: printf("No error, Kernel success\n"); break;
-        case KERNEL_OUT_OF_BOUNDS: printf("Kernel out of bounds\n"); break;
+void PrintKernelError(int error)
+{
+    switch(error) {
+    case KERNEL_SUCCESS:
+        printf("No error, Kernel success\n");
+        break;
+    case KERNEL_OUT_OF_BOUNDS:
+        printf("Kernel out of bounds\n");
+        break;
     }
 }
 
@@ -75,11 +173,11 @@ void ReleaseCLDict(CLDict *clDict)
 {
     int i;
     clReleaseProgram(clDict->program);
-    for(i = 0; i < NumberOfKernels; ++i){
+    for(i = 0; i < NumberOfKernels; ++i) {
         clReleaseKernel(clDict->kernels[i]);
     }
     free(clDict->kernels);
-    for(i = 0; i < NumberOfBuffers; ++i){
+    for(i = 0; i < NumberOfBuffers; ++i) {
         clReleaseMemObject(clDict->buffers[i]);
     }
     free(clDict->buffers);
@@ -90,7 +188,8 @@ void ReleaseCLDict(CLDict *clDict)
 
 
 
-char * searchReplace(char * string,  char *toReplace[], char *replacements[],
+char * searchReplace(char * string,  char *toReplace[],
+                     char *replacements[],
                      int numReplacements)
 {
     int i = 0;
@@ -100,43 +199,46 @@ char * searchReplace(char * string,  char *toReplace[], char *replacements[],
     int lenToRep,lenStr,lenAfterLocRep;
     static char buffer[MAX_SOURCE_SIZE];
     strncpy(buffer,string,MAX_SOURCE_SIZE);
-    for(i = 0; i < numReplacements; ++i){
+    for(i = 0; i < numReplacements; ++i) {
         toRep = toReplace[i];
         rep = replacements[i];
         /*if str not in the string, skip it */
-        if (!(locOfToRep = strstr(buffer,toRep))){
-           printf("Warning: %s not found in string!\n",toRep);
-           continue;
+        if (!(locOfToRep = strstr(buffer,toRep))) {
+            printf("Warning: %s not found in string!\n",toRep);
+            continue;
         }
         lenToRep = strlen(toRep);
         lenStr = strlen(buffer);
         lenAfterLocRep = strlen(locOfToRep);
         /*Print the string upto the pointer, then the val, and then the rest of the string.*/
-        sprintf(buffer, "%.*s%s%s", lenStr-lenAfterLocRep, buffer,rep,locOfToRep+lenToRep);
+        sprintf(buffer, "%.*s%s%s", lenStr-lenAfterLocRep, buffer,
+                rep,locOfToRep+lenToRep);
         /*Will break if buffer is longer than string, so we restrict ourselves to the longest length.*/
     }
     return buffer;
 }
 
-void preProcessSource(char * kernelSource, size_t *source_size,
+void preProcessSource(char * kernelSource,
+                      size_t *source_size,
                       char *names[], char *vals[], int numVals)
 {
-   char * processedSource;
-   processedSource = searchReplace(kernelSource, names, vals, numVals);
-   strncpy(kernelSource,processedSource,MAX_SOURCE_SIZE);
-   *source_size = strlen(kernelSource);
+    char * processedSource;
+    processedSource = searchReplace(kernelSource, names, vals,
+                                    numVals);
+    strncpy(kernelSource,processedSource,MAX_SOURCE_SIZE);
+    *source_size = strlen(kernelSource);
 }
 
 
 
-int initKernel(CLDict *clDict,char * kernelName, enum KERNEL kernelEnumVal)
+int initKernel(CLDict *clDict,char * kernelName,
+               enum KERNEL kernelEnumVal)
 {
     cl_kernel kernel;
     int err;
     kernel = clCreateKernel(clDict->program, kernelName, &err);
-    if (!kernel || err != CL_SUCCESS)
-    {
-        switch(err){
+    if (!kernel || err != CL_SUCCESS) {
+        switch(err) {
         case CL_INVALID_PROGRAM:
             printf("invalid program\n");
             break;
@@ -161,7 +263,8 @@ int initKernel(CLDict *clDict,char * kernelName, enum KERNEL kernelEnumVal)
         default:
             printf("%d\n", err);
         }
-        printf("Error: Failed to create compute kernel %s!\n", kernelName);
+        printf("Error: Failed to create compute kernel %s!\n",
+               kernelName);
         return EXIT_FAILURE;
     }
     clDict->kernels[kernelEnumVal] = kernel;
@@ -172,7 +275,8 @@ int initKernel(CLDict *clDict,char * kernelName, enum KERNEL kernelEnumVal)
 /*
  * compiles the program with filename programFilename, and replaces the names in names with the values in vals.
  */
-int CompileKernels(CLDict *clDict, char *names[],char *vals[], int numVals)
+int CompileKernels(CLDict *clDict, char *names[],
+                   char *vals[], int numVals)
 {
     FILE *fp;
     char *KernelSource;
@@ -199,10 +303,11 @@ int CompileKernels(CLDict *clDict, char *names[],char *vals[], int numVals)
     source_size = fread(KernelSource, 1, MAX_SOURCE_SIZE, fp);
     fclose(fp);
 
-    preProcessSource(KernelSource, &source_size, names,vals,numVals);
-    program = clCreateProgramWithSource(clDict->context, 1, (const char **) & KernelSource, NULL, &err);
-    if (!program)
-    {
+    preProcessSource(KernelSource, &source_size, names,vals,
+                     numVals);
+    program = clCreateProgramWithSource(clDict->context, 1,
+                                        (const char **) & KernelSource, NULL, &err);
+    if (!program) {
         printf("Error: Failed to create compute program!\n");
         return EXIT_FAILURE;
     }
@@ -211,23 +316,24 @@ int CompileKernels(CLDict *clDict, char *names[],char *vals[], int numVals)
     free(KernelSource);
 
 
-    err = clBuildProgram(program, 1, &clDict->device_id, NULL, NULL, NULL);
-    if (err != CL_SUCCESS)
-    {
+    err = clBuildProgram(program, 1, &clDict->device_id, NULL,
+                         NULL, NULL);
+    if (err != CL_SUCCESS) {
         size_t len;
         char buffer[2048];
 
         printf("Error: Failed to build program executable!\n");
-        clGetProgramBuildInfo(program, clDict->device_id, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &len);
+        clGetProgramBuildInfo(program, clDict->device_id,
+                              CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &len);
         printf("%s\n", buffer);
         printf("%d\n", (int) len);
         return EXIT_FAILURE;
     }
 
     clDict->program = program;
-    for(i = 0; i < NumberOfKernels; ++i){
+    for(i = 0; i < NumberOfKernels; ++i) {
         err = initKernel(clDict, kernelNames[i], i);
-        if(err != EXIT_SUCCESS){
+        if(err != EXIT_SUCCESS) {
             return EXIT_FAILURE;
         }
     }
@@ -247,36 +353,47 @@ void handleCLErr(cl_int err, char * message)
 void createCLBuffers(CLDict *clDict)
 {
     cl_int err;
-    clDict->buffers[QCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,  sizeof(double)*QSIZE,NULL, &err);
+    clDict->buffers[QCL] = clCreateBuffer(clDict->context,
+                                          CL_MEM_READ_WRITE,  sizeof(double)*QSIZE,NULL, &err);
     handleCLErr(err,"Error: Failed create buffer Q!");
 
 
-    clDict->buffers[PCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,  sizeof(double)*PSIZE,NULL, &err);
+    clDict->buffers[PCL] = clCreateBuffer(clDict->context,
+                                          CL_MEM_READ_WRITE,  sizeof(double)*PSIZE,NULL, &err);
     handleCLErr(err,"Error: Failed create buffer P!");
 
-    clDict->buffers[ZCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,  sizeof(int)*ZSIZE,NULL, &err);
+    clDict->buffers[ZCL] = clCreateBuffer(clDict->context,
+                                          CL_MEM_READ_WRITE,  sizeof(int)*ZSIZE,NULL, &err);
     handleCLErr(err,"Error: Failed create buffer Z!");
 
-    clDict->buffers[GENOCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,  sizeof(int)*GENOSIZE,NULL, &err);
+    clDict->buffers[GENOCL] = clCreateBuffer(clDict->context,
+                              CL_MEM_READ_WRITE,  sizeof(int)*GENOSIZE,NULL, &err);
     handleCLErr(err,"Error: Failed create buffer Geno!");
 
 
     if (RECESSIVEALLELES) {
-          clDict->buffers[PREGENOCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,  sizeof(int)*GENOSIZE,NULL, &err);
-          handleCLErr(err,"Error: Failed create buffer PreGeno!");
+        clDict->buffers[PREGENOCL] = clCreateBuffer(clDict->context,
+                                     CL_MEM_READ_WRITE,  sizeof(int)*GENOSIZE,NULL, &err);
+        handleCLErr(err,"Error: Failed create buffer PreGeno!");
 
-          clDict->buffers[RECESSIVECL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,  sizeof(int)*NUMLOCI,NULL, &err);
-          handleCLErr(err,"Error: Failed create buffer Recessive!");
+        clDict->buffers[RECESSIVECL] = clCreateBuffer(
+                                           clDict->context,  CL_MEM_READ_WRITE,  sizeof(int)*NUMLOCI,
+                                           NULL, &err);
+        handleCLErr(err,"Error: Failed create buffer Recessive!");
     }
-    clDict->buffers[NUMALLELESCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,  sizeof(int)*NUMLOCI,NULL, &err);
+    clDict->buffers[NUMALLELESCL] = clCreateBuffer(
+                                        clDict->context,  CL_MEM_READ_WRITE,  sizeof(int)*NUMLOCI,
+                                        NULL, &err);
     handleCLErr(err,"Error: Failed create buffer NumAlleles!");
 
 
-    clDict->buffers[RANDCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,  sizeof(double)*RANDSIZE,NULL, &err);
+    clDict->buffers[RANDCL] = clCreateBuffer(clDict->context,
+                              CL_MEM_READ_WRITE,  sizeof(double)*RANDSIZE,NULL, &err);
 
     handleCLErr(err,"Error: Failed create buffer rand!");
 
-    clDict->buffers[ERRORCL] = clCreateBuffer(clDict->context,  CL_MEM_WRITE_ONLY,  sizeof(int),NULL, &err);
+    clDict->buffers[ERRORCL] = clCreateBuffer(clDict->context,
+                               CL_MEM_WRITE_ONLY,  sizeof(int),NULL, &err);
 
     handleCLErr(err,"Error: Failed create error buffer!");
 }
@@ -301,45 +418,46 @@ int InitCLDict(CLDict *clDictToInit)
     int DEVICETYPE;
     int err;
     int compileret;
-    DEVICETYPE =  USEGPU ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU;
+    DEVICETYPE =  USEGPU ? CL_DEVICE_TYPE_GPU :
+                  CL_DEVICE_TYPE_CPU;
 
     ret = clGetPlatformIDs(1, &platform_id, &ret_num_platforms);
-    err = clGetDeviceIDs(platform_id, DEVICETYPE, 1, &device_id, &ret_num_devices);
-    if (err != CL_SUCCESS)
-    {
+    err = clGetDeviceIDs(platform_id, DEVICETYPE, 1, &device_id,
+                         &ret_num_devices);
+    if (err != CL_SUCCESS) {
         printf("retval %d\n",(int) ret);
-    switch(err){
-    case CL_INVALID_PLATFORM:
-        printf("invalid platform!");
-                break;
-    case CL_INVALID_VALUE:
-        printf("invalid value");
-                break;
-    case CL_DEVICE_NOT_FOUND:
-        printf("device not found");
-                break;
-    case CL_INVALID_DEVICE_TYPE:
-            if(USEGPU){
-            printf("invalid device: GPU\n");
-        } else {
-            printf("invalid device: CPU\n");
+        switch(err) {
+        case CL_INVALID_PLATFORM:
+            printf("invalid platform!");
+            break;
+        case CL_INVALID_VALUE:
+            printf("invalid value");
+            break;
+        case CL_DEVICE_NOT_FOUND:
+            printf("device not found");
+            break;
+        case CL_INVALID_DEVICE_TYPE:
+            if(USEGPU) {
+                printf("invalid device: GPU\n");
+            } else {
+                printf("invalid device: CPU\n");
+            }
+            break;
         }
-                break;
-    }
         printf("Error: Failed to create a device group!\n");
         return EXIT_FAILURE;
     }
 
-    context = clCreateContext(0, 1, &device_id, NULL, NULL, &err);
-    if (!context)
-    {
+    context = clCreateContext(0, 1, &device_id, NULL, NULL,
+                              &err);
+    if (!context) {
         printf("Error: Failed to create a compute context!\n");
         return EXIT_FAILURE;
     }
 
-    commands = clCreateCommandQueue(context, device_id, 0, &err);
-    if (!commands)
-    {
+    commands = clCreateCommandQueue(context, device_id, 0,
+                                    &err);
+    if (!commands) {
         printf("Error: Failed to create a command commands!\n");
         return EXIT_FAILURE;
     }
@@ -365,28 +483,40 @@ int InitCLDict(CLDict *clDictToInit)
      * to be inserted into the kernel code
      */
 
-    for(i = 0; i < NUMVALS; ++i){
-      vals[i] = calloc(255, sizeof(char));
+    for(i = 0; i < NUMVALS; ++i) {
+        vals[i] = calloc(255, sizeof(char));
     }
 
-    names[0] = "%maxpops%"; sprintf(vals[0],"%d",MAXPOPS);
-    names[1] = "%missing%"; sprintf(vals[1],"%d",MISSING);
-    names[2] = "%maxalleles%"; sprintf(vals[2],"%d",MAXALLELES);
-    names[3] = "%numloci%"; sprintf(vals[3],"%d",NUMLOCI);
-    names[4] = "%lines%"; sprintf(vals[4],"%d",LINES);
-    names[5] = "%numinds%"; sprintf(vals[5],"%d",NUMINDS);
-    names[6] = "%maxrandom%"; sprintf(vals[6],"%d",MAXRANDOM);
-    names[7] = "%usepopinfo%"; sprintf(vals[7],"%d",USEPOPINFO);
-    names[8] = "%locprior%"; sprintf(vals[8],"%d",LOCPRIOR);
-    names[9] = "%notambiguous%"; sprintf(vals[9],"%d",NOTAMBIGUOUS);
-    names[10] = "%numlocations%"; sprintf(vals[10],"%d",NUMLOCATIONS);
+    names[0] = "%maxpops%";
+    sprintf(vals[0],"%d",MAXPOPS);
+    names[1] = "%missing%";
+    sprintf(vals[1],"%d",MISSING);
+    names[2] = "%maxalleles%";
+    sprintf(vals[2],"%d",MAXALLELES);
+    names[3] = "%numloci%";
+    sprintf(vals[3],"%d",NUMLOCI);
+    names[4] = "%lines%";
+    sprintf(vals[4],"%d",LINES);
+    names[5] = "%numinds%";
+    sprintf(vals[5],"%d",NUMINDS);
+    names[6] = "%maxrandom%";
+    sprintf(vals[6],"%d",MAXRANDOM);
+    names[7] = "%usepopinfo%";
+    sprintf(vals[7],"%d",USEPOPINFO);
+    names[8] = "%locprior%";
+    sprintf(vals[8],"%d",LOCPRIOR);
+    names[9] = "%notambiguous%";
+    sprintf(vals[9],"%d",NOTAMBIGUOUS);
+    names[10] = "%numlocations%";
+    sprintf(vals[10],"%d",NUMLOCATIONS);
 
-    compileret = CompileKernels(clDictToInit,names,vals,NUMVALS);
-    for(i = 0; i < NUMVALS; ++i){
-      free(vals[i]);
+    compileret = CompileKernels(clDictToInit,names,vals,
+                                NUMVALS);
+    for(i = 0; i < NUMVALS; ++i) {
+        free(vals[i]);
     }
 
-    if(compileret != EXIT_SUCCESS){
+    if(compileret != EXIT_SUCCESS) {
         printf("Kernels failed to compile!\n");
         return EXIT_FAILURE;
     } else {
@@ -400,9 +530,9 @@ int dimLoc(int * dims, int * dimMaxs, int numDims)
 {
     int loc = 0;
     int i, j;
-    for(i = 0; i < numDims;++i){
+    for(i = 0; i < numDims; ++i) {
         int dimProd =1;
-        for(j = i+1; j < numDims; j++){
+        for(j = i+1; j < numDims; j++) {
             dimProd *= dimMaxs[j];
         }
         loc += dims[i]*dimProd;
@@ -417,7 +547,7 @@ void copyToLocal( double * globalArr, double *localArr,
 {
     int i;
     int origLastDim = dims[numDims-1];
-    for(i = 0; i < dimMaxs[numDims-1]; ++i){
+    for(i = 0; i < dimMaxs[numDims-1]; ++i) {
         dims[numDims-1] = i;
         localArr[i] = globalArr[dimLoc(dims,dimMaxs,numDims)];
     }

@@ -10,7 +10,7 @@ __kernel void UpdateQMetro (
     __global double * randomArr,
     const int rep,
     __global int* error
-    )
+)
 {
     double CurrentQ[MAXPOPS];             /*[MAXPOPS]; */
     double TestQ[MAXPOPS];                /*[MAXPOPS]; */
@@ -25,22 +25,23 @@ __kernel void UpdateQMetro (
     RndDiscState randState[1];
     int ind = get_global_id(0);
 
-    if (ind < NUMINDS){
+    if (ind < NUMINDS) {
         if (!((USEPOPINFO) && (individualPopFlags[ind]))) {
             rndDiscStateReset(randState, ind*MAXRANDOM);
         }
         #if LOCPRIOR
-            apos = AlphaPos(individualLocs[ind],0);
-            for (pop = 0; pop < MAXPOPS; pop++){
-                PriorQ1[pop] = Alpha[apos+pop];
-            }
+        apos = AlphaPos(individualLocs[ind],0);
+        for (pop = 0; pop < MAXPOPS; pop++) {
+            PriorQ1[pop] = Alpha[apos+pop];
+        }
         #else
-            for (pop = 0; pop < MAXPOPS; pop++){
-                PriorQ1[pop] = Alpha[pop];
-            }
+        for (pop = 0; pop < MAXPOPS; pop++) {
+            PriorQ1[pop] = Alpha[pop];
+        }
         #endif
 
-        RDirichletDisc (PriorQ1, MAXPOPS, TestQ,randState);     /*return TestQ, sampled from the prior */
+        RDirichletDisc (PriorQ1, MAXPOPS, TestQ,
+                        randState);     /*return TestQ, sampled from the prior */
 
 
 
@@ -59,8 +60,10 @@ __kernel void UpdateQMetro (
         /* logdiff += log(TestQ[pop]) - log(CurrentQ[pop]);
         logdiff = logdiff*(alpha-1.0); removed prior prob bit */
 
-        logdiff += CalcLikeInd (Geno, PreGeno, TestQ, P, ind, Recessive);  /*likelihood bit */
-        logdiff -= CalcLikeInd (Geno, PreGeno, CurrentQ, P, ind, Recessive);
+        logdiff += CalcLikeInd (Geno, PreGeno, TestQ, P, ind,
+                                Recessive);  /*likelihood bit */
+        logdiff -= CalcLikeInd (Geno, PreGeno, CurrentQ, P, ind,
+                                Recessive);
 
         randomnum = rndDisc(randState);
         if (randomnum < exp (logdiff)) {    /*accept */
