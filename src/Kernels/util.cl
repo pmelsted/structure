@@ -5,8 +5,7 @@
 /*
  * returns a random real in the [lower,upper)
  */
-float randomReal(float lower, float upper,
-                 mwc64x_state_t *randState)
+float randomReal(float lower, float upper,mwc64x_state_t *randState)
 {
     uint randVal;
     float randPercent;
@@ -39,8 +38,7 @@ int dimLoc(int * dims, int * dimMaxs, int numDims)
 /*
  * Copies the entire last dimension over into localarr
  */
-void copyToLocal( __global double * globalArr,
-                  double *localArr,
+void copyToLocal( __global double * globalArr, double *localArr,
                   int * dims, int * dimMaxs, int numDims)
 {
     int i;
@@ -60,8 +58,7 @@ void copyToLocal( __global double * globalArr,
  *  are "total" possible options, and sum is the sum of the
  *  probabilities.  This comes up in the Gibbs sampler context.
  */
-int PickAnOptionDiscrete(int total, double sum,
-                         double Probs [],
+int PickAnOptionDiscrete(int total, double sum, double Probs [],
                          RndDiscState *randState)
 {
     int option;
@@ -91,8 +88,7 @@ int AlphaPos(int loc, int pop)
 /*-----------Gamma and dirichlet from Matt.----------*/
 /* gamma random generator from Ripley, 1987, P230 */
 
-double RGammaDisc(double n,double lambda,
-                  RndDiscState *randState)
+double RGammaDisc(double n,double lambda,RndDiscState *randState)
 {
 
     double aa;
@@ -123,8 +119,7 @@ three:
         ;
     } else if(n==1.0)
 
-        [> exponential random variable, from Ripley, 1987,
-         P230  <] {
+        [> exponential random variable, from Ripley, 1987, P230  <] {
         double a=0.0;
         double u,u0,ustar;
 ten:
@@ -197,8 +192,7 @@ six:
    b is the output array, where b ~ Dirichlet(a)
    */
 
-void RDirichletDisc(double * a, int k, double * b,
-                    RndDiscState *randState)
+void RDirichletDisc(double * a, int k, double * b,RndDiscState *randState)
 {
     int i;
     double sum=0.0;

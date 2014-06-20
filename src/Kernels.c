@@ -188,8 +188,7 @@ void ReleaseCLDict(CLDict *clDict)
 
 
 
-char * searchReplace(char * string,  char *toReplace[],
-                     char *replacements[],
+char * searchReplace(char * string,  char *toReplace[], char *replacements[],
                      int numReplacements)
 {
     int i = 0;
@@ -211,28 +210,25 @@ char * searchReplace(char * string,  char *toReplace[],
         lenStr = strlen(buffer);
         lenAfterLocRep = strlen(locOfToRep);
         /*Print the string upto the pointer, then the val, and then the rest of the string.*/
-        sprintf(buffer, "%.*s%s%s", lenStr-lenAfterLocRep, buffer,
-                rep,locOfToRep+lenToRep);
+        sprintf(buffer, "%.*s%s%s", lenStr-lenAfterLocRep, buffer,rep,
+                locOfToRep+lenToRep);
         /*Will break if buffer is longer than string, so we restrict ourselves to the longest length.*/
     }
     return buffer;
 }
 
-void preProcessSource(char * kernelSource,
-                      size_t *source_size,
+void preProcessSource(char * kernelSource, size_t *source_size,
                       char *names[], char *vals[], int numVals)
 {
     char * processedSource;
-    processedSource = searchReplace(kernelSource, names, vals,
-                                    numVals);
+    processedSource = searchReplace(kernelSource, names, vals, numVals);
     strncpy(kernelSource,processedSource,MAX_SOURCE_SIZE);
     *source_size = strlen(kernelSource);
 }
 
 
 
-int initKernel(CLDict *clDict,char * kernelName,
-               enum KERNEL kernelEnumVal)
+int initKernel(CLDict *clDict,char * kernelName, enum KERNEL kernelEnumVal)
 {
     cl_kernel kernel;
     int err;
@@ -263,8 +259,7 @@ int initKernel(CLDict *clDict,char * kernelName,
         default:
             printf("%d\n", err);
         }
-        printf("Error: Failed to create compute kernel %s!\n",
-               kernelName);
+        printf("Error: Failed to create compute kernel %s!\n", kernelName);
         return EXIT_FAILURE;
     }
     clDict->kernels[kernelEnumVal] = kernel;
@@ -275,8 +270,7 @@ int initKernel(CLDict *clDict,char * kernelName,
 /*
  * compiles the program with filename programFilename, and replaces the names in names with the values in vals.
  */
-int CompileKernels(CLDict *clDict, char *names[],
-                   char *vals[], int numVals)
+int CompileKernels(CLDict *clDict, char *names[],char *vals[], int numVals)
 {
     FILE *fp;
     char *KernelSource;
@@ -303,8 +297,7 @@ int CompileKernels(CLDict *clDict, char *names[],
     source_size = fread(KernelSource, 1, MAX_SOURCE_SIZE, fp);
     fclose(fp);
 
-    preProcessSource(KernelSource, &source_size, names,vals,
-                     numVals);
+    preProcessSource(KernelSource, &source_size, names,vals,numVals);
     program = clCreateProgramWithSource(clDict->context, 1,
                                         (const char **) & KernelSource, NULL, &err);
     if (!program) {
@@ -316,15 +309,14 @@ int CompileKernels(CLDict *clDict, char *names[],
     free(KernelSource);
 
 
-    err = clBuildProgram(program, 1, &clDict->device_id, NULL,
-                         NULL, NULL);
+    err = clBuildProgram(program, 1, &clDict->device_id, NULL, NULL, NULL);
     if (err != CL_SUCCESS) {
         size_t len;
         char buffer[2048];
 
         printf("Error: Failed to build program executable!\n");
-        clGetProgramBuildInfo(program, clDict->device_id,
-                              CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &len);
+        clGetProgramBuildInfo(program, clDict->device_id, CL_PROGRAM_BUILD_LOG,
+                              sizeof(buffer), buffer, &len);
         printf("%s\n", buffer);
         printf("%d\n", (int) len);
         return EXIT_FAILURE;
@@ -353,21 +345,21 @@ void handleCLErr(cl_int err, char * message)
 void createCLBuffers(CLDict *clDict)
 {
     cl_int err;
-    clDict->buffers[QCL] = clCreateBuffer(clDict->context,
-                                          CL_MEM_READ_WRITE,  sizeof(double)*QSIZE,NULL, &err);
+    clDict->buffers[QCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,
+                                          sizeof(double)*QSIZE,NULL, &err);
     handleCLErr(err,"Error: Failed create buffer Q!");
 
 
-    clDict->buffers[PCL] = clCreateBuffer(clDict->context,
-                                          CL_MEM_READ_WRITE,  sizeof(double)*PSIZE,NULL, &err);
+    clDict->buffers[PCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,
+                                          sizeof(double)*PSIZE,NULL, &err);
     handleCLErr(err,"Error: Failed create buffer P!");
 
-    clDict->buffers[ZCL] = clCreateBuffer(clDict->context,
-                                          CL_MEM_READ_WRITE,  sizeof(int)*ZSIZE,NULL, &err);
+    clDict->buffers[ZCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,
+                                          sizeof(int)*ZSIZE,NULL, &err);
     handleCLErr(err,"Error: Failed create buffer Z!");
 
-    clDict->buffers[GENOCL] = clCreateBuffer(clDict->context,
-                              CL_MEM_READ_WRITE,  sizeof(int)*GENOSIZE,NULL, &err);
+    clDict->buffers[GENOCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,
+                              sizeof(int)*GENOSIZE,NULL, &err);
     handleCLErr(err,"Error: Failed create buffer Geno!");
 
 
@@ -376,24 +368,22 @@ void createCLBuffers(CLDict *clDict)
                                      CL_MEM_READ_WRITE,  sizeof(int)*GENOSIZE,NULL, &err);
         handleCLErr(err,"Error: Failed create buffer PreGeno!");
 
-        clDict->buffers[RECESSIVECL] = clCreateBuffer(
-                                           clDict->context,  CL_MEM_READ_WRITE,  sizeof(int)*NUMLOCI,
-                                           NULL, &err);
+        clDict->buffers[RECESSIVECL] = clCreateBuffer(clDict->context,
+                                       CL_MEM_READ_WRITE,  sizeof(int)*NUMLOCI,NULL, &err);
         handleCLErr(err,"Error: Failed create buffer Recessive!");
     }
-    clDict->buffers[NUMALLELESCL] = clCreateBuffer(
-                                        clDict->context,  CL_MEM_READ_WRITE,  sizeof(int)*NUMLOCI,
-                                        NULL, &err);
+    clDict->buffers[NUMALLELESCL] = clCreateBuffer(clDict->context,
+                                    CL_MEM_READ_WRITE,  sizeof(int)*NUMLOCI,NULL, &err);
     handleCLErr(err,"Error: Failed create buffer NumAlleles!");
 
 
-    clDict->buffers[RANDCL] = clCreateBuffer(clDict->context,
-                              CL_MEM_READ_WRITE,  sizeof(double)*RANDSIZE,NULL, &err);
+    clDict->buffers[RANDCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,
+                              sizeof(double)*RANDSIZE,NULL, &err);
 
     handleCLErr(err,"Error: Failed create buffer rand!");
 
-    clDict->buffers[ERRORCL] = clCreateBuffer(clDict->context,
-                               CL_MEM_WRITE_ONLY,  sizeof(int),NULL, &err);
+    clDict->buffers[ERRORCL] = clCreateBuffer(clDict->context,  CL_MEM_WRITE_ONLY,
+                               sizeof(int),NULL, &err);
 
     handleCLErr(err,"Error: Failed create error buffer!");
 }
@@ -418,12 +408,10 @@ int InitCLDict(CLDict *clDictToInit)
     int DEVICETYPE;
     int err;
     int compileret;
-    DEVICETYPE =  USEGPU ? CL_DEVICE_TYPE_GPU :
-                  CL_DEVICE_TYPE_CPU;
+    DEVICETYPE =  USEGPU ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU;
 
     ret = clGetPlatformIDs(1, &platform_id, &ret_num_platforms);
-    err = clGetDeviceIDs(platform_id, DEVICETYPE, 1, &device_id,
-                         &ret_num_devices);
+    err = clGetDeviceIDs(platform_id, DEVICETYPE, 1, &device_id, &ret_num_devices);
     if (err != CL_SUCCESS) {
         printf("retval %d\n",(int) ret);
         switch(err) {
@@ -448,15 +436,13 @@ int InitCLDict(CLDict *clDictToInit)
         return EXIT_FAILURE;
     }
 
-    context = clCreateContext(0, 1, &device_id, NULL, NULL,
-                              &err);
+    context = clCreateContext(0, 1, &device_id, NULL, NULL, &err);
     if (!context) {
         printf("Error: Failed to create a compute context!\n");
         return EXIT_FAILURE;
     }
 
-    commands = clCreateCommandQueue(context, device_id, 0,
-                                    &err);
+    commands = clCreateCommandQueue(context, device_id, 0, &err);
     if (!commands) {
         printf("Error: Failed to create a command commands!\n");
         return EXIT_FAILURE;
@@ -510,8 +496,7 @@ int InitCLDict(CLDict *clDictToInit)
     names[10] = "%numlocations%";
     sprintf(vals[10],"%d",NUMLOCATIONS);
 
-    compileret = CompileKernels(clDictToInit,names,vals,
-                                NUMVALS);
+    compileret = CompileKernels(clDictToInit,names,vals,NUMVALS);
     for(i = 0; i < NUMVALS; ++i) {
         free(vals[i]);
     }

@@ -16,31 +16,28 @@
 FILE *INPUT;            /*Data file */
 
 void OpenData ();
-void ReadData (int *Geno, double *Mapdistance,
-               char *Markername, struct IND *Individual, double *Phase,
+void ReadData (int *Geno, double *Mapdistance, char *Markername,
+               struct IND *Individual, double *Phase,
                int *Recessive);
 void WarnEOF (int ind);
-int CheckIfValidInt (char intstr[ALLELLEN], int ind,
-                     int loc);
+int CheckIfValidInt (char intstr[ALLELLEN], int ind, int loc);
 void Mismatch (int ind, char description[30]);
 
 void ExtraData ();
-void PrintSomeData (int *Geno, struct IND *Individual,
-                    FILE * file);
+void PrintSomeData (int *Geno, struct IND *Individual, FILE * file);
 void CountLineLens ();
 void RecessiveDataCheck(int *Geno, int *Recessive);
 
 
 /*================================================*/
 void
-ReadInputFile (int *Geno, double *Mapdistance,
-               char *Markername, struct IND *Individual, double *Phase,
+ReadInputFile (int *Geno, double *Mapdistance, char *Markername,
+               struct IND *Individual, double *Phase,
                int *Recessive)
 {
     OpenData ();          /*open input file */
     printf ("Reading file \"%s\".\n", DATAFILE);
-    ReadData (Geno, Mapdistance, Markername, Individual, Phase,
-              Recessive);
+    ReadData (Geno, Mapdistance, Markername, Individual, Phase,Recessive);
     fclose (INPUT);
     if (ECHODATA) {
         PrintSomeData (Geno, Individual, stdout);
@@ -93,8 +90,7 @@ ReadData (int *Geno, double *Mapdistance, char *Markername,
     int location=-1;
     int phenotypecol=-1;
     /*  int numcols; */
-    int CheckIfValidDouble (char intstr[ALLELLEN], int ind,
-                            int loc);
+    int CheckIfValidDouble (char intstr[ALLELLEN], int ind,int loc);
 
 
     ind = -1;
@@ -199,8 +195,7 @@ ReadData (int *Geno, double *Mapdistance, char *Markername,
                 }   /*if STRATPARAMS is not read, then
                                 this is given a value of -9*/
 
-                else if (PHENOTYPECOL <= LABEL + POPDATA +
-                         POPFLAG) { /*too small*/
+                else if (PHENOTYPECOL <= LABEL + POPDATA + POPFLAG) { /*too small*/
                     printf("Error: PHENOTYPECOL (now set in STRATPARAMS as %d) must be at least %d\n",
                            PHENOTYPECOL, LABEL + POPDATA + POPFLAG + 1);
                     printf("given your current values of LABEL, POPDATA and POPFLAG\n");
@@ -233,8 +228,7 @@ ReadData (int *Geno, double *Mapdistance, char *Markername,
 
             }          /*---End if (Phenotype)----------------------*/
 
-            else for (col = 0; col < EXTRACOLS;
-                          col++) { /*no phenotypes*/
+            else for (col = 0; col < EXTRACOLS; col++) { /*no phenotypes*/
                     ReadString (intstr, ALLELLEN, INPUT);
                 }
 
@@ -286,8 +280,7 @@ ReadData (int *Geno, double *Mapdistance, char *Markername,
                     }
             }
 
-            for (loc = 0; loc < NUMLOCI;
-                    loc++)    /*read in genotype data here*/
+            for (loc = 0; loc < NUMLOCI; loc++)    /*read in genotype data here*/
                 for (i=0; i<colsperloc; i++) {
                     strlength = ReadString (intstr, ALLELLEN, INPUT);
                     if (strlength == 0) {
@@ -313,8 +306,7 @@ ReadData (int *Geno, double *Mapdistance, char *Markername,
                 valid=valid * CheckIfValidDouble(intstr,ind,loc);
                 Phase[PhasePos(ind,loc)]=atof(intstr);
                 /*check that probabilities are in [0,1]*/
-                if (Phase[PhasePos(ind,loc)]>1.0
-                        || Phase[PhasePos(ind,loc)]<0.0) {
+                if (Phase[PhasePos(ind,loc)]>1.0 || Phase[PhasePos(ind,loc)]<0.0) {
                     printf("Phase information for individual %d locus %d (%1.3f) is not a real in [0.0,1.0] \n",
                            ind,loc,Phase[PhasePos(ind,loc)]);
                     valid=0;
@@ -412,8 +404,7 @@ void RecessiveDataCheck(int *Geno, int *Recessive)
         }
     printf("\n");
     if(LINES>2) {
-        printf("Number of loci without genotypic ambiguity: %d \n",
-               unambiguous_loci);
+        printf("Number of loci without genotypic ambiguity: %d \n",unambiguous_loci);
         printf("Number of loci with ambiguous copy numbers but no recessive alleles: %d \n",
                ambiguous_norecessive);
     }
@@ -452,8 +443,7 @@ CheckIfValidInt (char intstr[ALLELLEN], int ind, int loc)
         if (intstr[i] == '\0') {
             break;
         }
-        if (((intstr[i] < '0') || (intstr[i] > '9'))
-                && (intstr[i] != '-')) {
+        if (((intstr[i] < '0') || (intstr[i] > '9')) && (intstr[i] != '-')) {
             ok = 0;
         }
     }
@@ -482,8 +472,8 @@ CheckIfValidDouble (char intstr[ALLELLEN], int ind,int loc)
         if (intstr[i] == '\0') {
             break;
         }
-        if (((intstr[i] < '0') || (intstr[i] > '9'))
-                && (intstr[i] != '-') && (intstr[i] != '.')) {
+        if (((intstr[i] < '0') || (intstr[i] > '9')) && (intstr[i] != '-')
+                && (intstr[i] != '.')) {
             ok = 0;
         }
         if (intstr[i]=='.') {
@@ -509,8 +499,7 @@ Mismatch (int ind, char description[30])
 {
     printf ("\nWARNING! Possible error in the input file. The value of %s\n",
             description);
-    printf ("does not agree across lines for individual %d\n",
-            ind + 1);
+    printf ("does not agree across lines for individual %d\n", ind + 1);
 }
 /*------------------------------------*/
 void
@@ -522,16 +511,14 @@ ExtraData ()
 }
 /*------------------------------------*/
 void
-PrintSomeData (int *Geno, struct IND *Individual,
-               FILE * file)
+PrintSomeData (int *Geno, struct IND *Individual, FILE * file)
 {
     int ind, line;
     int col = 0;
     int precols;
     /*  int loc; */
 
-    fprintf (file, "\n\nData file \"%s\" (truncated) --\n\n",
-             DATAFILE);
+    fprintf (file, "\n\nData file \"%s\" (truncated) --\n\n", DATAFILE);
     fprintf (file, "Ind:   ");
     if (LABEL) {
         fprintf (file, "%5s ", "Label");
@@ -575,20 +562,17 @@ PrintSomeData (int *Geno, struct IND *Individual,
             }
             col = precols;
             while ((col < 9) && (col < precols + NUMLOCI)) {
-                fprintf (file, "%3d ",
-                         Geno[GenPos (ind, line, col - precols)]);
+                fprintf (file, "%3d ", Geno[GenPos (ind, line, col - precols)]);
                 col++;
             }
             if (NUMLOCI > col - precols) {
-                fprintf (file, " . . . . %3d\n",
-                         Geno[GenPos (ind, line, NUMLOCI - 1)]);
+                fprintf (file, " . . . . %3d\n", Geno[GenPos (ind, line, NUMLOCI - 1)]);
             } else {
                 fprintf (file, "\n");
             }
 
             if (NUMINDS > LINES * MAXINDS)
-                if ((ind == MAXINDS) && (line == LINES-1)
-                        && (NUMINDS-MAXINDS > ind)) {
+                if ((ind == MAXINDS) && (line == LINES-1) && (NUMINDS-MAXINDS > ind)) {
                     ind = NUMINDS - MAXINDS;
                     fprintf (file, "\n      *******   \n\n");
                 }
@@ -637,26 +621,21 @@ void CountLineLens ()
     printf ("There were errors in the input file (listed above). According to \n");
     printf ("\"mainparams\" the input file should contain ");
     if (MARKERNAMES) {
-        printf("one row of markernames with %d entries,\n",
-               NUMLOCI);
+        printf("one row of markernames with %d entries,\n",NUMLOCI);
     }
     if (RECESSIVEALLELES) {
-        printf ("one row indicating recessive alleles with %d entries,\n",
-                NUMLOCI);
+        printf ("one row indicating recessive alleles with %d entries,\n", NUMLOCI);
     }
     if(MAPDISTANCES) {
-        printf ("one row of map distances with %d entries,\n",
-                NUMLOCI);
+        printf ("one row of map distances with %d entries,\n", NUMLOCI);
     }
 
     if (ONEROWPERIND) {
         printf(" %d rows with %d entries. ",NUMINDS,
-               label + popdata + popflag + phenotype + EXTRACOLS +
-               LINES*NUMLOCI);
+               label + popdata + popflag + phenotype + EXTRACOLS + LINES*NUMLOCI);
     } else {
         printf(" %d rows with %d entries ",LINES * NUMINDS,
-               label + popdata + popflag + phenotype + EXTRACOLS +
-               NUMLOCI);
+               label + popdata + popflag + phenotype + EXTRACOLS + NUMLOCI);
     }
     if (PHASEINFO) {
         printf("\nplus an additional row for each individual (after the first genotypes) \ncontaining %d entries of phase information",
@@ -686,8 +665,7 @@ void CountLineLens ()
         row = 0;
         do {
             next = fgetc (INPUT);
-            if (Whitespace (last) && (!(Whitespace (next)))
-                    && (next != EOF)) {
+            if (Whitespace (last) && (!(Whitespace (next))) && (next != EOF)) {
                 word++;
             }
             if (next == '\n') {
@@ -713,8 +691,7 @@ void CountLineLens ()
                 datalines++;
             }
             totalwords += numwords[row];
-            if (((min == 0) || (min > numwords[row]))
-                    && (numwords[row] > 0)) {
+            if (((min == 0) || (min > numwords[row])) && (numwords[row] > 0)) {
                 min = numwords[row];
             }
             if (max < numwords[row]) {
@@ -745,8 +722,7 @@ void CountLineLens ()
                     if (row == 0) { /*print value of first row */
                         printf ("%d", row + 1);
                     } else if (numwords[row - 1] != word) { /*new value */
-                        if (!((row == numrows - 1)
-                                && (word == 0))) { /*except last line empty */
+                        if (!((row == numrows - 1) && (word == 0))) { /*except last line empty */
                             if (printed) {
                                 printf (", ");    /*not first occurrence */
                             }
@@ -845,8 +821,8 @@ int FindMaxAlleles (int *Geno, int *Recessive)
 }
 
 /*---------------------------------------*/
-void CountAlleles (int *Geno, int *NumAlleles,
-                   int *Translation, int *Recessive)
+void CountAlleles (int *Geno, int *NumAlleles, int *Translation,
+                   int *Recessive)
 /*This function records the number of alleles at each
    locus, and recodes the alleles in Geno to be in {0..k-1}.
    Translation stores the coding information. */
@@ -857,8 +833,7 @@ void CountAlleles (int *Geno, int *NumAlleles,
     int maxk = 0;
     int newmissing,newnotambiguous, recessivecoded;
     /*worry about whether missing data value interferes with recoding */
-    ORIGMISSING =
-        MISSING;    /*store value of MISSING in original data */
+    ORIGMISSING = MISSING;    /*store value of MISSING in original data */
     if ((MISSING >= 0) && (MISSING < MAXALLELES+1)) {
         newmissing = -9;
     } else {
@@ -902,8 +877,7 @@ void CountAlleles (int *Geno, int *NumAlleles,
         /*add an extra allele null allele if there are null alleles at the locus but
         the homozygous null is present nowhere in the sample*/
         if (RECESSIVEALLELES && Recessive[loc] != newmissing
-                && recessivecoded == 0  && k>0
-                && Recessive[loc]!=newnotambiguous) {
+                && recessivecoded == 0  && k>0 && Recessive[loc]!=newnotambiguous) {
             Recessive[loc] = k;
             Translation[TransPos (loc, k)] = 29697;
             k++;

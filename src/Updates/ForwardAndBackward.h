@@ -1,5 +1,4 @@
-extern double Forward (int *Z, double *IndividualQ,
-                       double *P,
+extern double Forward (int *Z, double *IndividualQ, double *P,
                        int *Geno, double Rec, int ind, double *RTransitProb,
                        double *Mapdistance, double *Phase,int *Phasemodel);
 

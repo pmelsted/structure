@@ -5,8 +5,7 @@
 #include "../mymath.h"
 #include "../structure.h"
 
-void UpdatePopLambda (double *LogP, double *lambda,
-                      int *NumAlleles)
+void UpdatePopLambda (double *LogP, double *lambda, int *NumAlleles)
 /*updates a lambda for each population*/
 {
     double new;
@@ -19,8 +18,7 @@ void UpdatePopLambda (double *LogP, double *lambda,
 
         if ((new > 0.0) && (new < LAMBDAMAX)) {
             sum = 0.0;
-            for (loc=0; loc < NUMLOCI;
-                    loc++) {   /*compute log of likelihood ratio*/
+            for (loc=0; loc < NUMLOCI; loc++) {   /*compute log of likelihood ratio*/
                 if (NumAlleles[loc] > 1) {
                     /*norm constants*/
                     sum +=  mylgamma((double) NumAlleles[loc]*new);
@@ -48,8 +46,8 @@ void UpdatePopLambda (double *LogP, double *lambda,
 
 
 /*--------------------------------------------*/
-void UpdateLambda (double *LogP,double *Epsilon,
-                   double *lambda, int *NumAlleles)
+void UpdateLambda (double *LogP,double *Epsilon, double *lambda,
+                   int *NumAlleles)
 /*
  * updates single value of lambda.  If FREQSCORR is turned on, this is based on the
  * ancestral frequencies (Epsilon); otherwise it is based on ALL
@@ -71,18 +69,13 @@ void UpdateLambda (double *LogP,double *Epsilon,
         }
 
         sum = 0.0;
-        for (loc=0; loc < NUMLOCI;
-                loc++) {  /*compute log of likelihood ratio*/
+        for (loc=0; loc < NUMLOCI; loc++) {  /*compute log of likelihood ratio*/
             if (NumAlleles[loc] > 1) {
                 /*norm constants*/
-                sum += (double) stoppop * mylgamma((double)
-                                                   NumAlleles[loc]*new);
-                sum -= (double) stoppop * mylgamma((double)
-                                                   NumAlleles[loc]*lambda[0]);
-                sum += (double) stoppop * (double) NumAlleles[loc] *
-                       mylgamma(lambda[0]);
-                sum -= (double) stoppop * (double) NumAlleles[loc] *
-                       mylgamma(new);
+                sum += (double) stoppop * mylgamma((double) NumAlleles[loc]*new);
+                sum -= (double) stoppop * mylgamma((double) NumAlleles[loc]*lambda[0]);
+                sum += (double) stoppop * (double) NumAlleles[loc] * mylgamma(lambda[0]);
+                sum -= (double) stoppop * (double) NumAlleles[loc] * mylgamma(new);
                 /*printf("%d %1.3f ----- ",loc,sum);*/
 
                 sumlogp = 0.0;

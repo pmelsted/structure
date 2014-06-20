@@ -367,8 +367,7 @@ b is the output array and c is a logged version of b*/
 
 /*O(k)*/
 void
-LogRDirichlet (const double *a, const int k, double *b,
-               double *c)
+LogRDirichlet (const double *a, const int k, double *b,double *c)
 {
     int i;
     double sum = 0.0;
@@ -468,8 +467,8 @@ long RPoisson(double mu)
         1.0,1.0,2.0,6.0,24.0,120.0,720.0,5040.0,40320.0,362880.0
     };
     static long ignpoi,j,k,kflag,l,m;
-    static double b1,b2,c,c0,c1,c2,c3,d,del,difmuk,e,fk,fx,fy,g,
-           omega,p,p0,px,py,q,s,
+    static double b1,b2,c,c0,c1,c2,c3,d,del,difmuk,e,fk,fx,fy,g,omega,p,p0,px,py,q,
+           s,
            t,u,v,x,xx,pp[35];
 
     if(mu == muprev) {
@@ -606,8 +605,7 @@ S80:
     px = fk*log(1.0+v)-difmuk-del;
     goto S100;
 S90:
-    px = fk*v*v*(((((((a7*v+a6)*v+a5)*v+a4)*v+a3)*v+a2)*v+a1)*v
-                 +a0)-del;
+    px = fk*v*v*(((((((a7*v+a6)*v+a5)*v+a4)*v+a3)*v+a2)*v+a1)*v+a0)-del;
 S100:
     py = 0.3989423/sqrt(fk);
 S110:
@@ -941,8 +939,7 @@ S70:
 double fsign( double num, double sign )
 /* Transfers sign of argument sign to argument num */
 {
-    if ( ( sign>0.0f && num<0.0f ) || ( sign<0.0f
-                                        && num>0.0f ) ) {
+    if ( ( sign>0.0f && num<0.0f ) || ( sign<0.0f && num>0.0f ) ) {
         return -num;
     } else {
         return num;
@@ -1104,8 +1101,7 @@ double numToRange(double low, double high, double num)
 /* gamma random generator from Ripley, 1987, P230 */
 
 
-double RGammaDisc(double n,double lambda,
-                  RndDiscState *randState)
+double RGammaDisc(double n,double lambda,RndDiscState *randState)
 {
 
     double aa;
@@ -1209,8 +1205,8 @@ six:
  * b is the output array, where b ~ Dirichlet(a)
  */
 
-void RDirichletDisc(const double * a, const int k,
-                    double * b,RndDiscState *randState)
+void RDirichletDisc(const double * a, const int k, double * b,
+                    RndDiscState *randState)
 {
     int i;
     double sum=0.0;
@@ -1224,8 +1220,7 @@ void RDirichletDisc(const double * a, const int k,
 }
 
 /* Melissa's version, adapted from an algorithm on wikipedia.  January 08 */
-double LogRGammaDisc(double n, double lambda,
-                     RndDiscState *randState)
+double LogRGammaDisc(double n, double lambda, RndDiscState *randState)
 {
     double v0, v[3], E=2.71828182, em, logem, lognm;
     int i;
@@ -1259,8 +1254,8 @@ double LogRGammaDisc(double n, double lambda,
 
 /*O(k)*/
 void
-LogRDirichletDisc (const double *a, const int k, double *b,
-                   double *c, RndDiscState *randState)
+LogRDirichletDisc (const double *a, const int k, double *b,double *c,
+                   RndDiscState *randState)
 {
     int i;
     double sum = 0.0;

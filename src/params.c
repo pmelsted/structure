@@ -41,8 +41,7 @@ void OpenFile(char input[15]);
 void PresetValues();
 void CheckIfMissing();
 int Whitespace(char next);
-void InputFileNames(int argc, char *argv[], char filename[],
-                    char flag[50]);
+void InputFileNames(int argc, char *argv[], char filename[], char flag[50]);
 void CommandLineValues(int argc, char *argv[]);
 
 
@@ -80,8 +79,7 @@ void GetParams(int strat, int argc, char *argv[])
         fclose(PARAMS);
     }
 
-    CommandLineValues(argc,
-                      argv);   /*check for command line change to parameters*/
+    CommandLineValues(argc,argv);   /*check for command line change to parameters*/
     CheckIfMissing(strat);
     UPDATEFREQ = SetUpdateFreq();
 }
@@ -136,11 +134,9 @@ int CommandLineInts(char *value, char parameter[100])
         if (value[i] == '\0') {
             break;
         }
-        if (((value[i] < '0') || (value[i] > '9'))
-                && (value[i] != '-')) {
+        if (((value[i] < '0') || (value[i] > '9')) && (value[i] != '-')) {
             /*ok = 0;*/
-            printf("Error in command-line data entry for %s\n",
-                   parameter);
+            printf("Error in command-line data entry for %s\n",parameter);
             printf("Value input at command line is %s\n",value);
             Kill();
         }
@@ -149,8 +145,7 @@ int CommandLineInts(char *value, char parameter[100])
     return atoi(value);
 }
 /*-------------------------------------------*/
-void InputFileNames(int argc, char *argv[], char filename[],
-                    char flag[50])
+void InputFileNames(int argc, char *argv[], char filename[], char flag[50])
 /*This function checks whether there is a command line flag to
 indicate that a different input file should be used instead of
 mainparams, extraparams or STRATparams*/
@@ -241,8 +236,7 @@ void GetParamValue()
     int  ReadString(char Word[],int maxlength,FILE *THEFILE);
 
     if (ReadString(NextWord,MAXNAME,PARAMS))
-        if (!(strcmp(NextWord,
-                     "define")))  /*check that next word is "define"*/
+        if (!(strcmp(NextWord,"define")))  /*check that next word is "define"*/
             /*strcmp returns 0 if strings unequal*/
         {
             if (ReadString(NextWord,MAXNAME,PARAMS)) {
@@ -251,8 +245,7 @@ void GetParamValue()
         }
 }
 /*-------------------------------------------*/
-int  ReadSpaceString(char Word[],int maxlength,
-                     FILE *THEFILE)
+int  ReadSpaceString(char Word[],int maxlength,FILE *THEFILE)
 /* Add in by William Wen, for reading space-allowed path/file name
  * read through the string, includs all intermediate spaces, terminate
  * reading at "//" sign or new line. */
@@ -547,8 +540,7 @@ void SetValue(char Word[])
     }
 
     else {
-        printf("Warning:  Ignoring unrecognized parameter name (%s)\n",
-               Word);
+        printf("Warning:  Ignoring unrecognized parameter name (%s)\n",Word);
     }
 
 }
@@ -655,8 +647,7 @@ void PresetValues()
     EMERROR = 0.001;
     POOLFREQ = 10;
     LOCUSxONLY = 0;
-    PHENOTYPECOL =
-        -9;   /*indicates that this has not been entered*/
+    PHENOTYPECOL = -9;   /*indicates that this has not been entered*/
     MISSINGPHENO = -9;
 
     /* hidden options */
@@ -739,8 +730,7 @@ whether this was called from structure (0) or STRAT (1) */
     /*Melissa added 7/12/07 to make sure we have location data when using poppriors*/
     if (LOCPRIOR && LOCDATA<0) {
         if (LOCISPOP==0 || POPDATA < 0) {
-            printf("Need to specify location data when LOCPRIOR=%i\n",
-                   LOCPRIOR);
+            printf("Need to specify location data when LOCPRIOR=%i\n", LOCPRIOR);
             printf("LOCISPOP=%i POPDATA=%i\n", LOCISPOP, POPDATA);
             trouble=1;
         }
@@ -779,8 +769,7 @@ update about once every 200,000 genotypes, but it should be an even number.
     }
     /*intervals of 100*/
     else {
-        return 500*((int) (approxfreq +
-                           250)/500);    /*intervals of 500*/
+        return 500*((int) (approxfreq + 250)/500);    /*intervals of 500*/
     }
 
 }

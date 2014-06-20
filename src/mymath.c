@@ -89,10 +89,8 @@ int PickAnOption(int total,double sum,double Probs[])
     double random;
     double sumsofar = 0.0;
 
-    random = RandomReal(0,
-                        sum);     /*Get uniform random real in this range*/
-    for (option=0; option<total;
-            option++) { /*Figure out which popn this is*/
+    random = RandomReal(0,sum);     /*Get uniform random real in this range*/
+    for (option=0; option<total; option++) { /*Figure out which popn this is*/
         sumsofar += Probs[option];
         if (random <= sumsofar) {
             break;
@@ -104,8 +102,7 @@ int PickAnOption(int total,double sum,double Probs[])
 }
 
 
-int PickAnOptionDiscrete(int total,double sum,
-                         double Probs[],
+int PickAnOptionDiscrete(int total,double sum,double Probs[],
                          RndDiscState *randState)
 {
     /*Returns a random number between 0 and n-1, according to a list of
@@ -120,8 +117,7 @@ int PickAnOptionDiscrete(int total,double sum,
 
     random = numToRange(0,sum,
                         rndDisc(randState));     /*Get uniform random real in this range*/
-    for (option=0; option<total;
-            option++) { /*Figure out which popn this is*/
+    for (option=0; option<total; option++) { /*Figure out which popn this is*/
         sumsofar += Probs[option];
         if (random <= sumsofar) {
             break;
@@ -134,8 +130,7 @@ int PickAnOptionDiscrete(int total,double sum,
 
 
 /*---------------------------------*/
-double LDirichletProb(double prior[],double post[],
-                      int length)
+double LDirichletProb(double prior[],double post[],int length)
 /*returns the log probability of a vector "post" of length "length",
   given a Dirichlet process with prior "prior". */
 {
@@ -165,15 +160,13 @@ double LGammaDistProb(double alpha,double beta, double y)
 
     double logsum;
 
-    logsum = -1*mylgamma(alpha) - alpha*log(beta) +
-             (alpha-1)*log(y) - y/beta;
+    logsum = -1*mylgamma(alpha) - alpha*log(beta) + (alpha-1)*log(y) - y/beta;
 
     return logsum;
 
 }
 /*----------------------------------*/
-double FindAveLogs(double *logmax,double *sum,
-                   double lognext,int rep)
+double FindAveLogs(double *logmax,double *sum, double lognext,int rep)
 /*This function is for use in estimating the mean of a set of really
 large or small numbers, where it is necessary to use logs to avoid
 numerical problems.  This function returns the log of the current
@@ -247,8 +240,8 @@ double Factorial(int n)
     return product;
 }
 /*------------------------------------------------------------*/
-double ChiSq(int *list1,int len1,int *list2,int len2,
-             int mincount,int missing,int *df)
+double ChiSq(int *list1,int len1,int *list2,int len2,int mincount,int missing,
+             int *df)
 /*This function takes two lists of integers (allele scores), and
 computes a chi^sq for the equality of frequencies.  list1 and list2
 are the two lists, of length len1, and len2, respectively.  Missing
@@ -274,8 +267,7 @@ value, and a pointer to the resulting degrees of freedom (df).*/
     count1 = calloc(len1+len2,sizeof(int));
     count2 = calloc(len1+len2,sizeof(int));
     totcount= calloc(len1+len2,sizeof(int));
-    if ((alleles==NULL)||(count1==NULL)||(count2==NULL)
-            ||(totcount==NULL)) {
+    if ((alleles==NULL)||(count1==NULL)||(count2==NULL)||(totcount==NULL)) {
         printf("Warning error assigning memory in ChiSq\n");
         return 0;
     }
@@ -316,8 +308,7 @@ value, and a pointer to the resulting degrees of freedom (df).*/
       printf("\n"); */
 
     do {      /*combine undersized classes*/
-        min1 = min2 = min3 = len1
-                             +len2;     /*figure out 3 lowest counts*/
+        min1 = min2 = min3 = len1+len2;     /*figure out 3 lowest counts*/
         all1 = all2 = 0;
         for (allele=0; allele<numalleles; allele++) {
             if (totcount[allele] < min1) {
@@ -351,8 +342,7 @@ value, and a pointer to the resulting degrees of freedom (df).*/
         /*j++;
         if (j>10) printf("%d %d %d %d %d %d\n",min1,min2,min3,all1,all2,numalleles);*/
         /* melissa added parentheses 7/12/07 to fix ambiguous and/or statement */
-    } while ((min1+min2 <= mincount || min3 <= mincount)
-             && (numalleles>=1));
+    } while ((min1+min2 <= mincount || min3 <= mincount) && (numalleles>=1));
 
     /*printf("\nIn chisq: ");
     for (allele=0; allele<numalleles; allele++)
@@ -423,8 +413,7 @@ double mylgamma(double z)
     long j;
     double tmp;
     if (z <= 0.) {
-        fprintf(stderr,
-                "lgamma function failed with wrong input (%f)\n",z);
+        fprintf(stderr,"lgamma function failed with wrong input (%f)\n",z);
         assert(0);
         exit(-1);
     }
@@ -435,7 +424,6 @@ double mylgamma(double z)
         tmp -= 1.;
     }
     result += a[0];
-    result = log (result) + lnsqrt2pi - (z + 6.5) +
-             (z - 0.5) * log (z + 6.5);
+    result = log (result) + lnsqrt2pi - (z + 6.5) + (z - 0.5) * log (z + 6.5);
     return result;
 }  /* lgamma */

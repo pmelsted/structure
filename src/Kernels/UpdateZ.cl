@@ -29,12 +29,11 @@ __kernel void UpdateZ (
                 /*Data present */
                 sum = 0.0;    /*compute prob of each allele being from each pop */
                 for (pop = 0; pop < MAXPOPS; pop++) {
-                    Cutoffs[pop] = Q[QPos (ind, pop)] *
-                                   P[PPos (loc, pop, allele)];
+                    Cutoffs[pop] = Q[QPos (ind, pop)] * P[PPos (loc, pop, allele)];
                     sum += Cutoffs[pop];
                 }
-                Z[ZPos (ind, line, loc)] = PickAnOptionDiscrete (MAXPOPS,
-                                           sum, Cutoffs,randState);
+                Z[ZPos (ind, line, loc)] = PickAnOptionDiscrete (MAXPOPS, sum, Cutoffs,
+                                           randState);
             }
         }
         if (randState->randomValsTaken > randState->maxrandom) {

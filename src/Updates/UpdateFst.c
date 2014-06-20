@@ -11,17 +11,15 @@ FPriorDiff (double newf, double oldf)
 {
     /*returns log diff in priors for the correlation, f. See notes 5/14/99, and 7/15/99 */
 
-    return ((FPRIORMEAN*FPRIORMEAN/(FPRIORSD*FPRIORSD) - 1) *
-            log (newf / oldf) + (oldf - newf) *FPRIORMEAN/
-            (FPRIORSD*FPRIORSD));
+    return ((FPRIORMEAN*FPRIORMEAN/(FPRIORSD*FPRIORSD) - 1) * log (newf / oldf) +
+            (oldf - newf) *FPRIORMEAN/(FPRIORSD*FPRIORSD));
 
 }
 
 
 /*-----------------------------------------*/
 double
-FlikeFreqs (double f, double *Epsilon, double *LogP,
-            int *NumAlleles, int pop)
+FlikeFreqs (double f, double *Epsilon, double *LogP, int *NumAlleles, int pop)
 {
     /*
      * returns the log probability of the allele frequencies (for a particular pop)
@@ -41,13 +39,11 @@ FlikeFreqs (double f, double *Epsilon, double *LogP,
     sum = NUMLOCI*mylgamma(frac);
     for (loc=0; loc<NUMLOCI; loc++) {
         for (allele=0; allele < NumAlleles[loc]; allele++) {
-            sum += frac*Epsilon[EpsPos (loc, allele)]*LogP[PPos(loc,pop,
-                    allele)];
+            sum += frac*Epsilon[EpsPos (loc, allele)]*LogP[PPos(loc,pop,allele)];
             sum -= mylgamma( frac*Epsilon[EpsPos (loc, allele)]);
         }
         if (NumAlleles[loc]==0) {
-            sum -=mylgamma(
-                      frac); /* should not be counting sites with all missing data */
+            sum -=mylgamma(frac); /* should not be counting sites with all missing data */
         }
     }
     return sum;
@@ -98,10 +94,8 @@ UpdateFst (double *Epsilon, double *Fst,
                 numpops2 = pop1+1;
             }
             for (pop2 = pop1; pop2 < numpops2; pop2++) {
-                logprobdiff += FlikeFreqs (newf, Epsilon, LogP, NumAlleles,
-                                           pop2);
-                logprobdiff -= FlikeFreqs (oldf, Epsilon, LogP, NumAlleles,
-                                           pop2);
+                logprobdiff += FlikeFreqs (newf, Epsilon, LogP, NumAlleles, pop2);
+                logprobdiff -= FlikeFreqs (oldf, Epsilon, LogP, NumAlleles, pop2);
             }
 
             /*decide whether to accept, and then update*/

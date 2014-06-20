@@ -60,10 +60,9 @@ GetNumFromPop (int *NumAFromPop, int *Geno, int *Z, int loc,
  * O(NUMLOCI*(MAXPOPS* (max_loc NumAlleles[loc]) + NUMINDS*LINES)) =>
  * O(NUMLOCI*(MAXPOPS*MAXALLELES + NUMINDS*LINES))
  */
-void UpdateP (double *P, double *LogP, double *Epsilon,
-              double *Fst,
-              int *NumAlleles, int *Geno, int *Z, double *lambda,
-              struct IND *Individual, double * randomArr)
+void UpdateP (double *P, double *LogP, double *Epsilon, double *Fst,
+              int *NumAlleles, int *Geno, int *Z, double *lambda, struct IND *Individual,
+              double * randomArr)
 /*Simulate new allele frequencies from Dirichlet distribution */
 {
     int loc, pop, allele;
@@ -81,13 +80,11 @@ void UpdateP (double *P, double *LogP, double *Epsilon,
 
 
     /* O(NUMLOCI*(MAXPOPS* (max_loc NumAlleles[loc]) + NUMINDS*LINES)) */
-    initRndDiscState(randState,randomArr,
-                     NUMLOCI*MAXALLELES*MAXRANDOM);
+    initRndDiscState(randState,randomArr,NUMLOCI*MAXALLELES*MAXRANDOM);
     for (loc = 0; loc < NUMLOCI; loc++) {
         /*count number of each allele from each pop */
         /*O(MAXPOPS*NumAlleles[loc] + NUMINDS*LINES) */
-        GetNumFromPop (NumAFromPop, Geno, Z, loc, NumAlleles[loc],
-                       Individual);
+        GetNumFromPop (NumAFromPop, Geno, Z, loc, NumAlleles[loc], Individual);
         /* O(MAXPOPS*NumAlleles[loc])*/
         for (pop = 0; pop < MAXPOPS; pop++) {
             for (allele = 0; allele < NumAlleles[loc]; allele++) {

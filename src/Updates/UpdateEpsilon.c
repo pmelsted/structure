@@ -7,8 +7,8 @@
 
 
 /*------------------------------------------*/
-void IndependenceUpdateEpsilon(double *P,double *LogP,
-                               double *Epsilon, double *Fst,int *NumAlleles, double Lambda)
+void IndependenceUpdateEpsilon(double *P,double *LogP, double *Epsilon,
+                               double *Fst,int *NumAlleles, double Lambda)
 /*this is the alternative update to the one below, proposed by Graham */
 {
     int loc, pop, allele;
@@ -40,8 +40,7 @@ void IndependenceUpdateEpsilon(double *P,double *LogP,
             /* compute Hastings (transition) ratio and prior ratio*/
             for (allele = 0; allele < NumAlleles[loc]; allele++) {
                 Sum +=
-                    (parameters[allele] - Lambda) * (log(
-                            Epsilon[EpsPos (loc, allele)]) -
+                    (parameters[allele] - Lambda) * (log(Epsilon[EpsPos (loc, allele)]) -
                                                      log(trialepsilon[allele]));
             }
 
@@ -55,8 +54,7 @@ void IndependenceUpdateEpsilon(double *P,double *LogP,
                     Sum -=
                         mylgamma (frac * trialepsilon[allele]);
                     Sum +=
-                        frac * (trialepsilon[allele] -
-                                Epsilon[EpsPos (loc, allele)])
+                        frac * (trialepsilon[allele] - Epsilon[EpsPos (loc, allele)])
                         * LogP[PPos (loc,pop,allele)];
                 }
             }
@@ -74,8 +72,8 @@ void IndependenceUpdateEpsilon(double *P,double *LogP,
 
 /*------------------------------------------*/
 void
-UpdateEpsilon(double *P,double *LogP, double *Epsilon,
-              double *Fst,int *NumAlleles, double lambda)
+UpdateEpsilon(double *P,double *LogP, double *Epsilon, double *Fst,
+              int *NumAlleles, double lambda)
 /*
  * update the ancestral allele freq vector Epsilon.  This is done
  * by picking 2 alleles at each locus, and changing their frequencies.
@@ -93,8 +91,7 @@ UpdateEpsilon(double *P,double *LogP, double *Epsilon,
       properties, especially for small lambda. The independence update uses a
       Dirichlet prior independent of current epsilon while the update below uses a small normal jump */
     if (rnd()<0.5) {
-        IndependenceUpdateEpsilon(P,LogP, Epsilon, Fst,NumAlleles,
-                                  lambda);
+        IndependenceUpdateEpsilon(P,LogP, Epsilon, Fst,NumAlleles, lambda);
     } else {
         /*this sets the range from which the proposal is drawn*/
         invsqrtnuminds=pow((double)NUMINDS,-0.5);
@@ -114,16 +111,13 @@ UpdateEpsilon(double *P,double *LogP, double *Epsilon,
                         (Epsilon[EpsPos(loc,allele2)]-difference>0.0)) {
 
                     sum=0.0;
-                    for (pop=0; pop<MAXPOPS;
-                            pop++) { /*compute likelihood ratio*/
+                    for (pop=0; pop<MAXPOPS; pop++) { /*compute likelihood ratio*/
                         frac = (1.0-Fst[pop])/Fst[pop];
 
                         sum += mylgamma(frac*Epsilon[EpsPos (loc, allele1)]);
                         sum += mylgamma(frac*Epsilon[EpsPos (loc, allele2)]);
-                        sum -= mylgamma(frac*(Epsilon[EpsPos (loc, allele1)]
-                                              +difference));
-                        sum -= mylgamma(frac*(Epsilon[EpsPos (loc, allele2)]
-                                              -difference));
+                        sum -= mylgamma(frac*(Epsilon[EpsPos (loc, allele1)]+difference));
+                        sum -= mylgamma(frac*(Epsilon[EpsPos (loc, allele2)]-difference));
 
                         sum += frac*difference*LogP[PPos (loc, pop, allele1)];
                         sum -= frac*difference*LogP[PPos (loc, pop, allele2)];
@@ -132,8 +126,7 @@ UpdateEpsilon(double *P,double *LogP, double *Epsilon,
                     if (lambda != 1.0) {              /*compute prior ratio*/
                         /*TEMP: log added by JKP 6/30/03 as I think this was previously
                           an error.  Now doing testing */
-                        sum += log(pow( (Epsilon[EpsPos (loc, allele1)] +
-                                         difference)*
+                        sum += log(pow( (Epsilon[EpsPos (loc, allele1)] + difference)*
                                         (Epsilon[EpsPos (loc, allele2)] - difference)/
                                         (Epsilon[EpsPos (loc, allele1)])/
                                         (Epsilon[EpsPos (loc, allele2)]), (double) lambda-1.0));

@@ -15,17 +15,12 @@ void
 Welcome (FILE * file)
 {
     fprintf (file, "\n\n");
-    fprintf (file,
-             "----------------------------------------------------\n");
-    fprintf (file,
-             "STRUCTURE by Pritchard, Stephens and Donnelly (2000)\n");
-    fprintf (file,
-             "     and Falush, Stephens and Pritchard (2003)\n");
-    fprintf (file,
-             "       Code by Pritchard, Falush and Hubisz\n");
+    fprintf (file, "----------------------------------------------------\n");
+    fprintf (file, "STRUCTURE by Pritchard, Stephens and Donnelly (2000)\n");
+    fprintf (file, "     and Falush, Stephens and Pritchard (2003)\n");
+    fprintf (file, "       Code by Pritchard, Falush and Hubisz\n");
     fprintf (file, "             Version %s\n", VERSION);
-    fprintf (file,
-             "----------------------------------------------------\n");
+    fprintf (file, "----------------------------------------------------\n");
 
     fprintf (file, "\n\n");
     fflush(file);
@@ -47,8 +42,7 @@ void CheckParamCombinations()
         printf("phase info is only applicable to diploid data!! \n");
         Kill();
     }
-    if (LINES ==2 && PHASEINFO==1 && PHASED ==0
-            && MARKOVPHASE==-1 && LINKAGE) {
+    if (LINES ==2 && PHASEINFO==1 && PHASED ==0 && MARKOVPHASE==-1 && LINKAGE) {
         printf("You need to specify a phase model using the parameter MARKOVPHASE!! \n");
         Kill();
     }
@@ -111,19 +105,18 @@ void CheckParamCombinations()
           double *FstSum, int *AncestDist, double *UsePopProbs, double *R,
           double *sumR, double *varR, double *LocPrior, double *sumLocPrior)
 */
-void FreeAll(double *Mapdistance, double *Phase,
-             int *Phasemodel, double *lambda, double *sumlambda,
+void FreeAll(double *Mapdistance, double *Phase, int *Phasemodel,
+             double *lambda, double *sumlambda,
              char *Markername, int *Geno, int* PreGeno, int* Recessive,
              struct IND *Individual,
-             int *Translation, int *NumAlleles, int *Z, int *Z1,
-             double *Q, double *P, double *LogP,
-             double *R, double *sumR, double *varR, double *Epsilon,
-             double *SumEpsilon, double *Fst,
+             int *Translation, int *NumAlleles, int *Z, int *Z1, double *Q, double *P,
+             double *LogP,
+             double *R, double *sumR, double *varR, double *Epsilon, double *SumEpsilon,
+             double *Fst,
              double *FstSum, int *NumLociPop, double *PSum, double *QSum,
-             int *AncestDist, double *UsePopProbs, double *LocPrior,
-             double *sumLocPrior,
-             double *Alpha, double *sumAlpha, double *sumIndLikes,
-             double *indLikesNorm, CLDict *clDict)
+             int *AncestDist, double *UsePopProbs, double *LocPrior, double *sumLocPrior,
+             double *Alpha, double *sumAlpha, double *sumIndLikes, double *indLikesNorm,
+             CLDict *clDict)
 {
     /** these variables are calloc'd in main and freed in the same order */
 

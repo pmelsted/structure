@@ -62,8 +62,7 @@ __kernel void UpdateQMetro (
 
         logdiff += CalcLikeInd (Geno, PreGeno, TestQ, P, ind,
                                 Recessive);  /*likelihood bit */
-        logdiff -= CalcLikeInd (Geno, PreGeno, CurrentQ, P, ind,
-                                Recessive);
+        logdiff -= CalcLikeInd (Geno, PreGeno, CurrentQ, P, ind, Recessive);
 
         randomnum = rndDisc(randState);
         if (randomnum < exp (logdiff)) {    /*accept */

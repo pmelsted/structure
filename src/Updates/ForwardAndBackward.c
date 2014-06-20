@@ -9,10 +9,9 @@
 
 /*---------------------------------------*/
 double
-Forward (int *Z, double *IndividualQ, double *P, int *Geno,
-         double Rec, int ind,
-         double *RTransitProb, double *Mapdistance, double *Phase,
-         int *Phasemodel)
+Forward (int *Z, double *IndividualQ, double *P, int *Geno, double Rec,
+         int ind,
+         double *RTransitProb, double *Mapdistance, double *Phase,int *Phasemodel)
 {
     long pop, pop2,  loc, line;
     double loglikelihood, temp, problinked, tempP00, tempP01,
@@ -31,11 +30,10 @@ Forward (int *Z, double *IndividualQ, double *P, int *Geno,
         for (line = 0; line < LINES; line++) {
             /* set RTransitProb for the first locus, for each population */
             for (pop = 0; pop < MAXPOPS; pop++) {
-                RTransitProb[RTransitProbPos (0, line, pop)] =
-                    IndividualQ[pop];
+                RTransitProb[RTransitProbPos (0, line, pop)] = IndividualQ[pop];
                 if (Geno[GenPos (ind, line, 0)] != MISSING) {
-                    RTransitProb[RTransitProbPos (0, line, pop)] *=
-                        P[PPos (0, pop, Geno[GenPos (ind, line, 0)])];
+                    RTransitProb[RTransitProbPos (0, line, pop)] *= P[PPos (0, pop,
+                            Geno[GenPos (ind, line, 0)])];
                 }
             }
             /* rest of the loci */
@@ -81,8 +79,7 @@ Forward (int *Z, double *IndividualQ, double *P, int *Geno,
 
             temp = 0.0;
             for (pop = 0; pop < MAXPOPS; pop++) {
-                temp += RTransitProb[RTransitProbPos (NUMLOCI - 1, line,
-                                                      pop)];
+                temp += RTransitProb[RTransitProbPos (NUMLOCI - 1, line, pop)];
             }
             loglikelihood += log (temp);
         }                           /* do the next LINE */
@@ -110,11 +107,11 @@ Forward (int *Z, double *IndividualQ, double *P, int *Geno,
                 if (Phasemodel[ind]==1) {
                     RTransitProb[DiploidRTransitProbPos (0, pop, pop2)] =
                         IndividualQ[pop] * IndividualQ[pop2] *
-                        (Phase[PhasePos (ind, 0)] * tempP00 * tempP11 +
-                         (1.0 - Phase[PhasePos (ind, 0)]) * tempP01 * tempP10);
+                        (Phase[PhasePos (ind, 0)] * tempP00 * tempP11 + (1.0 - Phase[PhasePos (ind,
+                                0)]) * tempP01 * tempP10);
                 } else {
-                    RTransitProb[DiploidRTransitProbPos (0, pop, pop2)] =
-                        IndividualQ[pop] * IndividualQ[pop2] * tempP00 * tempP11;
+                    RTransitProb[DiploidRTransitProbPos (0, pop,
+                                                         pop2)] = IndividualQ[pop] * IndividualQ[pop2] * tempP00 * tempP11;
                 }
             }
         }
@@ -138,10 +135,8 @@ Forward (int *Z, double *IndividualQ, double *P, int *Geno,
 
             for (pop = 0; pop < MAXPOPS; pop++) {
                 for (pop2 = 0; pop2 < MAXPOPS; pop2++) {
-                    sum1[pop]+=RTransitProb[DiploidRTransitProbPos(loc-1,pop,
-                                            pop2)];
-                    sum2[pop2]+=RTransitProb[DiploidRTransitProbPos(loc-1,pop,
-                                             pop2)];
+                    sum1[pop]+=RTransitProb[DiploidRTransitProbPos(loc-1,pop,pop2)];
+                    sum2[pop2]+=RTransitProb[DiploidRTransitProbPos(loc-1,pop,pop2)];
                 }
             }
 
@@ -178,30 +173,28 @@ Forward (int *Z, double *IndividualQ, double *P, int *Geno,
                     /*note that for markov model (Phasemodel==0), phase information starts at locus 1  */
                     if (Phasemodel[ind]==1) {
                         RTransitProb[DiploidRTransitProbPos (loc, pop, pop2)] = (
-                                    problinked*problinked*RTransitProb[DiploidRTransitProbPos (
-                                                loc - 1, pop, pop2)]
-                                    + (1.0-problinked)*(1.0-problinked)
-                                    *IndividualQ[pop]*IndividualQ[pop2]*asum
+                                    problinked*problinked*RTransitProb[DiploidRTransitProbPos (loc - 1, pop, pop2)]
+                                    + (1.0-problinked)*(1.0-problinked)*IndividualQ[pop]*IndividualQ[pop2]*asum
                                     +problinked*(1.0-problinked)*(IndividualQ[pop2]*sum1[pop]
                                             +IndividualQ[pop]*sum2[pop2])
-                                )* (Phase[PhasePos (ind, loc)] * tempP00 * tempP11 +
-                                    (1.0 - Phase[PhasePos (ind, loc)]) * tempP01 * tempP10);
+                                )* (Phase[PhasePos (ind,
+                                                    loc)] * tempP00 * tempP11 + (1.0 - Phase[PhasePos (ind,
+                                                            loc)]) * tempP01 * tempP10);
                     } else {
-                        RTransitProb[DiploidRTransitProbPos (loc, pop, pop2)] =
-                            tempP00* tempP11*(
-                                problinked*problinked*
-                                (Phase[PhasePos(ind,loc)]*
-                                 RTransitProb[DiploidRTransitProbPos(loc-1,pop,pop2)]+
-                                 (1.0-Phase[PhasePos(ind,loc)])
-                                 *RTransitProb[DiploidRTransitProbPos(loc-1,pop2,pop)])
-                                +(1.0-problinked)*(1.0-problinked)*
-                                IndividualQ[pop]*IndividualQ[pop2]*asum
-                                +problinked*(1.0-problinked)*
-                                (Phase[PhasePos (ind, loc)]*(IndividualQ[pop2]*sum1[pop]
-                                                             +IndividualQ[pop]*sum2[pop2])
-                                 + (1.0-Phase[PhasePos (ind, loc)])*
-                                 (IndividualQ[pop]*sum1[pop2]+IndividualQ[pop2]*sum2[pop]))
-                            );
+                        RTransitProb[DiploidRTransitProbPos (loc, pop, pop2)] =  tempP00* tempP11*(
+                                    problinked*problinked*
+                                    (Phase[PhasePos(ind,loc)]* RTransitProb[DiploidRTransitProbPos(loc-1,pop,
+                                            pop2)]+
+                                     (1.0-Phase[PhasePos(ind,loc)])*RTransitProb[DiploidRTransitProbPos(loc-1,pop2,
+                                             pop)])
+                                    +(1.0-problinked)*(1.0-problinked)*
+                                    IndividualQ[pop]*IndividualQ[pop2]*asum
+                                    +problinked*(1.0-problinked)*
+                                    (Phase[PhasePos (ind, loc)]*(IndividualQ[pop2]*sum1[pop]
+                                            +IndividualQ[pop]*sum2[pop2])
+                                     + (1.0-Phase[PhasePos (ind,
+                                                            loc)])*(IndividualQ[pop]*sum1[pop2]+IndividualQ[pop2]*sum2[pop]))
+                                );
                     }
                 }
             }
@@ -210,8 +203,7 @@ Forward (int *Z, double *IndividualQ, double *P, int *Geno,
             temp = 0.0;
             for (pop = 0; pop < MAXPOPS; pop++) {
                 for (pop2 = 0; pop2 < MAXPOPS; pop2++) {
-                    temp += RTransitProb[DiploidRTransitProbPos (loc, pop,
-                                         pop2)];
+                    temp += RTransitProb[DiploidRTransitProbPos (loc, pop, pop2)];
                 }
             }
 
@@ -219,8 +211,7 @@ Forward (int *Z, double *IndividualQ, double *P, int *Geno,
                 loglikelihood += log (sqrtunder);
                 for (pop = 0; pop < MAXPOPS; pop++) {
                     for (pop2 = 0; pop2 < MAXPOPS; pop2++) {
-                        RTransitProb[DiploidRTransitProbPos (loc, pop, pop2)] /=
-                            sqrtunder;
+                        RTransitProb[DiploidRTransitProbPos (loc, pop, pop2)] /= sqrtunder;
                     }
                 }
             }
@@ -230,8 +221,7 @@ Forward (int *Z, double *IndividualQ, double *P, int *Geno,
         temp = 0.0;
         for (pop = 0; pop < MAXPOPS; pop++) {
             for (pop2 = 0; pop2 < MAXPOPS; pop2++) {
-                temp += RTransitProb[DiploidRTransitProbPos (NUMLOCI - 1,
-                                     pop, pop2)];
+                temp += RTransitProb[DiploidRTransitProbPos (NUMLOCI - 1, pop, pop2)];
             }
         }
         loglikelihood += log (temp);
@@ -262,8 +252,7 @@ Backward (int *Z,  double *IndividualQ, double Rec, int ind,
     Cutoffs = calloc (MAXPOPS+1, sizeof (double));
     Cutoffs2 = calloc (MAXPOPS+1, sizeof (double));
     SquareCutoffs = calloc (MAXPOPS * MAXPOPS, sizeof (double));
-    if (Cutoffs == NULL || SquareCutoffs == NULL
-            || Cutoffs2 == NULL) {
+    if (Cutoffs == NULL || SquareCutoffs == NULL || Cutoffs2 == NULL) {
         printf ("WARNING: unable to allocate array space in Backwards\n");
         Kill ();
     }
@@ -274,17 +263,13 @@ Backward (int *Z,  double *IndividualQ, double Rec, int ind,
             sum = 0.0;
             sum2 = 0.0;
             for (pop = 0; pop < MAXPOPS; pop++) {
-                Cutoffs[pop] =
-                    RTransitProb[RTransitProbPos (NUMLOCI - 1, line, pop)];
+                Cutoffs[pop] = RTransitProb[RTransitProbPos (NUMLOCI - 1, line, pop)];
                 sum += Cutoffs[pop];
-                Cutoffs2[pop] =
-                    P[PPos (NUMLOCI-1, pop, Geno[GenPos (ind, line,
-                                                 NUMLOCI-1)])];
+                Cutoffs2[pop] = P[PPos (NUMLOCI-1, pop, Geno[GenPos (ind, line, NUMLOCI-1)])];
                 sum2 += Cutoffs2[pop];
             }
 
-            Z[ZPos (ind, line, NUMLOCI - 1)] = PickAnOption (MAXPOPS,
-                                               sum, Cutoffs);
+            Z[ZPos (ind, line, NUMLOCI - 1)] = PickAnOption (MAXPOPS, sum, Cutoffs);
 
             for (loc = NUMLOCI - 2; loc > -1; loc = loc - 1) {
                 sum = 0.0;
@@ -298,23 +283,18 @@ Backward (int *Z,  double *IndividualQ, double Rec, int ind,
                 /* here temp has bitten the dust */
                 for (pop = 0; pop < MAXPOPS; pop++) {
                     if (pop == Z[ZPos (ind, line, loc + 1)]) {
-                        Cutoffs[pop] =
-                            RTransitProb[RTransitProbPos (loc, line, pop)] *
-                            (problinked + (1.0 - problinked) *
-                             IndividualQ[Z[ZPos (ind, line, loc + 1)]]);
+                        Cutoffs[pop] = RTransitProb[RTransitProbPos (loc, line,
+                                                    pop)] * (problinked + (1.0 - problinked) * IndividualQ[Z[ZPos (ind, line,
+                                                             loc + 1)]]);
                     } else {
-                        Cutoffs[pop] =
-                            RTransitProb[RTransitProbPos (loc, line, pop)] *
-                            (1.0 - problinked) *
-                            IndividualQ[Z[ZPos (ind, line, loc + 1)]];
+                        Cutoffs[pop] = RTransitProb[RTransitProbPos (loc, line,
+                                                    pop)] * (1.0 - problinked) * IndividualQ[Z[ZPos (ind, line, loc + 1)]];
                     }
                     sum += Cutoffs[pop];
-                    Cutoffs2[pop] =
-                        P[PPos (loc, pop, Geno[GenPos (ind, line, loc)])];
+                    Cutoffs2[pop] = P[PPos (loc, pop, Geno[GenPos (ind, line, loc)])];
                     sum2 += Cutoffs2[pop];
                 }
-                Z[ZPos (ind, line, loc)] = PickAnOption (MAXPOPS, sum,
-                                           Cutoffs);
+                Z[ZPos (ind, line, loc)] = PickAnOption (MAXPOPS, sum, Cutoffs);
             }
         }
     } else {
@@ -324,8 +304,8 @@ Backward (int *Z,  double *IndividualQ, double Rec, int ind,
 
                 for (pop = 0; pop < MAXPOPS; pop++) {
                     for (pop2 = 0; pop2 < MAXPOPS; pop2++) {
-                        SquareCutoffs[SquarePos (pop, pop2)] =
-                            RTransitProb[DiploidRTransitProbPos (loc, pop, pop2)];
+                        SquareCutoffs[SquarePos (pop,
+                                                 pop2)] = RTransitProb[DiploidRTransitProbPos (loc, pop, pop2)];
                     }
                 }
 
@@ -339,21 +319,21 @@ Backward (int *Z,  double *IndividualQ, double Rec, int ind,
                     for (pop = 0; pop < MAXPOPS; pop++) {
                         for (pop2 = 0; pop2 < MAXPOPS; pop2++) {
                             if (pop == Z1[ZPos (ind, 0, loc + 1)]) {
-                                SquareCutoffs[SquarePos (pop, pop2)] *= problinked +
-                                                                        (1.0 - problinked) *
-                                                                        IndividualQ[Z1[ZPos (ind, 0, loc + 1)]];
+                                SquareCutoffs[SquarePos (pop,
+                                                         pop2)] *= problinked + (1.0 - problinked) * IndividualQ[Z1[ZPos (ind, 0,
+                                                                   loc + 1)]];
                             } else {
-                                SquareCutoffs[SquarePos (pop, pop2)] *= (1.0 - problinked) *
-                                                                        IndividualQ[Z1[ZPos (ind, 0, loc + 1)]];
+                                SquareCutoffs[SquarePos (pop,
+                                                         pop2)] *= (1.0 - problinked) * IndividualQ[Z1[ZPos (ind, 0, loc + 1)]];
                             }
 
                             if (pop2 == Z1[ZPos (ind, 1, loc + 1)]) {
-                                SquareCutoffs[SquarePos (pop, pop2)] *= problinked +
-                                                                        (1.0 - problinked) *
-                                                                        IndividualQ[Z1[ZPos (ind, 1, loc + 1)]];
+                                SquareCutoffs[SquarePos (pop,
+                                                         pop2)] *= problinked + (1.0 - problinked) * IndividualQ[Z1[ZPos (ind, 1,
+                                                                   loc + 1)]];
                             } else {
-                                SquareCutoffs[SquarePos (pop, pop2)] *= (1.0 - problinked) *
-                                                                        IndividualQ[Z1[ZPos (ind, 1, loc + 1)]];
+                                SquareCutoffs[SquarePos (pop,
+                                                         pop2)] *= (1.0 - problinked) * IndividualQ[Z1[ZPos (ind, 1, loc + 1)]];
                             }
                         }
                     }
@@ -367,26 +347,20 @@ Backward (int *Z,  double *IndividualQ, double Rec, int ind,
                 }
 
 
-                answer = PickAnOption (MAXPOPS * MAXPOPS, sum,
-                                       SquareCutoffs);
+                answer = PickAnOption (MAXPOPS * MAXPOPS, sum, SquareCutoffs);
                 Z1[ZPos (ind, 0, loc)] = answer / MAXPOPS;
-                Z1[ZPos (ind, 1, loc)] = answer - MAXPOPS * (int) (
-                                             answer / MAXPOPS);
+                Z1[ZPos (ind, 1, loc)] = answer - MAXPOPS * (int) (answer / MAXPOPS);
             }
             /* we have determined the populations for maternal and paternal strands Z1 */
             /*Now we work out the populations for the first and second loci Z */
             /*Note that meaning of Zpos changes from (ind,pop,loc) to (ind,line,loc). */
             for (loc = 0; loc < NUMLOCI; loc++) {
                 Cutoffs[0] = (Phase[PhasePos(ind,loc)])
-                             * P[PPos (loc, Z1[ZPos (ind, 1, loc)],
-                                       Geno[GenPos (ind, 1, loc)])]
-                             * P[PPos (loc, Z1[ZPos (ind, 0, loc)],
-                                       Geno[GenPos (ind, 0, loc)])];
+                             * P[PPos (loc, Z1[ZPos (ind, 1, loc)], Geno[GenPos (ind, 1, loc)])]
+                             * P[PPos (loc, Z1[ZPos (ind, 0, loc)], Geno[GenPos (ind, 0, loc)])];
                 Cutoffs[1] = (1.0 - Phase[PhasePos(ind,loc)])
-                             * P[PPos (loc, Z1[ZPos (ind, 0, loc)],
-                                       Geno[GenPos (ind, 1, loc)])]
-                             * P[PPos (loc, Z1[ZPos (ind, 1, loc)],
-                                       Geno[GenPos (ind, 0, loc)])];
+                             * P[PPos (loc, Z1[ZPos (ind, 0, loc)], Geno[GenPos (ind, 1, loc)])]
+                             * P[PPos (loc, Z1[ZPos (ind, 1, loc)], Geno[GenPos (ind, 0, loc)])];
                 sum = Cutoffs[0] + Cutoffs[1];
                 answer = PickAnOption (2, sum, Cutoffs);
                 if (answer == 0) {
@@ -403,8 +377,8 @@ Backward (int *Z,  double *IndividualQ, double Rec, int ind,
 
                 for (pop = 0; pop < MAXPOPS; pop++) {
                     for (pop2 = 0; pop2 < MAXPOPS; pop2++) {
-                        SquareCutoffs[SquarePos (pop, pop2)] =
-                            RTransitProb[DiploidRTransitProbPos (loc, pop, pop2)];
+                        SquareCutoffs[SquarePos (pop,
+                                                 pop2)] = RTransitProb[DiploidRTransitProbPos (loc, pop, pop2)];
                     }
                 }
 
@@ -418,39 +392,34 @@ Backward (int *Z,  double *IndividualQ, double Rec, int ind,
                     for (pop = 0; pop < MAXPOPS; pop++) {
                         for (pop2 = 0; pop2 < MAXPOPS; pop2++) {
                             if (pop == Z[ZPos (ind, 0, loc + 1)]) {
-                                temp00= problinked + (1.0 - problinked) *
-                                        IndividualQ[Z[ZPos (ind, 0, loc + 1)]];
+                                temp00= problinked + (1.0 - problinked) * IndividualQ[Z[ZPos (ind, 0,
+                                        loc + 1)]];
                             } else {
-                                temp00= (1.0 - problinked) *
-                                        IndividualQ[Z[ZPos (ind, 0, loc + 1)]];
+                                temp00= (1.0 - problinked) * IndividualQ[Z[ZPos (ind, 0, loc + 1)]];
                             }
 
                             if (pop2 == Z[ZPos (ind, 1, loc + 1)]) {
-                                temp11= problinked + (1.0 - problinked) *
-                                        IndividualQ[Z[ZPos (ind, 1, loc + 1)]];
+                                temp11= problinked + (1.0 - problinked) * IndividualQ[Z[ZPos (ind, 1,
+                                        loc + 1)]];
                             } else {
-                                temp11= (1.0 - problinked) *
-                                        IndividualQ[Z[ZPos (ind, 1, loc + 1)]];
+                                temp11= (1.0 - problinked) * IndividualQ[Z[ZPos (ind, 1, loc + 1)]];
                             }
 
                             if (pop2 == Z[ZPos (ind, 0, loc + 1)]) {
-                                temp01= problinked + (1.0 - problinked) *
-                                        IndividualQ[Z[ZPos (ind, 0, loc + 1)]];
+                                temp01= problinked + (1.0 - problinked) * IndividualQ[Z[ZPos (ind, 0,
+                                        loc + 1)]];
                             } else {
-                                temp01= (1.0 - problinked) *
-                                        IndividualQ[Z[ZPos (ind, 0, loc + 1)]];
+                                temp01= (1.0 - problinked) * IndividualQ[Z[ZPos (ind, 0, loc + 1)]];
                             }
 
                             if (pop == Z[ZPos (ind, 1, loc + 1)]) {
-                                temp10= problinked + (1.0 - problinked) *
-                                        IndividualQ[Z[ZPos (ind, 1, loc + 1)]];
+                                temp10= problinked + (1.0 - problinked) * IndividualQ[Z[ZPos (ind, 1,
+                                        loc + 1)]];
                             } else {
-                                temp10= (1.0 - problinked) *
-                                        IndividualQ[Z[ZPos (ind, 1, loc + 1)]];
+                                temp10= (1.0 - problinked) * IndividualQ[Z[ZPos (ind, 1, loc + 1)]];
                             }
-                            SquareCutoffs[SquarePos(pop,
-                                                    pop2)]*=temp00*temp11*Phase[PhasePos(ind,loc+1)]
-                                                            +temp10*temp01*(1.0-Phase[PhasePos(ind,loc+1)]);
+                            SquareCutoffs[SquarePos(pop,pop2)]*=temp00*temp11*Phase[PhasePos(ind,
+                                                                loc+1)]+temp10*temp01*(1.0-Phase[PhasePos(ind,loc+1)]);
                         }
                     }
                 }
@@ -463,11 +432,9 @@ Backward (int *Z,  double *IndividualQ, double Rec, int ind,
                 }
 
 
-                answer = PickAnOption (MAXPOPS * MAXPOPS, sum,
-                                       SquareCutoffs);
+                answer = PickAnOption (MAXPOPS * MAXPOPS, sum, SquareCutoffs);
                 Z[ZPos (ind, 0, loc)] = answer / MAXPOPS;
-                Z[ZPos (ind, 1, loc)] = answer - MAXPOPS * (int) (
-                                            answer / MAXPOPS);
+                Z[ZPos (ind, 1, loc)] = answer - MAXPOPS * (int) (answer / MAXPOPS);
             }
         }
     }

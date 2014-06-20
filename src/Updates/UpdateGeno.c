@@ -15,8 +15,8 @@ void UpdateGeno (int *PreGeno, int *Geno, double *P, int *Z,
  */
 {
 
-    int ind, loc, allele, line, dom, toggle,rejectioncount,
-        allelecount,notmissingcount;
+    int ind, loc, allele, line, dom, toggle,rejectioncount,allelecount,
+        notmissingcount;
     int *AlleleUsed=NULL, *AllelePresent=NULL;
     double *AlleleProbs, Sum;
     static int RejectionThreshold = 1000000;
@@ -37,8 +37,7 @@ void UpdateGeno (int *PreGeno, int *Geno, double *P, int *Z,
             for (loc = 0; loc < NUMLOCI; loc++) {
                 if (PreGeno[GenPos (ind, 0, loc)] != MISSING
                         && PreGeno[GenPos (ind, 1, loc)] != MISSING) {
-                    if (PreGeno[GenPos (ind, 0, loc)] ==
-                            PreGeno[GenPos (ind, 1, loc)]) {
+                    if (PreGeno[GenPos (ind, 0, loc)] == PreGeno[GenPos (ind, 1, loc)]) {
                         for (dom = 0; dom < 4; dom++) {
                             AlleleProbs[dom] = 0.0;
                         }
@@ -48,19 +47,15 @@ void UpdateGeno (int *PreGeno, int *Geno, double *P, int *Z,
                                 && PreGeno[GenPos (ind, 0, loc)] != Recessive[loc]) {
                             AlleleProbs[0] =
                                 P[PPos(loc, Z[ZPos(ind, 0, loc)], Recessive[loc])] *
-                                P[PPos(loc, Z[ZPos(ind, 1, loc)],
-                                       PreGeno[GenPos(ind, 0, loc)])];
+                                P[PPos(loc, Z[ZPos(ind, 1, loc)], PreGeno[GenPos(ind, 0, loc)])];
                             AlleleProbs[1] =
-                                P[PPos(loc, Z[ZPos (ind, 0, loc)],
-                                       PreGeno[GenPos (ind, 0, loc)])] *
+                                P[PPos(loc, Z[ZPos (ind, 0, loc)], PreGeno[GenPos (ind, 0, loc)])] *
                                 P[PPos(loc, Z[ZPos (ind, 1, loc)], Recessive[loc])];
                         }
 
                         AlleleProbs[2] =
-                            P[PPos(loc, Z[ZPos (ind, 0, loc)],
-                                   PreGeno[GenPos (ind, 0, loc)])] *
-                            P[PPos(loc, Z[ZPos (ind, 1, loc)],
-                                   PreGeno[GenPos (ind, 1, loc)])];
+                            P[PPos(loc, Z[ZPos (ind, 0, loc)], PreGeno[GenPos (ind, 0, loc)])] *
+                            P[PPos(loc, Z[ZPos (ind, 1, loc)], PreGeno[GenPos (ind, 1, loc)])];
 
                         Sum = AlleleProbs[0] + AlleleProbs[1] + AlleleProbs[2];
                         dom = PickAnOption (3, Sum, AlleleProbs);
@@ -176,8 +171,7 @@ void UpdateGeno (int *PreGeno, int *Geno, double *P, int *Z,
                             for (line=allelecount; line<notmissingcount; line++) {
                                 for (allele = 0; allele < NumAlleles[loc]; allele++) {
                                     if (AllelePresent[allele] || allele == Recessive[loc]) {
-                                        AlleleProbs[allele] = P[PPos (loc, Z[ZPos (ind, line, loc)],
-                                                                      allele)];
+                                        AlleleProbs[allele] = P[PPos (loc, Z[ZPos (ind, line, loc)], allele)];
                                     } else {
                                         AlleleProbs[allele] = 0.0;
                                     }

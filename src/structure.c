@@ -51,15 +51,14 @@ int compareZAndOldZ(int Z[], int OldZ[])
     }
     if(notSame > 0) {
         printf("Z and Old Z differ!\n");
-        printf("Difference between Z and OldZ: same: %d, not same %d\n",
-               same,notSame);
+        printf("Difference between Z and OldZ: same: %d, not same %d\n",same,notSame);
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
 }
 
-void compareZCLandZ(CLDict *clDict,int *OrigZ, double *Q,
-                    double *P,int *Geno, double *randomArr)
+void compareZCLandZ(CLDict *clDict,int *OrigZ, double *Q, double *P,int *Geno,
+                    double *randomArr)
 {
     int *OldZ;
     int *Z;
@@ -97,8 +96,7 @@ int main (int argc, char *argv[])
     int *Phasemodel=NULL;         /*NUMINDS */
     char *Markername;             /*GENELEN*NUMLOCI */
 
-    struct IND
-            *Individual;       /*NUMINDS: records for each individual */
+    struct IND *Individual;       /*NUMINDS: records for each individual */
     int *Translation;             /*NUMLOCIxMAXALLELES: value of each coded allele */
     int *NumAlleles;              /*NUMLOCI: number of alleles at each locus */
 
@@ -201,8 +199,8 @@ int main (int argc, char *argv[])
     }
 
     Individual = calloc (NUMINDS, sizeof (struct IND));
-    if (Geno == NULL || Individual == NULL
-            || Mapdistance == NULL || Markername == NULL) {
+    if (Geno == NULL || Individual == NULL || Mapdistance == NULL
+            || Markername == NULL) {
         printf ("Error in assigning memory (not enough space?)\n");
         Kill ();
     }
@@ -210,11 +208,9 @@ int main (int argc, char *argv[])
 
     /*read in data file */
     if (RECESSIVEALLELES) {
-        ReadInputFile(PreGeno, Mapdistance, Markername, Individual,
-                      Phase, Recessive);
+        ReadInputFile(PreGeno, Mapdistance, Markername, Individual, Phase, Recessive);
     } else {
-        ReadInputFile (Geno, Mapdistance, Markername, Individual,
-                       Phase, Recessive);
+        ReadInputFile (Geno, Mapdistance, Markername, Individual, Phase, Recessive);
     }
 
     if (RECESSIVEALLELES) {
@@ -230,10 +226,8 @@ int main (int argc, char *argv[])
     Z = calloc (NUMINDS * LINES * NUMLOCI, sizeof (int));
     Z1 = calloc (NUMINDS * LINES * NUMLOCI, sizeof (int));
     Q = calloc (NUMINDS * MAXPOPS, sizeof (double));
-    P = calloc (NUMLOCI * MAXPOPS * MAXALLELES,
-                sizeof (double));
-    LogP = calloc(NUMLOCI * MAXPOPS * MAXALLELES,
-                  sizeof(double));
+    P = calloc (NUMLOCI * MAXPOPS * MAXALLELES, sizeof (double));
+    LogP = calloc(NUMLOCI * MAXPOPS * MAXALLELES, sizeof(double));
     R = calloc (NUMINDS, sizeof (double));
     sumR = calloc (NUMINDS, sizeof (double));
     varR = calloc (NUMINDS, sizeof (double));
@@ -244,18 +238,15 @@ int main (int argc, char *argv[])
     Fst = calloc (MAXPOPS, sizeof (double));
     FstSum = calloc (MAXPOPS, sizeof (double));
     NumLociPop = calloc (NUMINDS * MAXPOPS, sizeof (int));
-    PSum = calloc (NUMLOCI * MAXPOPS * MAXALLELES,
-                   sizeof (double));
+    PSum = calloc (NUMLOCI * MAXPOPS * MAXALLELES, sizeof (double));
     QSum = calloc (NUMINDS * MAXPOPS, sizeof (double));
 
 
     if (ANCESTDIST) {
-        AncestDist = calloc (NUMINDS * MAXPOPS * NUMBOXES,
-                             sizeof (int));
+        AncestDist = calloc (NUMINDS * MAXPOPS * NUMBOXES, sizeof (int));
     }
     if (USEPOPINFO) {
-        UsePopProbs = calloc (NUMINDS * MAXPOPS * (GENSBACK + 1),
-                              sizeof (double));
+        UsePopProbs = calloc (NUMINDS * MAXPOPS * (GENSBACK + 1), sizeof (double));
     }
 
     /*Melissa added 7/12/07*/
@@ -288,40 +279,36 @@ int main (int argc, char *argv[])
     sumIndLikes = malloc(NUMINDS*sizeof(double));
     indLikesNorm = malloc(NUMINDS*sizeof(double));
 
-    if ((Translation == NULL) || (NumAlleles == NULL)
-            || (Z == NULL) || (Z1 == NULL) || (Q == NULL) ||
-            (P == NULL) || (LogP==NULL) || (R == NULL)
-            || (sumR == NULL) || (varR == NULL) || (Epsilon == NULL) ||
+    if ((Translation == NULL) || (NumAlleles == NULL) || (Z == NULL)
+            || (Z1 == NULL) || (Q == NULL) ||
+            (P == NULL) || (LogP==NULL) || (R == NULL) || (sumR == NULL) || (varR == NULL)
+            || (Epsilon == NULL) ||
             (Fst == NULL) || (NumLociPop == NULL) ||
             (PSum == NULL) || (QSum == NULL) ||  (FstSum == NULL) ||
             ((ANCESTDIST) && (AncestDist == NULL)) ||
-            ((USEPOPINFO) && (UsePopProbs == NULL))||(Alpha == NULL)
-            ||(sumAlpha==NULL)||
+            ((USEPOPINFO) && (UsePopProbs == NULL))||(Alpha == NULL)||(sumAlpha==NULL)||
             ((FREQSCORR) && (SumEpsilon == NULL)) ||
             (LocPriorLen>0 && (LocPrior==NULL || sumLocPrior==NULL)) ||
             sumIndLikes==NULL || indLikesNorm==NULL) {
 
         printf ("Error in assigning memory (not enough space?)\n");
-        FreeAll(Mapdistance, Phase, Phasemodel, lambda, sumlambda,
-                Markername, Geno, PreGeno, Recessive,
-                Individual, Translation, NumAlleles, Z, Z1, Q, P, LogP, R,
-                sumR, varR, Epsilon, SumEpsilon,
-                Fst, FstSum, NumLociPop, PSum, QSum,  AncestDist,
-                UsePopProbs, LocPrior,
-                sumLocPrior, Alpha, sumAlpha, sumIndLikes, indLikesNorm,
-                clDict);
+        FreeAll(Mapdistance, Phase, Phasemodel, lambda, sumlambda, Markername, Geno,
+                PreGeno, Recessive,
+                Individual, Translation, NumAlleles, Z, Z1, Q, P, LogP, R, sumR, varR, Epsilon,
+                SumEpsilon,
+                Fst, FstSum, NumLociPop, PSum, QSum,  AncestDist, UsePopProbs, LocPrior,
+                sumLocPrior, Alpha, sumAlpha, sumIndLikes, indLikesNorm, clDict);
         Kill ();
     }
     /*=========done setting aside memory space=====================*/
 
     /*initialize variables and arrays */
-    Initialization (Geno, PreGeno, Individual, Translation,
-                    NumAlleles, Z, Z1, Epsilon, SumEpsilon,
+    Initialization (Geno, PreGeno, Individual, Translation, NumAlleles, Z, Z1,
+                    Epsilon, SumEpsilon,
                     Fst, PSum, Q, QSum, FstSum, AncestDist, UsePopProbs, Alpha,
-                    sumAlpha, sumR, varR, &sumlikes, &sumsqlikes, &savefreq, R,
-                    lambda,
-                    sumlambda,Phase,Recessive, LocPrior, sumLocPrior,
-                    LocPriorLen, sumIndLikes, indLikesNorm, clDict);
+                    sumAlpha, sumR, varR, &sumlikes, &sumsqlikes, &savefreq, R, lambda,
+                    sumlambda,Phase,Recessive, LocPrior, sumLocPrior, LocPriorLen, sumIndLikes,
+                    indLikesNorm, clDict);
 
     /* ==================== GPU Structure ==================== */
 
@@ -340,8 +327,8 @@ int main (int argc, char *argv[])
     for (rep = 0; rep < (NUMREPS + BURNIN); rep++) {
 
         FillArrayWithRandom(randomArr,MAXALLELES*NUMLOCI*MAXRANDOM);
-        UpdateP (P,LogP, Epsilon, Fst, NumAlleles, Geno, Z, lambda,
-                 Individual,randomArr);
+        UpdateP (P,LogP, Epsilon, Fst, NumAlleles, Geno, Z, lambda, Individual,
+                 randomArr);
 
         /* Update Q */
         FillArrayWithRandom(randomArr,NUMINDS*MAXRANDOM);
@@ -349,8 +336,8 @@ int main (int argc, char *argv[])
             UpdateQMetroRecombine (Geno, Q, Z, P, Alpha, rep,
                                    Individual, Mapdistance, R, Phase,Phasemodel,randomArr);
         } else {
-            UpdateQ (Geno, PreGeno, Q, P, Z, Alpha, rep, Individual,
-                     UsePopProbs, Recessive, LocPrior,randomArr);
+            UpdateQ (Geno, PreGeno, Q, P, Z, Alpha, rep, Individual, UsePopProbs,
+                     Recessive, LocPrior,randomArr);
         }
 
         if (LOCPRIOR && UPDATELOCPRIOR) {
@@ -365,12 +352,12 @@ int main (int argc, char *argv[])
         if (LINKAGE && rep > ADMBURNIN) {
             if (!INDIVIDUALR) {
                 recomblikelihood = UpdateZandSingleR(Z,  Q, P, Geno,
-                                                     R, Mapdistance, rep, Phase, Z1,Phasemodel,
-                                                     rep+1 > BURNIN? sumIndLikes : NULL, indLikesNorm);
+                                                     R, Mapdistance, rep, Phase, Z1,Phasemodel, rep+1 > BURNIN? sumIndLikes : NULL,
+                                                     indLikesNorm);
             } else {
                 recomblikelihood = UpdateZandR(Z,  Q, P, Geno, R,
-                                               Mapdistance, rep, Phase, Z1,Phasemodel,
-                                               rep+1 > BURNIN ? sumIndLikes:NULL, indLikesNorm);
+                                               Mapdistance, rep, Phase, Z1,Phasemodel, rep+1 > BURNIN ? sumIndLikes:NULL,
+                                               indLikesNorm);
             }
         } else {
             FillArrayWithRandom(randomArr,NUMINDS*NUMLOCI*LINES);
@@ -407,17 +394,15 @@ int main (int argc, char *argv[])
             DataCollection (Geno, PreGeno, Q, QSum, Z, Z1,  P, PSum,
                             Fst, FstSum, NumAlleles,
                             AncestDist, Alpha, sumAlpha, sumR, varR, &like,
-                            &sumlikes, &sumsqlikes, R, Epsilon,SumEpsilon,
-                            recomblikelihood,
-                            lambda, sumlambda, Recessive, LocPrior, sumLocPrior,
-                            LocPriorLen, sumIndLikes, indLikesNorm, rep);
+                            &sumlikes, &sumsqlikes, R, Epsilon,SumEpsilon,recomblikelihood,
+                            lambda, sumlambda, Recessive, LocPrior, sumLocPrior, LocPriorLen, sumIndLikes,
+                            indLikesNorm, rep);
         }
 
         if ((savefreq) && ((rep + 1) > BURNIN)
                 && (((rep + 1 - BURNIN) % savefreq) == 0)
                 && ((rep + 1) != NUMREPS + BURNIN)) {
-            OutPutResults (Geno, rep + 1, savefreq, Individual, PSum,
-                           QSum,
+            OutPutResults (Geno, rep + 1, savefreq, Individual, PSum, QSum,
                            FstSum, AncestDist, UsePopProbs, sumlikes,
                            sumsqlikes, sumAlpha, sumR, varR,
                            NumAlleles, Translation, 0, Markername, R,
@@ -440,10 +425,8 @@ int main (int argc, char *argv[])
 
     /*====final book-keeping====================================*/
     if ((rep % UPDATEFREQ) != 0) {
-        PrintUpdate (rep, Geno, PreGeno, Alpha, Fst, P, Q, like,
-                     sumlikes,
-                     sumsqlikes, NumAlleles,R, lambda, Individual,
-                     recomblikelihood,
+        PrintUpdate (rep, Geno, PreGeno, Alpha, Fst, P, Q, like, sumlikes,
+                     sumsqlikes, NumAlleles,R, lambda, Individual,recomblikelihood,
                      Recessive, LocPrior, LocPriorLen);
     }
 
@@ -457,14 +440,12 @@ int main (int argc, char *argv[])
                    argc,argv);
 
     /*=====Closing everything down==============================*/
-    FreeAll(Mapdistance, Phase, Phasemodel, lambda, sumlambda,
-            Markername, Geno, PreGeno, Recessive,
-            Individual, Translation, NumAlleles, Z, Z1, Q, P, LogP, R,
-            sumR, varR, Epsilon, SumEpsilon,
-            Fst, FstSum, NumLociPop, PSum, QSum,  AncestDist,
-            UsePopProbs, LocPrior,
-            sumLocPrior, Alpha, sumAlpha, sumIndLikes, indLikesNorm,
-            clDict);
+    FreeAll(Mapdistance, Phase, Phasemodel, lambda, sumlambda, Markername, Geno,
+            PreGeno, Recessive,
+            Individual, Translation, NumAlleles, Z, Z1, Q, P, LogP, R, sumR, varR, Epsilon,
+            SumEpsilon,
+            Fst, FstSum, NumLociPop, PSum, QSum,  AncestDist, UsePopProbs, LocPrior,
+            sumLocPrior, Alpha, sumAlpha, sumIndLikes, indLikesNorm, clDict);
     free(randomArr);
     return (0);
 }

@@ -9,8 +9,7 @@
 #include "Kernels.h"
 
 
-void InitializeZ (int *Geno, struct IND *Individual,
-                  int *Z);
+void InitializeZ (int *Geno, struct IND *Individual, int *Z);
 
 void
 CheckPopPriors (struct IND *Individual)
@@ -72,8 +71,7 @@ CheckPopPriors (struct IND *Individual)
 
 /*-------------------------------------------*/
 void
-InitFromGeogPop (int *Geno, struct IND *Individual, int *Z,
-                 int verbose)
+InitFromGeogPop (int *Geno, struct IND *Individual, int *Z, int verbose)
 {
     /*
      * initialize the population of origin of each allele. These are
@@ -118,8 +116,7 @@ InitFromGeogPop (int *Geno, struct IND *Individual, int *Z,
             printf ("WARNING: unable to initialize %d individuals to the predefined\n",
                     poperrors);
             printf ("populations because their population names were not in the range\n");
-            printf ("{1..%d}.  These individuals were initialized at random.\n",
-                    MAXPOPS);
+            printf ("{1..%d}.  These individuals were initialized at random.\n",MAXPOPS);
         }
     }
 }
@@ -149,8 +146,7 @@ InitializeZ (int *Geno, struct IND *Individual, int *Z)
                 if (allele == MISSING) {
                     Z[ZPos (ind, line, loc)] = UNASSIGNED;
                 } else {  /*------data present-----------*/
-                    if ((STARTATPOPINFO)
-                            && (POPDATA)) {    /*use given pops as initial Z */
+                    if ((STARTATPOPINFO) && (POPDATA)) {    /*use given pops as initial Z */
                         pop = Individual[ind].Population;
                         if ((pop > 0) && (pop <= MAXPOPS)) {
                             Z[ZPos (ind, line, loc)] = pop - 1;
@@ -174,13 +170,11 @@ InitializeZ (int *Geno, struct IND *Individual, int *Z)
 
 /*---------------------------------------*/
 void
-InitFreqPriors (double *Epsilon, double *Fst, int *Geno,
-                int *NumAlleles)
+InitFreqPriors (double *Epsilon, double *Fst, int *Geno, int *NumAlleles)
 {
     int ind, line, loc, allele,pop;
     int value;
-    int *Count /*[MAXALLELES] */
-    ;        /*stores number of copies of each allele
+    int *Count /*[MAXALLELES] */ ;        /*stores number of copies of each allele
                                           at present locus */
     int total;
 
@@ -248,8 +242,7 @@ InitFreqPriors (double *Epsilon, double *Fst, int *Geno,
 /*---------------------------------------*/
 void
 InitializeSums (double *PSum, double *QSum,  double *FstSum,
-                int *NumAlleles, int *AncestDist, double *UsePopProbs,
-                double *SumEpsilon)
+                int *NumAlleles, int *AncestDist, double *UsePopProbs,double *SumEpsilon)
 /*initialize arrays which store sums of parameters */
 {
     int loc, pop, allele, ind, box, gen;
@@ -324,8 +317,7 @@ void InitializeGeno (int *Geno, int *PreGeno)
     for (ind = 0; ind < NUMINDS; ind++) {
         for (line = 0; line < LINES; line++) {
             for (loc = 0; loc < NUMLOCI; loc++) {
-                Geno[GenPos (ind, line, loc)] =
-                    PreGeno[GenPos (ind, line, loc)];
+                Geno[GenPos (ind, line, loc)] = PreGeno[GenPos (ind, line, loc)];
             }
         }
     }
@@ -405,17 +397,15 @@ void Initialization (int *Geno, int *PreGeno,
     }
 
     if (STARTATPOPINFO) {
-        InitFromGeogPop (Geno, Individual, Z,
-                         1);    /*set Z to geog origin */
+        InitFromGeogPop (Geno, Individual, Z, 1);    /*set Z to geog origin */
     } else {
-        InitializeZ (Geno, Individual,
-                     Z);  /*set Z to random initial values */
+        InitializeZ (Geno, Individual, Z);  /*set Z to random initial values */
     }
 
     InitFreqPriors (Epsilon, Fst, Geno,
                     NumAlleles);      /*set priors on allele freqs */
-    InitializeSums (PSum, QSum,  FstSum, NumAlleles, AncestDist,
-                    UsePopProbs,SumEpsilon);
+    InitializeSums (PSum, QSum,  FstSum, NumAlleles, AncestDist, UsePopProbs,
+                    SumEpsilon);
 
     for (ind=0; ind<NUMINDS; ind++) {
         for (pop=0; pop<MAXPOPS; pop++) {

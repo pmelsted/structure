@@ -17,8 +17,7 @@ double AlphaPriorDiff (double newalpha, double oldalpha)
 }
 
 /*-----------------------------------------*/
-double LogProbQ (double *Q, double onealpha,
-                 struct IND *Individual)
+double LogProbQ (double *Q, double onealpha, struct IND *Individual)
 {
     /*return log prob of q given alpha [for single alpha in all populations].
       See notes 5/13/99 */
@@ -68,8 +67,8 @@ double LogProbQ (double *Q, double onealpha,
 
 
 /*-----------------------------------------*/
-double LogProbQonepop (double *Q, double popalpha,
-                       double sumalphas, struct IND *Individual,int pop)
+double LogProbQonepop (double *Q, double popalpha, double sumalphas,
+                       struct IND *Individual,int pop)
 {
     /*
      * return log prob of q given alpha--for one element of q ONLY.  This version is for
@@ -112,14 +111,13 @@ double LogProbQonepop (double *Q, double popalpha,
     }
 
     sum += (popalpha - 1.0) * log (runningtotal);
-    sum += (mylgamma (sumalphas) - mylgamma (popalpha)) *
-           numinds;
+    sum += (mylgamma (sumalphas) - mylgamma (popalpha)) * numinds;
     return (sum);
 }
 
 /* returns log Pr(Q|LocPrior) for a subset of individuals at a location */
-double LogProbQ_LocPrior_loc(double *Q, double *Alpha,
-                             struct IND *Individual, int loc)
+double LogProbQ_LocPrior_loc(double *Q, double *Alpha, struct IND *Individual,
+                             int loc)
 {
     double sumalpha=0.0, sumgammaalpha=0.0, like=0.0;
     int ind, pop, numind=0;
@@ -144,8 +142,7 @@ double LogProbQ_LocPrior_loc(double *Q, double *Alpha,
 }
 
 /*-----------------------------------------*/
-void UpdateAlpha (double *Q, double *Alpha,
-                  struct IND *Individual, int rep)
+void UpdateAlpha (double *Q, double *Alpha, struct IND *Individual, int rep)
 {
     /*
      * Produce new *Alpha using metropolis step.  There are two cases
@@ -162,8 +159,7 @@ void UpdateAlpha (double *Q, double *Alpha,
     double sumalphas;
     int pop, numalphas,i;
 
-    if (!((NOADMIX) && ((rep >= ADMBURNIN)
-                        || (rep > BURNIN)))) {
+    if (!((NOADMIX) && ((rep >= ADMBURNIN) || (rep > BURNIN)))) {
         /*don't update alpha in these cases*/
         if (POPALPHAS) {
             numalphas = MAXPOPS;
@@ -171,12 +167,10 @@ void UpdateAlpha (double *Q, double *Alpha,
             numalphas = 1;
         }
         for (pop = 0; pop < numalphas; pop++) {
-            newalpha = RNormal (Alpha[pop],
-                                ALPHAPROPSD); /*generate proposal alpha */
+            newalpha = RNormal (Alpha[pop], ALPHAPROPSD); /*generate proposal alpha */
 
             /*reject immed. if out of range*/
-            if ((newalpha > 0) && ((newalpha < ALPHAMAX)
-                                   || (!(UNIFPRIORALPHA)) ) ) {
+            if ((newalpha > 0) && ((newalpha < ALPHAMAX) || (!(UNIFPRIORALPHA)) ) ) {
                 if (!(UNIFPRIORALPHA)) {
                     logprobdiff = AlphaPriorDiff (newalpha, Alpha[pop]);
                 }
@@ -188,11 +182,9 @@ void UpdateAlpha (double *Q, double *Alpha,
                     }
 
                     /*compute probabilities for M-H ratio*/
-                    logprobdiff -= LogProbQonepop (Q, Alpha[pop], sumalphas,
-                                                   Individual,pop);
+                    logprobdiff -= LogProbQonepop (Q, Alpha[pop], sumalphas,Individual,pop);
                     sumalphas += newalpha - Alpha[pop];
-                    logprobdiff += LogProbQonepop (Q, newalpha, sumalphas,
-                                                   Individual,pop);
+                    logprobdiff += LogProbQonepop (Q, newalpha, sumalphas, Individual,pop);
                 } else  {  /*same alpha for all populations*/
                     logprobdiff += LogProbQ (Q, newalpha, Individual);
                     logprobdiff -= LogProbQ (Q, Alpha[pop], Individual);
@@ -220,12 +212,10 @@ void UpdateAlpha (double *Q, double *Alpha,
 }
 
 /* updates Alpha under LocPrior model */
-void UpdateAlphaLocPrior(double *Q, double *Alpha,
-                         double *LocPrior,
+void UpdateAlphaLocPrior(double *Q, double *Alpha, double *LocPrior,
                          struct IND *Individual)
 {
-    double diff, newalpha, oldalpha, lprobQ, globalpha,
-           new_lprobQ;
+    double diff, newalpha, oldalpha, lprobQ, globalpha, new_lprobQ;
     int pop, loc, pos;
 
     /* first update global alpha */
@@ -237,10 +227,9 @@ void UpdateAlphaLocPrior(double *Q, double *Alpha,
         }
         diff = 0.0;
         for (loc=0; loc<NUMLOCATIONS; loc++) {
-            diff += (newalpha-oldalpha)*LocPrior[0]*log(
-                        Alpha[AlphaPos(loc,pop)]) - mylgamma(newalpha*LocPrior[0]) +
-                    mylgamma(oldalpha*LocPrior[0]) + (newalpha-oldalpha)
-                    *LocPrior[0]*log(LocPrior[0]);
+            diff += (newalpha-oldalpha)*LocPrior[0]*log(Alpha[AlphaPos(loc,
+                    pop)]) - mylgamma(newalpha*LocPrior[0]) + mylgamma(oldalpha*LocPrior[0]) +
+                    (newalpha-oldalpha)*LocPrior[0]*log(LocPrior[0]);
         }
 
         if (diff > 0.0 || RandomReal(0,1) < exp(diff)) {
@@ -251,8 +240,7 @@ void UpdateAlphaLocPrior(double *Q, double *Alpha,
     /* now update location-specific alphas */
     for (loc=0; loc<NUMLOCATIONS; loc++) {
         pos = AlphaPos(loc, 0);
-        lprobQ = LogProbQ_LocPrior_loc(Q, &Alpha[pos], Individual,
-                                       loc);
+        lprobQ = LogProbQ_LocPrior_loc(Q, &Alpha[pos], Individual, loc);
         for (pop=0; pop<MAXPOPS; pop++) {
             globalpha = Alpha[pop];
             oldalpha = Alpha[pos+pop];
@@ -262,10 +250,9 @@ void UpdateAlphaLocPrior(double *Q, double *Alpha,
                 continue;
             }
             Alpha[pos+pop] = newalpha;
-            new_lprobQ = LogProbQ_LocPrior_loc(Q, &Alpha[pos],
-                                               Individual, loc);
-            diff = (globalpha*LocPrior[0]-1.0)*log(newalpha/oldalpha) -
-                   LocPrior[0]*(newalpha-oldalpha) + new_lprobQ - lprobQ;
+            new_lprobQ = LogProbQ_LocPrior_loc(Q, &Alpha[pos], Individual, loc);
+            diff = (globalpha*LocPrior[0]-1.0)*log(newalpha/oldalpha) - LocPrior[0]*
+                   (newalpha-oldalpha) + new_lprobQ - lprobQ;
             if (diff >= 0.0 || RandomReal(0,1) < exp(diff)) {
                 lprobQ = new_lprobQ;
             } else {

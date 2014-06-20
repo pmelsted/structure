@@ -10,8 +10,7 @@
 
 /*-----------------------------------------*/
 /*O*(NUMINDS*LINES*NUMLOCI*MAXPOPS)*/
-void UpdateZ (int *Z,  double *Q, double *P, int *Geno,
-              double * randomArr)
+void UpdateZ (int *Z,  double *Q, double *P, int *Geno,double * randomArr)
 /*update Z: population origin of each allele */
 {
     int ind, line, loc, pop;
@@ -33,8 +32,7 @@ void UpdateZ (int *Z,  double *Q, double *P, int *Geno,
 
     initRndDiscState(randState,randomArr,LINES);
     /*O*(NUMINDS*LINES*NUMLOCI*MAXPOPS)*/
-    for (ind = 0; ind < NUMINDS;
-            ind++) {  /*go through all alleles in sample */
+    for (ind = 0; ind < NUMINDS; ind++) {  /*go through all alleles in sample */
         for (loc = 0; loc < NUMLOCI; loc++) {
             rndDiscStateReset(randState, ind*NUMLOCI*LINES + loc*LINES);
             for (line = 0; line < LINES; line++) {
@@ -45,12 +43,11 @@ void UpdateZ (int *Z,  double *Q, double *P, int *Geno,
                 } else {
                     sum = 0.0f;
                     for (pop = 0; pop < MAXPOPS; pop++) {
-                        Cutoffs[pop] = Q[QPos (ind, pop)] *
-                                       P[PPos (loc, pop, allele)];
+                        Cutoffs[pop] = Q[QPos (ind, pop)] * P[PPos (loc, pop, allele)];
                         sum += Cutoffs[pop];
                     }
-                    Z[ZPos (ind, line, loc)] = PickAnOptionDiscrete (MAXPOPS,
-                                               sum, Cutoffs, randState);
+                    Z[ZPos (ind, line, loc)] = PickAnOptionDiscrete (MAXPOPS, sum, Cutoffs,
+                                               randState);
                 }
             }
         }
@@ -60,8 +57,8 @@ void UpdateZ (int *Z,  double *Q, double *P, int *Geno,
 
 /*-----------------------------------------*/
 /*O*(NUMINDS*LINES*NUMLOCI*MAXPOPS)*/
-void UpdateZCL (CLDict *clDict,int *Z,  double *Q,
-                double *P, int *Geno,double * randomArr)
+void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,
+                double * randomArr)
 /*update Z: population origin of each allele */
 {
     cl_int err;
@@ -78,74 +75,63 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q,
 
 
     err = 0;
-    err = clEnqueueWriteBuffer(clDict->commands,
-                               clDict->buffers[QCL], CL_TRUE, 0, sizeof(double) * QSIZE, Q,
-                               0, NULL, NULL);
+    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[QCL], CL_TRUE, 0,
+                               sizeof(double) * QSIZE, Q, 0, NULL, NULL);
     handleCLErr(err,"Error: Failed to write buffer Q!");
 
-    err = clEnqueueWriteBuffer(clDict->commands,
-                               clDict->buffers[PCL], CL_TRUE, 0, sizeof(double) * PSIZE, P,
-                               0, NULL, NULL);
+    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[PCL], CL_TRUE, 0,
+                               sizeof(double) * PSIZE, P, 0, NULL, NULL);
     handleCLErr(err,"Error: Failed to write buffer P!");
 
-    err = clEnqueueWriteBuffer(clDict->commands,
-                               clDict->buffers[GENOCL], CL_TRUE, 0, sizeof(int) * GENOSIZE,
-                               Geno, 0, NULL, NULL);
+    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[GENOCL], CL_TRUE,
+                               0, sizeof(int) * GENOSIZE, Geno, 0, NULL, NULL);
     handleCLErr(err,"Error: Failed to write buffer geno!");
 
-    err = clEnqueueWriteBuffer(clDict->commands,
-                               clDict->buffers[RANDCL], CL_TRUE, 0,
-                               sizeof(double) * NUMINDS*NUMLOCI*LINES, randomArr, 0, NULL,
-                               NULL);
+    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[RANDCL], CL_TRUE,
+                               0, sizeof(double) * NUMINDS*NUMLOCI*LINES, randomArr, 0, NULL, NULL);
     handleCLErr(err,"Error: Failed to write buffer rand!");
 
-    err = clEnqueueWriteBuffer(clDict->commands,
-                               clDict->buffers[ERRORCL], CL_TRUE, 0, sizeof(int), error, 0,
-                               NULL, NULL);
+    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[ERRORCL], CL_TRUE,
+                               0, sizeof(int), error, 0, NULL, NULL);
     handleCLErr(err,"Error: Failed to write error buffer!");
 
 
     err = 0;
-    err  = clSetKernelArg(clDict->kernels[UpdateZKernel], 0,
-                          sizeof(cl_mem), &(clDict->buffers[QCL]));
+    err  = clSetKernelArg(clDict->kernels[UpdateZKernel], 0, sizeof(cl_mem),
+                          &(clDict->buffers[QCL]));
     handleCLErr(err,"Error: Failed to set arg 0!");
-    err = clSetKernelArg(clDict->kernels[UpdateZKernel], 1,
-                         sizeof(cl_mem), &(clDict->buffers[PCL]));
+    err = clSetKernelArg(clDict->kernels[UpdateZKernel], 1, sizeof(cl_mem),
+                         &(clDict->buffers[PCL]));
     handleCLErr(err,"Error: Failed to set arg 1!");
-    err = clSetKernelArg(clDict->kernels[UpdateZKernel], 2,
-                         sizeof(cl_mem), &(clDict->buffers[GENOCL]));
+    err = clSetKernelArg(clDict->kernels[UpdateZKernel], 2, sizeof(cl_mem),
+                         &(clDict->buffers[GENOCL]));
     handleCLErr(err,"Error: Failed to set arg 2!");
-    err = clSetKernelArg(clDict->kernels[UpdateZKernel], 3,
-                         sizeof(cl_mem), &(clDict->buffers[RANDCL]));
+    err = clSetKernelArg(clDict->kernels[UpdateZKernel], 3, sizeof(cl_mem),
+                         &(clDict->buffers[RANDCL]));
     handleCLErr(err,"Error: Failed to set arg 3!");
-    err = clSetKernelArg(clDict->kernels[UpdateZKernel], 4,
-                         sizeof(cl_mem), &(clDict->buffers[ZCL]));
+    err = clSetKernelArg(clDict->kernels[UpdateZKernel], 4, sizeof(cl_mem),
+                         &(clDict->buffers[ZCL]));
     handleCLErr(err,"Error: Failed to set arg 4!");
 
-    err = clSetKernelArg(clDict->kernels[UpdateZKernel], 5,
-                         sizeof(cl_mem), &(clDict->buffers[ERRORCL]));
+    err = clSetKernelArg(clDict->kernels[UpdateZKernel], 5, sizeof(cl_mem),
+                         &(clDict->buffers[ERRORCL]));
     handleCLErr(err,"Error: Failed to set arg 5!");
 
-    err = clGetKernelWorkGroupInfo(
-              clDict->kernels[UpdateZKernel], clDict->device_id,
-              CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL);
-    handleCLErr(err,
-                "Error: Failed to retrieve kernel work group info!");
+    err = clGetKernelWorkGroupInfo(clDict->kernels[UpdateZKernel],
+                                   clDict->device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL);
+    handleCLErr(err,"Error: Failed to retrieve kernel work group info!");
 
-    err = clEnqueueNDRangeKernel(clDict->commands,
-                                 clDict->kernels[UpdateZKernel], 2, NULL, global, NULL, 0,
-                                 NULL, NULL);
+    err = clEnqueueNDRangeKernel(clDict->commands, clDict->kernels[UpdateZKernel],
+                                 2, NULL, global, NULL, 0, NULL, NULL);
     handleCLErr(err,"Error: Failed to execute kernel!");
 
     err = clFinish(clDict->commands);
 
-    err = clEnqueueReadBuffer(clDict->commands,
-                              clDict->buffers[ZCL], CL_TRUE, 0, sizeof(int) * ZSIZE, Z, 0,
-                              NULL, NULL );
+    err = clEnqueueReadBuffer(clDict->commands, clDict->buffers[ZCL], CL_TRUE, 0,
+                              sizeof(int) * ZSIZE, Z, 0, NULL, NULL );
 
-    err = clEnqueueReadBuffer(clDict->commands,
-                              clDict->buffers[ERRORCL], CL_TRUE, 0, sizeof(int), error, 0,
-                              NULL, NULL );
+    err = clEnqueueReadBuffer(clDict->commands, clDict->buffers[ERRORCL], CL_TRUE,
+                              0, sizeof(int), error, 0, NULL, NULL );
 
     free(global);
 
@@ -175,15 +161,12 @@ UpdateZandSingleR (int *Z,  double *Q, double *P, int *Geno,
     long ind, pop;
     double *RTransitProb;
     double *IndividualQ;
-    double trialR, logtrialR,currentloglikelihood,
-           trialloglikelihood, indlike;
+    double trialR, logtrialR,currentloglikelihood, trialloglikelihood, indlike;
     /* long loc; */
     if (PHASED) {
-        RTransitProb = calloc (MAXPOPS * NUMLOCI * LINES,
-                               sizeof (double));
+        RTransitProb = calloc (MAXPOPS * NUMLOCI * LINES, sizeof (double));
     } else {
-        RTransitProb = calloc (MAXPOPS * MAXPOPS * NUMLOCI,
-                               sizeof (double));
+        RTransitProb = calloc (MAXPOPS * MAXPOPS * NUMLOCI, sizeof (double));
     }
 
     IndividualQ = calloc (MAXPOPS, sizeof (double));
@@ -210,8 +193,7 @@ UpdateZandSingleR (int *Z,  double *Q, double *P, int *Geno,
         for (pop = 0; pop < MAXPOPS; pop++) {
             IndividualQ[pop] = Q[QPos (ind, pop)];
         }
-        indlike = Forward(Z, IndividualQ, P, Geno, R[ind], ind,
-                          RTransitProb,
+        indlike = Forward(Z, IndividualQ, P, Geno, R[ind], ind, RTransitProb,
                           Mapdistance, Phase,Phasemodel);
         currentloglikelihood += indlike;
         if (sumIndLikes!=NULL) {
@@ -221,15 +203,14 @@ UpdateZandSingleR (int *Z,  double *Q, double *P, int *Geno,
         Backward(Z,  IndividualQ, R[ind], ind, Mapdistance,
                  RTransitProb, rep, Z1, Phase, P, Geno,Phasemodel);
 
-        trialloglikelihood += Forward (Z, IndividualQ, P, Geno,
-                                       trialR, ind, RTransitProb,
+        trialloglikelihood += Forward (Z, IndividualQ, P, Geno, trialR, ind,
+                                       RTransitProb,
                                        Mapdistance, Phase,Phasemodel);
 
     }
     /*printf("% .3E % 3E % .8E % .8E % .5E\n",trialR,R[0],trialloglikelihood,currentloglikelihood,exp (trialloglikelihood - currentloglikelihood)); */
-    if (RandomReal (0.0,
-                    1.0) < exp (trialloglikelihood -
-                                currentloglikelihood)) {  /*Accept */
+    if (RandomReal (0.0, 1.0) < exp (trialloglikelihood -
+                                     currentloglikelihood)) {  /*Accept */
         R[0] = trialR;
         /*currentloglikelihood=trialloglikelihood;  commented out by JKP--see email from Daniel 9 Dec 02*/
     }
@@ -249,25 +230,22 @@ UpdateZandSingleR (int *Z,  double *Q, double *P, int *Geno,
 /*----------------------------------------*/
 double
 UpdateZandR (int *Z,  double *Q, double *P, int *Geno,
-             double *R, double *Mapdistance, int rep, double *Phase,
-             int *Z1,int *Phasemodel, double *sumindlike,
-             double *indlike_norm)
+             double *R, double *Mapdistance, int rep, double *Phase, int *Z1,
+             int *Phasemodel, double *sumindlike, double *indlike_norm)
 /* updates Z and R, assuming that the data is phased */
 {
     long ind, pop;
     double *RTransitProb;
     double *IndividualQ;
-    double trialR,logtrialR, currentloglikelihood,
-           trialloglikelihood,sumlikelihood;
+    double trialR,logtrialR, currentloglikelihood, trialloglikelihood,
+           sumlikelihood;
     /*  long loc; */
 
 
     if (PHASED) {
-        RTransitProb = calloc (MAXPOPS * NUMLOCI * LINES,
-                               sizeof (double));
+        RTransitProb = calloc (MAXPOPS * NUMLOCI * LINES, sizeof (double));
     } else {
-        RTransitProb = calloc (MAXPOPS * MAXPOPS * NUMLOCI,
-                               sizeof (double));
+        RTransitProb = calloc (MAXPOPS * MAXPOPS * NUMLOCI, sizeof (double));
     }
 
     IndividualQ = calloc (MAXPOPS, sizeof (double));
@@ -284,11 +262,10 @@ UpdateZandR (int *Z,  double *Q, double *P, int *Geno,
             IndividualQ[pop] = Q[QPos (ind, pop)];
         }
 
-        currentloglikelihood = Forward (Z, IndividualQ, P, Geno,
-                                        R[ind], ind, RTransitProb,
+        currentloglikelihood = Forward (Z, IndividualQ, P, Geno, R[ind], ind,
+                                        RTransitProb,
                                         Mapdistance, Phase,Phasemodel);
-        Backward (Z,  IndividualQ, R[ind], ind, Mapdistance,
-                  RTransitProb,
+        Backward (Z,  IndividualQ, R[ind], ind, Mapdistance, RTransitProb,
                   rep, Z1, Phase, P, Geno,Phasemodel);
 
         logtrialR = RNormal(log(R[ind])/2.30259,LOG10RPROPSD);
@@ -299,23 +276,20 @@ UpdateZandR (int *Z,  double *Q, double *P, int *Geno,
             logtrialR=2*LOG10RMAX-logtrialR;
         }
         trialR=exp(2.30259*logtrialR);
-        trialloglikelihood = Forward (Z, IndividualQ, P, Geno,
-                                      trialR, ind, RTransitProb, Mapdistance, Phase,Phasemodel);
+        trialloglikelihood = Forward (Z, IndividualQ, P, Geno, trialR, ind,
+                                      RTransitProb, Mapdistance, Phase,Phasemodel);
         /*printf("% .3E % 3E % .8E % .8E % .5E\n",trialR,R[ind],trialloglikelihood,currentloglikelihood,exp (trialloglikelihood - currentloglikelihood)); */
-        if (RandomReal (0.0,
-                        1.0) < exp (trialloglikelihood -
-                                    currentloglikelihood)) {        /*Accept */
+        if (RandomReal (0.0, 1.0) < exp (trialloglikelihood -
+                                         currentloglikelihood)) {        /*Accept */
             R[ind] = trialR;
             sumlikelihood+=trialloglikelihood;
             if (sumindlike!=NULL) {
-                sumindlike[ind] += exp(trialloglikelihood
-                                       -indlike_norm[ind]);
+                sumindlike[ind] += exp(trialloglikelihood-indlike_norm[ind]);
             }
         } else {
             sumlikelihood+=currentloglikelihood;
             if (sumindlike!=NULL) {
-                sumindlike[ind] += exp(currentloglikelihood
-                                       -indlike_norm[ind]);
+                sumindlike[ind] += exp(currentloglikelihood-indlike_norm[ind]);
             }
         }
     }

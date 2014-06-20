@@ -10,41 +10,33 @@
 #include "params.h"
 #include "mymath.h"
 
-void UpdateSums (double *Q, double *QSum, int *Z, double *P,
-                 double *PSum,
+void UpdateSums (double *Q, double *QSum, int *Z, double *P, double *PSum,
                  double *Fst, double *FstSum, int *NumAlleles,
                  int *AncestDist, double *Epsilon, double *SumEpsilon,
                  double *lambda, double *sumlambda,
                  double *LocPrior, double *sumLocPrior, int LocPriorLen);
-double CalcLike (int *Geno, int *PreGeno, double *Q,
-                 double *P, int *Recessive,
+double CalcLike (int *Geno, int *PreGeno, double *Q, double *P, int *Recessive,
                  double *sumindlike, double *indlike_norm);
-double EstLogProb (double sumlikes, double sumsqlikes,
-                   int reps);
-double KLDiv (int pop1, int pop2, double *P, double *LogP,
-              int *NumAlleles, int reps);
-void PrintKLD (FILE * file, double *P, double *LogP,
-               int *NumAlleles, int reps, int format);
-void PrintNET (FILE * file, double *P, int *NumAlleles,
-               int reps, int format);
+double EstLogProb (double sumlikes, double sumsqlikes, int reps);
+double KLDiv (int pop1, int pop2, double *P, double *LogP, int *NumAlleles,
+              int reps);
+void PrintKLD (FILE * file, double *P, double *LogP, int *NumAlleles, int reps,
+               int format);
+void PrintNET (FILE * file, double *P, int *NumAlleles, int reps, int format);
 
-void PrintBanner (int rep, double *Alpha, double *Fst,
-                  double like, double *lambda);
-void PrintMainParams (FILE * file, int rep, int argc,
-                      char *argv[]);
+void PrintBanner (int rep, double *Alpha, double *Fst, double like,
+                  double *lambda);
+void PrintMainParams (FILE * file, int rep, int argc, char *argv[]);
 void PrintQ (FILE * file, int *Geno, int rep, double *QSum,
              struct IND *Individual,
              int *AncestDist, double *UsePopProbs,double *sumR);
-void PrintP (FILE * file, int rep, int *Geno, double *PSum,
-             int *Translation,
+void PrintP (FILE * file, int rep, int *Geno, double *PSum, int *Translation,
              int *NumAlleles, double *SumEpsilon, char *Markername);
-void PrintMembership (FILE * file, double *QSum,
-                      struct IND *Individual);
-void PrintSequences (FILE * file, int *Geno,
-                     char *Markername, int rep, int *Translation);
+void PrintMembership (FILE * file, double *QSum, struct IND *Individual);
+void PrintSequences (FILE * file, int *Geno, char *Markername, int rep,
+                     int *Translation);
 void PrintSums (FILE * file, int rep, double sumlikes,
-                double sumsqlikes, double *FstSum, double *sumAlpha,
-                double *sumlambda,
+                double sumsqlikes, double *FstSum, double *sumAlpha, double *sumlambda,
                 double *sumR, double *varR, struct IND *Individual,
                 double *sumLocPriors, int LocPriorLen, double DIC);
 void PrintGeneName(FILE * file, int loc, char *Markername);
@@ -60,15 +52,13 @@ DataCollection (int *Geno, int *PreGeno,
                 int *AncestDist, double *Alpha, double *sumAlpha,
                 double *sumR, double *varR, double *like,
                 double *sumlikes, double *sumsqlikes, double *R,
-                double *Epsilon, double *SumEpsilon,
-                double recomblikelihood,
+                double *Epsilon, double *SumEpsilon, double recomblikelihood,
                 double *lambda, double *sumlambda, int *Recessive,
                 double *LocPrior, double *sumLocPrior, int LocPriorLen,
                 double *sumindlikes, double *indlikes_norm, int rep)
 {
     int ind, pop, loc, pos;
-    UpdateSums (Q, QSum, Z, P, PSum, Fst, FstSum, NumAlleles,
-                AncestDist,
+    UpdateSums (Q, QSum, Z, P, PSum, Fst, FstSum, NumAlleles, AncestDist,
                 Epsilon, SumEpsilon, lambda, sumlambda,
                 LocPrior, sumLocPrior, LocPriorLen);
     if (LINKAGE) {
@@ -97,8 +87,7 @@ DataCollection (int *Geno, int *PreGeno,
         }
 
         if (rep < BURNIN) {
-            *like = CalcLike (Geno, PreGeno, Q, P, Recessive, NULL,
-                              NULL);
+            *like = CalcLike (Geno, PreGeno, Q, P, Recessive, NULL, NULL);
         } else {
             *like = CalcLike (Geno, PreGeno, Q, P, Recessive,
                               sumindlikes, indlikes_norm);
@@ -111,8 +100,7 @@ DataCollection (int *Geno, int *PreGeno,
 
 /*---------------------------------------------------*/
 void
-PrintLike (double like, int rep, int *Geno, int *PreGeno,
-           double *Q,
+PrintLike (double like, int rep, int *Geno, int *PreGeno, double *Q,
            double *P,double recomblikelihood,
            int *Recessive)
 {
@@ -122,8 +110,7 @@ PrintLike (double like, int rep, int *Geno, int *PreGeno,
         if (LINKAGE) {
             printf("%6.0f\n",recomblikelihood);
         } else {
-            printf ("%6.0f\n", CalcLike (Geno, PreGeno, Q, P, Recessive,
-                                         NULL, NULL));
+            printf ("%6.0f\n", CalcLike (Geno, PreGeno, Q, P, Recessive, NULL, NULL));
         }
     }
 }
@@ -144,10 +131,9 @@ CalculateRAverage (double *R)
 
 /*----------------------------------------------------*/
 void
-PrintUpdate (int rep, int *Geno, int *PreGeno,
-             double *Alpha, double *Fst, double *P, double *Q,
-             double like, double sumlikes, double sumsqlikes,
-             int *NumAlleles,
+PrintUpdate (int rep, int *Geno, int *PreGeno, double *Alpha, double *Fst,
+             double *P, double *Q,
+             double like, double sumlikes, double sumsqlikes, int *NumAlleles,
              double *R, double *lambda, struct IND *Individual,
              double recomblikelihood, int *Recessive,
              double *LocPrior, int LocPriorLen)
@@ -191,19 +177,16 @@ PrintUpdate (int rep, int *Geno, int *PreGeno,
 
     if (LINKAGE) {
         if (rep <= ADMBURNIN) {
-            like = CalcLike (Geno, PreGeno, Q, P, Recessive, NULL,
-                             NULL);
+            like = CalcLike (Geno, PreGeno, Q, P, Recessive, NULL, NULL);
         } else {
             like = recomblikelihood;
         }
 
-        if (rep >= BURNIN +
-                2) { /* +2 because need 2 observations for variance*/
+        if (rep >= BURNIN + 2) { /* +2 because need 2 observations for variance*/
             logprob = EstLogProb (sumlikes, sumsqlikes, rep - BURNIN);
         } else if (COMPUTEPROB) { /*not linkage model*/
             if (rep <= BURNIN + 2) {
-                like = CalcLike (Geno, PreGeno, Q, P, Recessive, NULL,
-                                 NULL);
+                like = CalcLike (Geno, PreGeno, Q, P, Recessive, NULL, NULL);
             } else {
                 logprob = EstLogProb (sumlikes, sumsqlikes, rep - BURNIN);
             }
@@ -212,12 +195,9 @@ PrintUpdate (int rep, int *Geno, int *PreGeno,
 
     /*possibly print banner to indicate what the numbers are */
     if ((rep == UPDATEFREQ) ||
-            ((rep < BURNIN)
-             && ((rep % (BANNERFREQ * UPDATEFREQ)) == 0)) ||
-            ((rep > BURNIN)
-             && (((rep - BURNIN) % (BANNERFREQ * UPDATEFREQ)) == 0))) {
-        if (rep != NUMREPS +
-                BURNIN) {        /*don't bother for last line of output */
+            ((rep < BURNIN) && ((rep % (BANNERFREQ * UPDATEFREQ)) == 0)) ||
+            ((rep > BURNIN) && (((rep - BURNIN) % (BANNERFREQ * UPDATEFREQ)) == 0))) {
+        if (rep != NUMREPS + BURNIN) {        /*don't bother for last line of output */
             if ((rep > 1) && (PRINTQSUM) && (MAXPOPS > 1)) {
                 PrintMembership (stdout, Q, Individual);
             }
@@ -310,8 +290,7 @@ PrintUpdate (int rep, int *Geno, int *PreGeno,
 }
 /*----------------------------------------------------*/
 void
-PrintBanner (int rep, double *Alpha, double *Fst,
-             double like, double *lambda)
+PrintBanner (int rep, double *Alpha, double *Fst, double like, double *lambda)
 /*print banner to screen during run giving variable names */
 {
     int i, j, k;
@@ -405,8 +384,7 @@ EstLogProb (double sumlikes, double sumsqlikes, int reps)
 
 /*-------------------------------------------------------*/
 double
-NETiv (int pop1, int pop2, double *P, int *NumAlleles,
-       int reps)
+NETiv (int pop1, int pop2, double *P, int *NumAlleles, int reps)
 {
     /* This function returns the current estimated average net nucleotide
        distance between the allele frequencies in populations 1 and 2.
@@ -434,8 +412,7 @@ NETiv (int pop1, int pop2, double *P, int *NumAlleles,
 
 /*-------------------------------------------------------*/
 double
-GROSSiv (int pop1, int pop2, double *P, int *NumAlleles,
-         int reps)
+GROSSiv (int pop1, int pop2, double *P, int *NumAlleles, int reps)
 {
     /* This function returns the current estimated average gross nucleotide
        distance between the allele frequencies in populations 1 and 2.
@@ -458,8 +435,7 @@ GROSSiv (int pop1, int pop2, double *P, int *NumAlleles,
 
 /*----------------------------------------------------*/
 double
-KLDiv (int pop1, int pop2, double *P, double *LogP,
-       int *NumAlleles, int reps)
+KLDiv (int pop1, int pop2, double *P, double *LogP, int *NumAlleles, int reps)
 /*This function returns the current (average) estimated
   Kullback-Leibler divergence between the allele frequencies in
   pops 1 and 2.  Here reps is the number of reps over which the P
@@ -472,8 +448,7 @@ KLDiv (int pop1, int pop2, double *P, double *LogP,
     for (loc = 0; loc < NUMLOCI; loc++)
         for (allele = 0; allele < NumAlleles[loc]; allele++)
             sum += ((double) P[PPos (loc, pop1, allele)] / reps)
-                   * log (P[PPos (loc, pop1, allele)] /
-                          P[PPos (loc, pop2, allele)]);
+                   * log (P[PPos (loc, pop1, allele)] / P[PPos (loc, pop2, allele)]);
 
     return sum / NUMLOCI;
 
@@ -481,8 +456,7 @@ KLDiv (int pop1, int pop2, double *P, double *LogP,
 
 /*----------------------------------------------------*/
 void
-PrintNET (FILE * file, double *P, int *NumAlleles, int reps,
-          int format)
+PrintNET (FILE * file, double *P, int *NumAlleles, int reps, int format)
 /*This function prints the current (average) estimated
   Net-nucleotide divergence between the allele frequencies in the
   different populations, in two formats.  Format 0 prints these in a
@@ -519,8 +493,7 @@ PrintNET (FILE * file, double *P, int *NumAlleles, int reps,
                 if (i == j) {
                     fprintf (file, "   -    ");
                 } else {
-                    fprintf (file, "%1.4f  ", NETiv (i, j, P, NumAlleles,
-                                                     reps));
+                    fprintf (file, "%1.4f  ", NETiv (i, j, P, NumAlleles, reps));
                 }
             }
             fprintf (file, "\n");
@@ -530,8 +503,7 @@ PrintNET (FILE * file, double *P, int *NumAlleles, int reps,
         fprintf(file,
                 "\nAverage distances (expected heterozygosity) between individuals in same cluster:\n");
         for (i=0; i<MAXPOPS; i++) {
-            fprintf(file,"cluster %2d  : %1.4f \n",i+1,GROSSiv(i,i,P,
-                    NumAlleles,reps));
+            fprintf(file,"cluster %2d  : %1.4f \n",i+1,GROSSiv(i,i,P,NumAlleles,reps));
         }
         fprintf(file,"\n");
     }
@@ -540,8 +512,8 @@ PrintNET (FILE * file, double *P, int *NumAlleles, int reps,
 
 /*----------------------------------------------------*/
 void
-PrintKLD (FILE * file, double *P, double *LogP,
-          int *NumAlleles, int reps, int format)
+PrintKLD (FILE * file, double *P, double *LogP, int *NumAlleles, int reps,
+          int format)
 /*This function prints the current (average) estimated
   Kullback-Leibler divergence between the allele frequencies in the
   different populations, in two formats.  Format 0 prints these in a
@@ -556,12 +528,11 @@ PrintKLD (FILE * file, double *P, double *LogP,
             for (j = i + 1; j < MAXPOPS; j++) {
                 /*printf("D%d%d = %1.2f, ",i,j,
                   0.5*KLDiv(i,j,P,NumAlleles)+0.5*KLDiv(j,i,P,NumAlleles) ); */
-                div = 0.5 * KLDiv (i, j, P,LogP, NumAlleles,
-                                   reps) + 0.5 * KLDiv (j, i, P,LogP, NumAlleles, reps);
+                div = 0.5 * KLDiv (i, j, P,LogP, NumAlleles, reps) + 0.5 * KLDiv (j, i, P,LogP,
+                        NumAlleles, reps);
                 fprintf (file, "%1.3f ", div);
                 /*add extra spaces when i and j are large, to agree with spacing of banner */
-                for (k = 2; k < ((int) log10 (i)) + ((int) log10 (j));
-                        k++) {
+                for (k = 2; k < ((int) log10 (i)) + ((int) log10 (j)); k++) {
                     fprintf (file, " ");
                 }
             }
@@ -587,8 +558,7 @@ PrintKLD (FILE * file, double *P, double *LogP,
                 if (i == j) {
                     fprintf (file, "  -   ");
                 } else {
-                    fprintf (file, "%2.2f  ", KLDiv (i, j, P,LogP, NumAlleles,
-                                                     reps));
+                    fprintf (file, "%2.2f  ", KLDiv (i, j, P,LogP, NumAlleles, reps));
                 }
             }
             fprintf (file, "\n");
@@ -597,8 +567,7 @@ PrintKLD (FILE * file, double *P, double *LogP,
 }
 /*---------------------------------------------------*/
 void
-UpdateSums (double *Q, double *QSum, int *Z, double *P,
-            double *PSum,
+UpdateSums (double *Q, double *QSum, int *Z, double *P, double *PSum,
             double *Fst, double *FstSum, int *NumAlleles,
             int *AncestDist, double *Epsilon, double *SumEpsilon,
             double *lambda, double *sumlambda, double *LocPrior,
@@ -620,8 +589,7 @@ UpdateSums (double *Q, double *QSum, int *Z, double *P,
     for (loc = 0; loc < NUMLOCI; loc++)
         for (pop = 0; pop < MAXPOPS; pop++)
             for (allele = 0; allele < NumAlleles[loc]; allele++) {
-                PSum[PPos (loc, pop, allele)] +=
-                    P[PPos (loc, pop, allele)];
+                PSum[PPos (loc, pop, allele)] += P[PPos (loc, pop, allele)];
             }
 
     if (FREQSCORR) {
@@ -631,8 +599,7 @@ UpdateSums (double *Q, double *QSum, int *Z, double *P,
 
         for (loc = 0; loc < NUMLOCI; loc++)
             for (allele = 0; allele < NumAlleles[loc]; allele++) {
-                SumEpsilon[EpsPos (loc, allele)] +=
-                    Epsilon[EpsPos (loc, allele)];
+                SumEpsilon[EpsPos (loc, allele)] += Epsilon[EpsPos (loc, allele)];
             }
 
     }
@@ -658,8 +625,8 @@ UpdateSums (double *Q, double *QSum, int *Z, double *P,
 
 /*-----------------------------------------*/
 double
-CalcLikeIndRecessive(int *Geno, int *PreGeno,
-                     double *AncVector, double *P, int ind, int *Recessive)
+CalcLikeIndRecessive(int *Geno, int *PreGeno, double *AncVector, double *P,
+                     int ind, int *Recessive)
 {
     /*returns log(likelihood) of Data for one individual:  log[ P(Data|p,q) ].
       This version is used only for diploid individuals when there is genotypic
@@ -681,8 +648,7 @@ CalcLikeIndRecessive(int *Geno, int *PreGeno,
         allele1 = PreGeno[GenPos (ind, 0, loc)];
         allele2 = PreGeno[GenPos (ind, 1, loc)];
 
-        if (allele1 != MISSING
-                && allele2 != MISSING) { /* no missing data */
+        if (allele1 != MISSING && allele2 != MISSING) { /* no missing data */
             sum1 = 0.0;
             sum2 = 0.0;
             for (pop = 0; pop < MAXPOPS; pop++) {
@@ -690,8 +656,8 @@ CalcLikeIndRecessive(int *Geno, int *PreGeno,
                 sum1 += AncVector[pop] * P[PPos (loc, pop, allele1)];
                 if (Recessive[loc] != MISSING && Recessive[loc] != allele1
                         && allele1 == allele2) { /* bug fixed 05072007 */
-                    sum2 += AncVector[pop] * (P[PPos (loc, pop, allele1)] +
-                                              P[PPos(loc, pop, Recessive[loc])]);
+                    sum2 += AncVector[pop] * (P[PPos (loc, pop, allele1)] + P[PPos(loc, pop,
+                                              Recessive[loc])]);
                 } else {
                     sum2 += AncVector[pop] * P[PPos (loc, pop, allele2)];
                 }
@@ -725,8 +691,8 @@ CalcLikeIndRecessive(int *Geno, int *PreGeno,
 }
 
 /*-----------------------------------------*/
-double CalcLikeInd (int *Geno, int *PreGeno,
-                    double *AncVector, double *P, int ind, int *Recessive)
+double CalcLikeInd (int *Geno, int *PreGeno, double *AncVector, double *P,
+                    int ind, int *Recessive)
 {
     /*returns log(likelihood) of Data for one individual:  log[ P(Data|p,q) ]
       See notes 19 March 99 */
@@ -752,8 +718,7 @@ double CalcLikeInd (int *Geno, int *PreGeno,
     double sqrtunder = sqrt (UNDERFLO);
 
     if (LINES==2 && RECESSIVEALLELES) {
-        loglike = CalcLikeIndRecessive(Geno, PreGeno, AncVector, P,
-                                       ind, Recessive);
+        loglike = CalcLikeIndRecessive(Geno, PreGeno, AncVector, P, ind, Recessive);
     } else {
         for (line = 0; line < LINES; line++) {
             for (loc = 0; loc < NUMLOCI; loc++) {
@@ -787,9 +752,8 @@ double CalcLikeInd (int *Geno, int *PreGeno,
 }
 
 
-double CalcLikeIndDiff (int *Geno, int *PreGeno,
-                        double *AncVectorPlus,double *AncVectorMinus, double *P,
-                        int ind, int *Recessive)
+double CalcLikeIndDiff (int *Geno, int *PreGeno, double *AncVectorPlus,
+                        double *AncVectorMinus, double *P, int ind, int *Recessive)
 {
     /*returns log(likelihood) of Data for one individual:  log[ P(Data|p,q) ]
       See notes 19 March 99 */
@@ -822,14 +786,11 @@ double CalcLikeIndDiff (int *Geno, int *PreGeno,
                 termMinus = 0.0;
                 for (pop = 0; pop < MAXPOPS; pop++) {
                     termPlus += AncVectorPlus[pop] * P[PPos (loc, pop, allele)];
-                    termMinus += AncVectorMinus[pop] *
-                                 P[PPos (loc, pop, allele)];
+                    termMinus += AncVectorMinus[pop] * P[PPos (loc, pop, allele)];
                 }
 
-                runningtotalPlus *= termPlus > sqrtunder ? termPlus :
-                                    sqrtunder;
-                runningtotalMinus *= termMinus > sqrtunder ? termMinus :
-                                     sqrtunder;
+                runningtotalPlus *= termPlus > sqrtunder ? termPlus : sqrtunder;
+                runningtotalMinus *= termMinus > sqrtunder ? termMinus : sqrtunder;
 
                 if (runningtotalPlus <
                         sqrtunder) { /*this is to avoid having to take logs all the time */
@@ -858,9 +819,8 @@ double CalcLikeIndDiff (int *Geno, int *PreGeno,
 }
 /*-----------------------------------------*/
 
-double CalcLikeRecessive(int *Geno, int *PreGeno, double *Q,
-                         double *P, int *Recessive, double *sumindlike,
-                         double *indlike_norm)
+double CalcLikeRecessive(int *Geno, int *PreGeno, double *Q, double *P,
+                         int *Recessive, double *sumindlike, double *indlike_norm)
 /* calculate log likelihood for recessive model.  Only coded for diploids!
  *
  * note code overlap with CalcLikeInd, CalcLikeIndRecessive, CalcLike;
@@ -887,8 +847,7 @@ double CalcLikeRecessive(int *Geno, int *PreGeno, double *Q,
         for (pop=0; pop<MAXPOPS; pop++) {
             AncVector[pop] = Q[QPos(ind, pop)];
         }
-        indlike = CalcLikeIndRecessive(Geno, PreGeno, AncVector, P,
-                                       ind,
+        indlike = CalcLikeIndRecessive(Geno, PreGeno, AncVector, P, ind,
                                        Recessive);
         if (sumindlike!=NULL) {
             sumindlike[ind] += exp(indlike-indlike_norm[ind]);
@@ -899,8 +858,7 @@ double CalcLikeRecessive(int *Geno, int *PreGeno, double *Q,
     return loglike;
 }
 /*-----------------------------------------*/
-double CalcLike (int *Geno, int *PreGeno, double *Q,
-                 double *P, int *Recessive,
+double CalcLike (int *Geno, int *PreGeno, double *Q, double *P, int *Recessive,
                  double *sumindlike, double *indlike_norm)
 {
     /*returns log(likelihood) of Data:  log[ P(Data|p,q) ]
@@ -915,8 +873,8 @@ double CalcLike (int *Geno, int *PreGeno, double *Q,
     int ind, pop;
 
     if (LINES == 2 && RECESSIVEALLELES) {
-        loglike = CalcLikeRecessive(Geno, PreGeno, Q, P, Recessive,
-                                    sumindlike, indlike_norm);
+        loglike = CalcLikeRecessive(Geno, PreGeno, Q, P, Recessive, sumindlike,
+                                    indlike_norm);
     } else {
         AncVector = malloc(MAXPOPS*sizeof(double));
         if (AncVector==NULL) {
@@ -927,8 +885,7 @@ double CalcLike (int *Geno, int *PreGeno, double *Q,
             for (pop=0; pop<MAXPOPS; pop++) {
                 AncVector[pop] = Q[QPos(ind, pop)];
             }
-            indlike = CalcLikeInd(Geno, PreGeno, AncVector, P, ind,
-                                  Recessive);
+            indlike = CalcLikeInd(Geno, PreGeno, AncVector, P, ind, Recessive);
             if (sumindlike!=NULL) {
                 if (indlike_norm[ind]==0.0) {
                     indlike_norm[ind] = indlike;
@@ -944,8 +901,7 @@ double CalcLike (int *Geno, int *PreGeno, double *Q,
 /*====================================================*/
 /*---------------------------------------------------*/
 void
-PrintMainParams (FILE * file, int rep, int argc,
-                 char *argv[])
+PrintMainParams (FILE * file, int rep, int argc, char *argv[])
 {
     int i;
     /*print values of most important parameters */
@@ -995,8 +951,7 @@ PrintMainParams (FILE * file, int rep, int argc,
 }
 /*----------------------------------------------------*/
 void
-PrintAncestDist (FILE * file, int *AncestDist, int ind,
-                 int rep)
+PrintAncestDist (FILE * file, int *AncestDist, int ind, int rep)
 /*print credible region for each q in each population */
 {
     int pop, box, low;
@@ -1017,9 +972,7 @@ PrintAncestDist (FILE * file, int *AncestDist, int ind,
         low = 0;
         for (box = 0; box < NUMBOXES; box++) {
             sum += AncestDist[AncestDistPos (ind, pop, box)];
-            if ((low == 0)
-                    && (sum > (int) ((rep - BURNIN) * (1.0 - ANCESTPINT) /
-                                     2.0))) {
+            if ((low == 0) && (sum > (int) ((rep - BURNIN) * (1.0 - ANCESTPINT) / 2.0))) {
                 /*printf("lo: sum = %d, value = %d\n",
                   (int) (rep-BURNIN)*(1.0-ANCESTPINT)/2.0); */
                 fprintf (file, "(%1.3f,", (double) (box + 0.0) / NUMBOXES);
@@ -1036,44 +989,37 @@ PrintAncestDist (FILE * file, int *AncestDist, int ind,
 }
 /*----------------------------------------------------*/
 void
-PrintGeogQ (FILE * file, int ind, int pop,
-            double *UsePopProbs, int rep)
+PrintGeogQ (FILE * file, int ind, int pop, double *UsePopProbs, int rep)
 {
     int homepop, gen;
 
     homepop = pop - 1;
     fprintf (file, "%1.3f | ",
-             (double) UsePopProbs[UsePPrPos (ind, homepop, 0)] /
-             (rep - BURNIN));
+             (double) UsePopProbs[UsePPrPos (ind, homepop, 0)] / (rep - BURNIN));
     for (pop = 0; pop < MAXPOPS; pop++)
         if (pop != homepop) {
             fprintf (file, "Pop %d: ", pop + 1);
             for (gen = 0; gen < GENSBACK + 1; gen++)
                 fprintf (file, "%1.3f ",
-                         (double) UsePopProbs[UsePPrPos (ind, pop, gen)] /
-                         (rep - BURNIN));
+                         (double) UsePopProbs[UsePPrPos (ind, pop, gen)] / (rep - BURNIN));
             fprintf (file, " | ");
         }
 
     fprintf (file, " ");
-    if ((double) UsePopProbs[UsePPrPos (ind, homepop, 0)] /
-            (rep - BURNIN) < 0.1) {
+    if ((double) UsePopProbs[UsePPrPos (ind, homepop, 0)] / (rep - BURNIN) < 0.1) {
         fprintf (file, "*");
     }
-    if ((double) UsePopProbs[UsePPrPos (ind, homepop, 0)] /
-            (rep - BURNIN) < 0.3) {
+    if ((double) UsePopProbs[UsePPrPos (ind, homepop, 0)] / (rep - BURNIN) < 0.3) {
         fprintf (file, "*");
     }
-    if ((double) UsePopProbs[UsePPrPos (ind, homepop, 0)] /
-            (rep - BURNIN) < 0.5) {
+    if ((double) UsePopProbs[UsePPrPos (ind, homepop, 0)] / (rep - BURNIN) < 0.5) {
         fprintf (file, "*");
     }
 
 }
 /*----------------------------------------------------*/
 void
-PrintQ (FILE * file, int *Geno, int rep, double *QSum,
-        struct IND *Individual,
+PrintQ (FILE * file, int *Geno, int rep, double *QSum, struct IND *Individual,
         int *AncestDist, double *UsePopProbs,double *sumR)
 /*print summary of Q to file */
 {
@@ -1121,8 +1067,7 @@ PrintQ (FILE * file, int *Geno, int rep, double *QSum,
       fprintf(file,"\n"); */
 
     for (ind = 0; ind < NUMINDS; ind++) {
-        missing = (int) (100 * MissingInd (Geno,
-                                           ind)) / (LINES * NUMLOCI);
+        missing = (int) (100 * MissingInd (Geno, ind)) / (LINES * NUMLOCI);
 
         fprintf (file, "%3d ", ind + 1);
         if (LABEL) {
@@ -1141,14 +1086,12 @@ PrintQ (FILE * file, int *Geno, int rep, double *QSum,
             fprintf(file, " %1.4f  ",(double)sumR[ind]/(rep-BURNIN));
         }
         if ((USEPOPINFO) && (Individual[ind].PopFlag)) {
-            PrintGeogQ (file, ind, Individual[ind].Population,
-                        UsePopProbs, rep);
+            PrintGeogQ (file, ind, Individual[ind].Population, UsePopProbs, rep);
         }
 
         else {
             for (pop = 0; pop < MAXPOPS; pop++) {
-                fprintf (file, "%1.3f ",
-                         (double) QSum[QPos (ind, pop)] / (rep - BURNIN));
+                fprintf (file, "%1.3f ", (double) QSum[QPos (ind, pop)] / (rep - BURNIN));
             }
 
             if (ANCESTDIST) { /*Print the credible intervals for ancestry coeffs */
@@ -1160,8 +1103,7 @@ PrintQ (FILE * file, int *Geno, int rep, double *QSum,
 }
 /*-----------------------------------------------------*/
 void
-PrintQFile (int rep, double *QSum, struct IND *Individual,
-            double *UsePopProbs)
+PrintQFile (int rep, double *QSum, struct IND *Individual, double *UsePopProbs)
 /*Produce a file that contains only the label and popinfo (if any) plus Q-hat */
 {
     char outname[STRLEN + 20];
@@ -1172,8 +1114,7 @@ PrintQFile (int rep, double *QSum, struct IND *Individual,
     sprintf (outname, "%s_q", OUTFILE);
     QHat = fopen (outname, "w");
     if (QHat == NULL) {
-        printf ("WARNING: Unable to open output file %s.\n",
-                outname);
+        printf ("WARNING: Unable to open output file %s.\n", outname);
     }
 
     /*QProbs = calloc(MAXPOPS,sizeof(double));
@@ -1194,8 +1135,7 @@ PrintQFile (int rep, double *QSum, struct IND *Individual,
           for (pop=0; pop<MAXPOPS; pop++)
           QProbs = (double) QSum[QPos(ind,pop)]/(rep-BURNIN); */
         for (pop = 0; pop < MAXPOPS; pop++) {
-            fprintf (QHat, "%1.4f ",
-                     (double) QSum[QPos (ind, pop)] / (rep - BURNIN));
+            fprintf (QHat, "%1.4f ", (double) QSum[QPos (ind, pop)] / (rep - BURNIN));
         }
         fprintf (QHat, "\n");
     }
@@ -1204,8 +1144,8 @@ PrintQFile (int rep, double *QSum, struct IND *Individual,
 }
 /*-----------------------------------------------------*/
 void
-PrintP (FILE * file, int rep, int *Geno, double *PSum,
-        int *Translation, int *NumAlleles,
+PrintP (FILE * file, int rep, int *Geno, double *PSum, int *Translation,
+        int *NumAlleles,
         double *SumEpsilon, char *Markername)
 /*print summary of P to file */
 {
@@ -1213,11 +1153,9 @@ PrintP (FILE * file, int rep, int *Geno, double *PSum,
     int MissingLoc (int *Geno, int loc);
 
 
-    fprintf (file,
-             "\n\nEstimated Allele Frequencies in each cluster\n");
+    fprintf (file, "\n\nEstimated Allele Frequencies in each cluster\n");
     if (FREQSCORR) {
-        fprintf (file,
-                 "First column gives estimated ancestral frequencies\n");
+        fprintf (file, "First column gives estimated ancestral frequencies\n");
     }
     fprintf (file, "\n\n");
 
@@ -1241,8 +1179,7 @@ PrintP (FILE * file, int rep, int *Geno, double *PSum,
             }
 
             else {
-                fprintf (file, "%4d   ",
-                         Translation[TransPos (loc, allele)]);
+                fprintf (file, "%4d   ", Translation[TransPos (loc, allele)]);
             }
 
             if (FREQSCORR)
@@ -1250,8 +1187,8 @@ PrintP (FILE * file, int rep, int *Geno, double *PSum,
                          (double) SumEpsilon[EpsPos (loc, allele)] / (rep - BURNIN));
 
             for (pop = 0; pop < MAXPOPS; pop++) {
-                fprintf (file, "%1.3f ",
-                         (double) PSum[PPos (loc, pop, allele)] / (rep - BURNIN));
+                fprintf (file, "%1.3f ", (double) PSum[PPos (loc, pop,
+                                                       allele)] / (rep - BURNIN));
             }
             fprintf (file, "\n");
         }
@@ -1266,8 +1203,7 @@ int get_location_num(int loc, struct IND *individual)
         if (individual[ind].myloc==loc) {
             return individual[ind].Location;
         }
-    printf("error in get_location_num: can't find location %i\n",
-           loc);
+    printf("error in get_location_num: can't find location %i\n", loc);
     exit(-1);
     return -1;
 }
@@ -1277,16 +1213,14 @@ void
 PrintSums (FILE * file, int rep, double sumlikes,
            double sumsqlikes, double *FstSum, double *sumAlpha,
            double *sumlambda, double *sumR,double *varR,
-           struct IND *Individual, double *sumLocPrior,
-           int LocPriorLen,
+           struct IND *Individual, double *sumLocPrior, int LocPriorLen,
            double DIC)
 /*print current value of some averages to file */
 {
     int ind, pop, locnum, loc;
     double sumrecs = 0.0;
 
-    fprintf (file,
-             "--------------------------------------------\n");
+    fprintf (file, "--------------------------------------------\n");
     if (COMPUTEPROB) {
         if (rep - BURNIN > 2) {
 
@@ -1301,30 +1235,26 @@ PrintSums (FILE * file, int rep, double sumlikes,
 
         else
             fprintf (file, "Mean value of ln likelihood = %1.1f\n",
-                     (double) sumlikes / (rep -
-                                          BURNIN));     /*print this line in either case */
+                     (double) sumlikes / (rep - BURNIN));     /*print this line in either case */
     }
 
     if (((!(NOADMIX)) && (!(NOALPHA)) && (MAXPOPS > 1))) {
         if (POPALPHAS) {
             fprintf (file, "\n");
             for (pop = 0; pop < MAXPOPS; pop++)
-                fprintf (file, "Mean value of alpha_%d       = %1.4f\n",
-                         pop + 1,
+                fprintf (file, "Mean value of alpha_%d       = %1.4f\n", pop + 1,
                          (double) sumAlpha[pop] / (rep - BURNIN));
         } else
             fprintf (file, "Mean value of alpha         = %1.4f\n",
                      (double) sumAlpha[0] / (rep - BURNIN));
 
         if (LOCPRIOR) {
-            fprintf(file,
-                    "\nMean value of alpha_local for each location:\n");
+            fprintf(file, "\nMean value of alpha_local for each location:\n");
             for (loc=0; loc<NUMLOCATIONS; loc++) {
                 locnum = get_location_num(loc, Individual);
                 fprintf(file, "\tlocation %2i:", locnum);
                 for (pop=0; pop<MAXPOPS; pop++) {
-                    fprintf(file, "  %1.4f",
-                            sumAlpha[AlphaPos(loc, pop)]/(rep - BURNIN));
+                    fprintf(file, "  %1.4f", sumAlpha[AlphaPos(loc, pop)]/(rep - BURNIN));
                 }
                 fprintf(file, "\n");
             }
@@ -1334,8 +1264,7 @@ PrintSums (FILE * file, int rep, double sumlikes,
     if (INFERLAMBDA) {
         if (POPSPECIFICLAMBDA)
             for (pop=0; pop<MAXPOPS; pop++)
-                fprintf (file, "\nMean value of lambda%d       = %1.4f\n",
-                         pop+1,
+                fprintf (file, "\nMean value of lambda%d       = %1.4f\n",pop+1,
                          (double) sumlambda[pop] / (rep - BURNIN));
         else
 
@@ -1347,8 +1276,8 @@ PrintSums (FILE * file, int rep, double sumlikes,
             fprintf (file, "Mean value of r              = %1.4f\n",
                      (double) sumR[0] / (rep - BURNIN));
             fprintf (file, "Standard deviation of r    = %1.4f\n",
-                     sqrt((double) varR[0] / (double) (rep - BURNIN) - sumR[0] *
-                          sumR[0] / (double) ((rep - BURNIN) * (rep - BURNIN))));
+                     sqrt((double) varR[0] / (double) (rep - BURNIN) - sumR[0] * sumR[0] /
+                          (double) ((rep - BURNIN) * (rep - BURNIN))));
         } else {
             for (ind = 0; ind < NUMINDS; ind++) {
                 sumrecs += sumR[ind];
@@ -1366,8 +1295,7 @@ PrintSums (FILE * file, int rep, double sumlikes,
         else {
             fprintf (file, "\n");
             for (pop = 0; pop < MAXPOPS; pop++)
-                fprintf (file, "Mean value of Fst_%d         = %1.4f\n",
-                         pop + 1,
+                fprintf (file, "Mean value of Fst_%d         = %1.4f\n", pop + 1,
                          (double) FstSum[pop] / (rep - BURNIN));
         }
     } else {
@@ -1382,13 +1310,12 @@ PrintSums (FILE * file, int rep, double sumlikes,
     fprintf (file, "\n");
 
     if (LOCPRIOR) {
-        fprintf(file, "Mean value of r = %1.4f\n",
-                sumLocPrior[0]/(rep-BURNIN));
+        fprintf(file, "Mean value of r = %1.4f\n", sumLocPrior[0]/(rep-BURNIN));
         if (NOADMIX) {
             fprintf(file, "Mean value of nu = ");
             for (pop=0; pop<MAXPOPS; pop++) {
-                fprintf(file, " %1.4f",
-                        sumLocPrior[LocPriorPos(NUMLOCATIONS, pop)]/(rep-BURNIN));
+                fprintf(file, " %1.4f", sumLocPrior[LocPriorPos(NUMLOCATIONS,
+                                                    pop)]/(rep-BURNIN));
             }
             fprintf(file, "\n");
             fprintf(file, "Mean value of gamma for each location:\n");
@@ -1396,8 +1323,7 @@ PrintSums (FILE * file, int rep, double sumlikes,
                 locnum = get_location_num(loc, Individual);
                 fprintf(file, "\tlocation %2i:", locnum);
                 for (pop=0; pop<MAXPOPS; pop++) {
-                    fprintf(file, "  %1.4f",
-                            sumLocPrior[LocPriorPos(loc, pop)]/(rep-BURNIN));
+                    fprintf(file, "  %1.4f", sumLocPrior[LocPriorPos(loc, pop)]/(rep-BURNIN));
                 }
                 fprintf(file, "\n");
             }
@@ -1463,8 +1389,7 @@ int EqualGeneNames(int loc1,int loc2,char *Markername)
     int i;
 
     for (i=0; i<GENELEN; i++) {
-        if (Markername[MarkernamePos(loc1,i)] !=
-                Markername[MarkernamePos(loc2,i)]) {
+        if (Markername[MarkernamePos(loc1,i)] != Markername[MarkernamePos(loc2,i)]) {
             return 0;
         }
         if (Markername[MarkernamePos(loc1,i)] == '\0') {
@@ -1475,8 +1400,7 @@ int EqualGeneNames(int loc1,int loc2,char *Markername)
 }
 /*----------------------------------------------------*/
 void
-PrintMembership (FILE * file, double *QSum,
-                 struct IND *Individual)
+PrintMembership (FILE * file, double *QSum, struct IND *Individual)
 /*Print summary of relationship between given populations,
   and cluster populations.  Requires POPDATA. An earlier, more
   complicated version of this is stored in backup.c */
@@ -1493,8 +1417,7 @@ PrintMembership (FILE * file, double *QSum,
 
     sumvals = calloc (MAXPOPS, sizeof (double));
     if (sumvals == NULL) {
-        fprintf (file,
-                 "Error assigning memory in function PrintMembership\n");
+        fprintf (file, "Error assigning memory in function PrintMembership\n");
     } else {
 
         if (POPDATA) {
@@ -1510,15 +1433,11 @@ PrintMembership (FILE * file, double *QSum,
             }
 
             if (sumvals == NULL) {
-                fprintf (file,
-                         "Error assigning memory in function PrintMembership\n");
+                fprintf (file, "Error assigning memory in function PrintMembership\n");
             } else {
-                fprintf (file,
-                         "\n--------------------------------------------\n");
-                fprintf (file,
-                         "Proportion of membership of each pre-defined\n");
-                fprintf (file, " population in each of the %d clusters\n\n",
-                         MAXPOPS);
+                fprintf (file, "\n--------------------------------------------\n");
+                fprintf (file, "Proportion of membership of each pre-defined\n");
+                fprintf (file, " population in each of the %d clusters\n\n", MAXPOPS);
 
                 fprintf (file, "Given    Inferred Clusters");
                 for (pop = 3; pop < MAXPOPS; pop++) {
@@ -1559,8 +1478,7 @@ PrintMembership (FILE * file, double *QSum,
                         for (pop = 0; pop < MAXPOPS; pop++) {
                             fprintf (file, "%1.3f  ", sumvals[pop] / rowsum);
                         }
-                        for (pop = MAXPOPS; pop < 3;
-                                pop++) { /*number of individuals */
+                        for (pop = MAXPOPS; pop < 3; pop++) { /*number of individuals */
                             fprintf (file, "       ");
                         }
                         fprintf (file, "    %3d\n", numfrompop);
@@ -1585,11 +1503,9 @@ PrintMembership (FILE * file, double *QSum,
                 rowsum += sumvals[pop];
             }
 
-            fprintf (file,
-                     "\n--------------------------------------------\n");
+            fprintf (file, "\n--------------------------------------------\n");
             fprintf (file, "Overall proportion of membership of the\n");
-            fprintf (file, "sample in each of the %d clusters\n\n",
-                     MAXPOPS);
+            fprintf (file, "sample in each of the %d clusters\n\n", MAXPOPS);
 
             fprintf (file, "Inferred Clusters\n");
             for (pop = 0; pop < MAXPOPS; pop++) {
@@ -1605,20 +1521,17 @@ PrintMembership (FILE * file, double *QSum,
         }
 
         free (sumvals);
-        fprintf (file,
-                 "--------------------------------------------\n");
+        fprintf (file, "--------------------------------------------\n");
     }
 }
 
-double CalcDIC(int rep, double sumlikes,
-               double* sumindlikes,
+double CalcDIC(int rep, double sumlikes, double* sumindlikes,
                double* indlikes_norm)
 {
     double sumind=0.0, dic;
     int ind;
     for (ind=0; ind<NUMINDS; ind++) {
-        sumind += log(sumindlikes[ind]/(rep-BURNIN))
-                  +indlikes_norm[ind];
+        sumind += log(sumindlikes[ind]/(rep-BURNIN))+indlikes_norm[ind];
     }
     dic = -4.0*sumlikes/(rep-BURNIN)+2.0*sumind;
     /*  return -4.0*sumlikes/(rep-BURNIN) + 2.0*log(sumindlikes)/(rep-BURNIN); */
@@ -1658,14 +1571,12 @@ OutPutResults (int *Geno, int rep, int savefreq,
     if (final) {
         sprintf (outname, "%s_f", OUTFILE);
     } else {
-        sprintf (outname, "%s_%d", OUTFILE,
-                 (rep - BURNIN) / savefreq);
+        sprintf (outname, "%s_%d", OUTFILE, (rep - BURNIN) / savefreq);
     }
 
     RESULTS = fopen (outname, "w");
     if (RESULTS == NULL) {
-        printf ("WARNING: Unable to open output file %s.\n",
-                outname);
+        printf ("WARNING: Unable to open output file %s.\n", outname);
     } else {
         Welcome (RESULTS);
         if (final) {
@@ -1675,24 +1586,20 @@ OutPutResults (int *Geno, int rep, int savefreq,
         PrintMembership (RESULTS, QSum, Individual);
         PrintNET (RESULTS, PSum, NumAlleles, rep - BURNIN, 1);
         /*if (final) PrintNET(stdout,PSum,NumAlleles,rep-BURNIN,1); */
-        PrintSums (RESULTS, rep, sumlikes, sumsqlikes, FstSum,
-                   sumAlpha, sumlambda, sumR,varR, Individual, sumLocPrior,
-                   LocPriorLen, DIC);
+        PrintSums (RESULTS, rep, sumlikes, sumsqlikes, FstSum, sumAlpha, sumlambda,
+                   sumR,varR, Individual, sumLocPrior, LocPriorLen, DIC);
 
-        PrintQ (RESULTS, Geno, rep, QSum, Individual, AncestDist,
-                UsePopProbs,sumR);
-        PrintP (RESULTS, rep, Geno, PSum, Translation, NumAlleles,
-                SumEpsilon, Markername);
+        PrintQ (RESULTS, Geno, rep, QSum, Individual, AncestDist, UsePopProbs,sumR);
+        PrintP (RESULTS, rep, Geno, PSum, Translation, NumAlleles, SumEpsilon,
+                Markername);
         if (final) {
-            PrintQ (stdout, Geno, rep, QSum, Individual, AncestDist,
-                    UsePopProbs,sumR);
+            PrintQ (stdout, Geno, rep, QSum, Individual, AncestDist, UsePopProbs,sumR);
             if (PRINTQHAT) {
                 PrintQFile (rep, QSum, Individual, UsePopProbs);
             }
             PrintMainParams (stdout, rep, argc, argv);
-            PrintSums (stdout, rep, sumlikes, sumsqlikes, FstSum,
-                       sumAlpha, sumlambda, sumR,varR, Individual, sumLocPrior,
-                       LocPriorLen, DIC);
+            PrintSums (stdout, rep, sumlikes, sumsqlikes, FstSum, sumAlpha, sumlambda,
+                       sumR,varR, Individual, sumLocPrior, LocPriorLen, DIC);
             PrintMembership (stdout, QSum, Individual);
         }
 

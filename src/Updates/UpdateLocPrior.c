@@ -33,20 +33,17 @@ void UpdateLocPriorNoAdmix(double *Q, double *LocPrior,
 
     /* first update r (LocPrior[0]) */
     eta = &LocPrior[1];
-    newpp = RandomReal(LocPrior[0]-LOCPRIORSTEP,
-                       LocPrior[0]+LOCPRIORSTEP);
+    newpp = RandomReal(LocPrior[0]-LOCPRIORSTEP, LocPrior[0]+LOCPRIORSTEP);
     if (newpp > 0.0 && newpp < MAXLOCPRIOR) {
         logdiff = mylgamma(newpp) - mylgamma(LocPrior[0]);
         for (i=0; i<MAXPOPS; i++) {
-            logdiff += mylgamma(LocPrior[0]*eta[i]) - mylgamma(
-                           newpp*eta[i]);
+            logdiff += mylgamma(LocPrior[0]*eta[i]) - mylgamma(newpp*eta[i]);
         }
 
         logdiff *= NUMLOCATIONS;
         for (i=0; i<NUMLOCATIONS; i++) {
             for (j=0; j<MAXPOPS; j++) {
-                logdiff += (newpp-LocPrior[0])*eta[j]*log(
-                               LocPrior[LocPriorPos(i,j)]);
+                logdiff += (newpp-LocPrior[0])*eta[j]*log(LocPrior[LocPriorPos(i,j)]);
             }
         }
 
@@ -67,13 +64,12 @@ void UpdateLocPriorNoAdmix(double *Q, double *LocPrior,
     e2 = eta[pop2]-diff;
     if (e1 < 1.0 && e2 >0.0) {
         /* don't need to consider prior on alpha if using Dirichlet(1,1,..,1) */
-        logdiff = NUMLOCATIONS*(mylgamma(LocPrior[0]*eta[pop1]) +
-                                mylgamma(LocPrior[0]*eta[pop2])
+        logdiff = NUMLOCATIONS*(mylgamma(LocPrior[0]*eta[pop1]) + mylgamma(
+                                    LocPrior[0]*eta[pop2])
                                 -mylgamma(LocPrior[0]*e1)
                                 -mylgamma(LocPrior[0]*e2));
         for (i=0; i<NUMLOCATIONS; i++) {
-            logdiff += LocPrior[0]*((e1-eta[pop1])*log(
-                                        LocPrior[LocPriorPos(i, pop1)]) +
+            logdiff += LocPrior[0]*((e1-eta[pop1])*log(LocPrior[LocPriorPos(i, pop1)]) +
                                     (e2-eta[pop2])*log(LocPrior[LocPriorPos(i, pop2)]));
         }
 
@@ -95,14 +91,10 @@ void UpdateLocPriorNoAdmix(double *Q, double *LocPrior,
         g2 = LocPrior[LocPriorPos(loc, pop2)]-diff;
         if (g1 < 1.0 && g2 > 0.0) {
             logdiff =
-                (LocPrior[0]*eta[pop1]-1.0)*(log(g1)-log(
-                                                 LocPrior[LocPriorPos(loc, pop1)])) +
-                (LocPrior[0]*eta[pop2]-1.0)*(log(g2)-log(
-                                                 LocPrior[LocPriorPos(loc, pop2)])) +
-                dcount[loc][pop1]*(log(g1)-log(
-                                       LocPrior[LocPriorPos(loc, pop1)])) +
-                dcount[loc][pop2]*(log(g2)-log(
-                                       LocPrior[LocPriorPos(loc, pop2)]));
+                (LocPrior[0]*eta[pop1]-1.0)*(log(g1)-log(LocPrior[LocPriorPos(loc, pop1)])) +
+                (LocPrior[0]*eta[pop2]-1.0)*(log(g2)-log(LocPrior[LocPriorPos(loc, pop2)])) +
+                dcount[loc][pop1]*(log(g1)-log(LocPrior[LocPriorPos(loc, pop1)])) +
+                dcount[loc][pop2]*(log(g2)-log(LocPrior[LocPriorPos(loc, pop2)]));
             if (logdiff >= 0.0 || RandomReal(0,1)  < exp(logdiff)) {
                 LocPrior[LocPriorPos(loc, pop1)] = g1;
                 LocPrior[LocPriorPos(loc, pop2)] = g2;
@@ -115,8 +107,8 @@ void UpdateLocPriorNoAdmix(double *Q, double *LocPrior,
     free(dcount);
 }
 
-void UpdateLocPriorAdmix(double *Q, double *LocPrior,
-                         double *Alpha, struct IND *Individual)
+void UpdateLocPriorAdmix(double *Q, double *LocPrior, double *Alpha,
+                         struct IND *Individual)
 {
     double diff;
     double currPP, newPP, PPdiff, globalpha, localpha, alpharat;
@@ -124,8 +116,7 @@ void UpdateLocPriorAdmix(double *Q, double *LocPrior,
 
     diff = 0.0;
     currPP = LocPrior[0];
-    newPP = RandomReal(currPP - LOCPRIORSTEP,
-                       currPP + LOCPRIORSTEP);
+    newPP = RandomReal(currPP - LOCPRIORSTEP, currPP + LOCPRIORSTEP);
     if (newPP > 0.0 && newPP < MAXLOCPRIOR) {
         PPdiff = newPP - currPP;
         diff = 0.0;
@@ -148,8 +139,8 @@ void UpdateLocPriorAdmix(double *Q, double *LocPrior,
     }
 }
 
-void UpdateLocPrior(double *Q, double *LocPrior,
-                    double *Alpha, struct IND *Individual)
+void UpdateLocPrior(double *Q, double *LocPrior, double *Alpha,
+                    struct IND *Individual)
 {
     if (NOADMIX) {
         UpdateLocPriorNoAdmix(Q, LocPrior, Individual);

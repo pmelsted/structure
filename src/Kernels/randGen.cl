@@ -6,8 +6,7 @@ typedef struct RndDiscState {
 } RndDiscState;
 
 
-void initRndDiscState(RndDiscState *state,
-                      __global double * randomArr,
+void initRndDiscState(RndDiscState *state,__global double * randomArr,
                       int maxrandom)
 {
     state->randomArr = randomArr;
@@ -24,8 +23,7 @@ void rndDiscStateReset(RndDiscState *state, int baseOffset)
 double rndDisc(RndDiscState * state)
 {
     double val;
-    val = state->randomArr[state->baseOffset +
-                           state->randomValsTaken];
+    val = state->randomArr[state->baseOffset + state->randomValsTaken];
     state->randomValsTaken++;
     return val;
 }
