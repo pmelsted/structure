@@ -112,4 +112,4 @@ cleanTest:
 	rm -f testdata1.out_f
 
 beautify:
-	astyle --style=kr -xC79 -c -j -Y -xw -R "*.c" "*.h" "*.cl"
+	astyle -n --style=kr -xC79 -c -j -Y -xw -R "*.c" "*.h" "*.cl"
