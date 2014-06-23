@@ -4,6 +4,7 @@
 #include "../ran.h"
 #include "../mymath.h"
 #include "../structure.h"
+#include "../Kernels.h"
 
 
 
@@ -55,6 +56,81 @@ GetNumFromPop (int *NumAFromPop, int *Geno, int *Z, int loc,
     }
 }
 
+void GetNumFromPopsCL (CLDict *clDict,int *NumAFromPops, int *Geno, int *Z, int *NumAlleles, struct IND *Individual)
+{
+
+    cl_int err;
+    size_t local;
+    size_t *global;
+    /* for error handling in kernel */
+    int *error;
+
+    int loc;
+    int ind, line, pop, allele;
+    int allelevalue;
+    int popvalue;
+    int numalleles;
+    int offset;
+    int *popflag;
+
+    popflag = calloc(NUMINDS,sizeof(int));
+
+
+    error = calloc(1,sizeof(int));
+    *error = 0;
+    global = calloc(2,sizeof(size_t));
+    global[0] = NUMINDS;
+    global[1] = NUMLOCI;
+
+    for(ind = 0; ind < NUMINDS; ++ind){
+        popflag[ind] = Individual[ind].PopFlag;
+    }
+
+    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[GENOCL], CL_TRUE,
+                               0, sizeof(int) * GENOSIZE, Geno, 0, NULL, NULL);
+    handleCLErr(err,"Error: Failed to write buffer geno!");
+
+    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[ZCL], CL_TRUE,
+                               0, sizeof(int) * ZSIZE, Geno, 0, NULL, NULL);
+    handleCLErr(err,"Error: Failed to write buffer Z!");
+
+    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[NUMALLELESCL], CL_TRUE,
+                               0, sizeof(int) * NUMLOCI, NumAlleles, 0, NULL, NULL);
+    handleCLErr(err,"Error: Failed to write buffer NUMALLELES!");
+
+    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[POPFLAGCL], CL_TRUE,
+                               0, sizeof(int) * NUMINDS, popflag, 0, NULL, NULL);
+    handleCLErr(err,"Error: Failed to write buffer geno!");
+
+    for (loc = 0; loc < NUMLOCI; loc++) {
+        numalleles = NumAlleles[loc];
+        offset = loc*MAXPOPS*MAXALLELES;
+        /*Fill in the number of each allele from each pop */
+        /* int genpos; */
+
+        /* O(MAXPOPS*numalleles) */
+        for (pop = 0; pop < MAXPOPS; pop++) {
+            for (allele = 0; allele < numalleles; allele++) {
+                NumAFromPops[NumAFromPopPos (pop, allele)+offset] = 0;
+            }
+        }
+
+        /* O(NUMINDS*LINES) */
+            for (ind = 0; ind < NUMINDS; ind++) {
+                if (!PFROMPOPFLAGONLY || Individual[ind].PopFlag == 1) {    /*individual must have popflag turned on*/
+                    for (line = 0; line < LINES; line++) {
+                        popvalue = Z[ZPos (ind, line, loc)];
+                        allelevalue = Geno[GenPos (ind, line, loc)];
+
+                        if ((allelevalue != MISSING) && (popvalue != UNASSIGNED)) {
+                            NumAFromPops[NumAFromPopPos (popvalue, allelevalue) + offset]++;
+                        }
+                    }
+                }
+            }
+        }
+}
+
 void GetNumFromPops (int *NumAFromPops, int *Geno, int *Z, int *NumAlleles, struct IND *Individual)
 {
     int loc;
@@ -78,10 +154,8 @@ void GetNumFromPops (int *NumAFromPops, int *Geno, int *Z, int *NumAlleles, stru
         }
 
         /* O(NUMINDS*LINES) */
-        if (PFROMPOPFLAGONLY) {     /*this option uses only individuals with POPFLAG=1 to update P*/
             for (ind = 0; ind < NUMINDS; ind++) {
-                if (Individual[ind].PopFlag ==
-                        1) {    /*individual must have popflag turned on*/
+                if (!PFROMPOPFLAGONLY || Individual[ind].PopFlag == 1) {    /*individual must have popflag turned on*/
                     for (line = 0; line < LINES; line++) {
                         popvalue = Z[ZPos (ind, line, loc)];
                         allelevalue = Geno[GenPos (ind, line, loc)];
@@ -92,19 +166,7 @@ void GetNumFromPops (int *NumAFromPops, int *Geno, int *Z, int *NumAlleles, stru
                     }
                 }
             }
-        } else {       /*standard update--use everybody to update P */
-            for (ind = 0; ind < NUMINDS; ind++) {
-                for (line = 0; line < LINES; line++) {
-                    popvalue = Z[ZPos (ind, line, loc)];
-                    allelevalue = Geno[GenPos (ind, line, loc)];
-
-                    if ((allelevalue != MISSING) && (popvalue != UNASSIGNED)) {
-                        NumAFromPops[NumAFromPopPos (popvalue, allelevalue) + offset]++;
-                    }
-                }
-            }
         }
-    }
 }
 
 /*------------------------------------------*/

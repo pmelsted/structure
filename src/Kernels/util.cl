@@ -93,7 +93,6 @@ double RGammaDisc(double n,double lambda,RndDiscState *randState)
 
     double aa;
     double w;
-    [>  int i; <]
 
     double x=0.0;
     if(n<1) {
@@ -117,9 +116,8 @@ two:
         }
 three:
         ;
-    } else if(n==1.0)
+    } else if(n==1.0) {
 
-        [> exponential random variable, from Ripley, 1987, P230  <] {
         double a=0.0;
         double u,u0,ustar;
 ten:

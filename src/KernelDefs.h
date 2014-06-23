@@ -6,6 +6,7 @@
 enum KERNEL {
     UpdateZKernel,
     /*UpdateQKernel,*/
+    /*GetNumFromPopsKernel,*/
     NumberOfKernels
 };
 
@@ -17,6 +18,8 @@ enum BUFFER {
     PREGENOCL,
     RECESSIVECL,
     NUMALLELESCL,
+    POPFLAGCL,
+    NUMAFROMPOPSCL,
     RANDCL, /* buffer for random numbers */
     ERRORCL, /* buffer for error codes */
     NumberOfBuffers

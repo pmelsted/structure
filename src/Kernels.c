@@ -7,7 +7,6 @@
 
 #define MAX_SOURCE_SIZE (0x100000)
 #define USEGPU 1
-#define NUMVALS 11
 
 
 void printCLErr(cl_int err)
@@ -270,7 +269,7 @@ int initKernel(CLDict *clDict,char * kernelName, enum KERNEL kernelEnumVal)
 /*
  * compiles the program with filename programFilename, and replaces the names in names with the values in vals.
  */
-int CompileKernels(CLDict *clDict, char *names[],char *vals[], int numVals)
+int CompileKernels(CLDict *clDict,  char *options)
 {
     FILE *fp;
     char *KernelSource;
@@ -297,7 +296,7 @@ int CompileKernels(CLDict *clDict, char *names[],char *vals[], int numVals)
     source_size = fread(KernelSource, 1, MAX_SOURCE_SIZE, fp);
     fclose(fp);
 
-    preProcessSource(KernelSource, &source_size, names,vals,numVals);
+    /*preProcessSource(KernelSource, &source_size, names,vals,numVals);*/
     program = clCreateProgramWithSource(clDict->context, 1,
                                         (const char **) & KernelSource, NULL, &err);
     if (!program) {
@@ -309,14 +308,18 @@ int CompileKernels(CLDict *clDict, char *names[],char *vals[], int numVals)
     free(KernelSource);
 
 
-    err = clBuildProgram(program, 1, &clDict->device_id, NULL, NULL, NULL);
+    err = clBuildProgram(program, 1, &clDict->device_id, options, NULL, NULL);
     if (err != CL_SUCCESS) {
         size_t len;
-        char buffer[2048];
-
+        char buffer[32768];
+        printCLErr(err);
         printf("Error: Failed to build program executable!\n");
+        printf("Options:");
+        printf("%s",options);
+        printf("Error:");
+        printCLErr(err);
         clGetProgramBuildInfo(program, clDict->device_id, CL_PROGRAM_BUILD_LOG,
-                              sizeof(buffer), buffer, &len);
+                              sizeof(buffer),buffer, &len);
         printf("%s\n", buffer);
         printf("%d\n", (int) len);
         return EXIT_FAILURE;
@@ -376,6 +379,16 @@ void createCLBuffers(CLDict *clDict)
                                     CL_MEM_READ_WRITE,  sizeof(int)*NUMLOCI,NULL, &err);
     handleCLErr(err,"Error: Failed create buffer NumAlleles!");
 
+    if (PFROMPOPFLAGONLY){
+        clDict->buffers[POPFLAGCL] = clCreateBuffer(clDict->context,
+                                        CL_MEM_READ_WRITE,  sizeof(int)*NUMINDS,NULL, &err);
+        handleCLErr(err,"Error: Failed create buffer PopFlag");
+    }
+
+    clDict->buffers[NUMAFROMPOPSCL] = clCreateBuffer(clDict->context,
+                                    CL_MEM_READ_WRITE,  sizeof(int)*NUMLOCI*MAXPOPS*MAXALLELES,NULL, &err);
+    handleCLErr(err,"Error: Failed create buffer NumAlleles!");
+
 
     clDict->buffers[RANDCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,
                               sizeof(double)*RANDSIZE,NULL, &err);
@@ -402,12 +415,10 @@ int InitCLDict(CLDict *clDictToInit)
     cl_context context;
     cl_device_id device_id;
     cl_command_queue commands;
-    char *names[NUMVALS];
-    char *vals[NUMVALS];
-    int i;
     int DEVICETYPE;
     int err;
     int compileret;
+    char options[1024];
     DEVICETYPE =  USEGPU ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU;
 
     ret = clGetPlatformIDs(1, &platform_id, &ret_num_platforms);
@@ -469,37 +480,21 @@ int InitCLDict(CLDict *clDictToInit)
      * to be inserted into the kernel code
      */
 
-    for(i = 0; i < NUMVALS; ++i) {
-        vals[i] = calloc(255, sizeof(char));
-    }
 
-    names[0] = "%maxpops%";
-    sprintf(vals[0],"%d",MAXPOPS);
-    names[1] = "%missing%";
-    sprintf(vals[1],"%d",MISSING);
-    names[2] = "%maxalleles%";
-    sprintf(vals[2],"%d",MAXALLELES);
-    names[3] = "%numloci%";
-    sprintf(vals[3],"%d",NUMLOCI);
-    names[4] = "%lines%";
-    sprintf(vals[4],"%d",LINES);
-    names[5] = "%numinds%";
-    sprintf(vals[5],"%d",NUMINDS);
-    names[6] = "%maxrandom%";
-    sprintf(vals[6],"%d",MAXRANDOM);
-    names[7] = "%usepopinfo%";
-    sprintf(vals[7],"%d",USEPOPINFO);
-    names[8] = "%locprior%";
-    sprintf(vals[8],"%d",LOCPRIOR);
-    names[9] = "%notambiguous%";
-    sprintf(vals[9],"%d",NOTAMBIGUOUS);
-    names[10] = "%numlocations%";
-    sprintf(vals[10],"%d",NUMLOCATIONS);
 
-    compileret = CompileKernels(clDictToInit,names,vals,NUMVALS);
-    for(i = 0; i < NUMVALS; ++i) {
-        free(vals[i]);
-    }
+    sprintf(options,"-Werror -D UNASSIGNED=%d  -D MAXPOPS=%d -D MISSING=%d \
+                     -D MAXALLELES=%d -D NUMLOCI=%d  -D LINES=%d    \
+                     -D NUMINDS=%d -D MAXRANDOM=%d  -D USEPOPINFO=%d    \
+                     -D LOCPRIOR=%d  -D NOTAMBIGUOUS=%d  -D NUMLOCATIONS=%d    \
+                     -D PFROMPOPFLAGONLY=%d "
+                      , UNASSIGNED, MAXPOPS, MISSING
+                      , MAXALLELES, NUMLOCI, LINES
+                      , NUMINDS, MAXRANDOM, USEPOPINFO
+                      , LOCPRIOR, NOTAMBIGUOUS, NUMLOCATIONS
+                      , PFROMPOPFLAGONLY);
+
+    printf("%s",options);
+    compileret = CompileKernels(clDictToInit,options);
 
     if(compileret != EXIT_SUCCESS) {
         printf("Kernels failed to compile!\n");
@@ -541,15 +536,19 @@ void copyToLocal( double * globalArr, double *localArr,
 
 
 
-/*int main(int argc, char *argv[]){
+/*int main(){
     CLDict *clDict = NULL;
     int ret;
-    char *names[NUMVALS] = {"%maxpops%", "%missing%", "%maxalleles%","%numloci%","%lines%","%numinds%","%maxrandom%","%usepopinfo%","%locprior%","%notambiguous%","%numlocations%"};
-    char *vals[NUMVALS] = {"2", "-999", "15","15","2","20","2","1","1","-1","5"};
+    char *options = "-Werror -D UNASSIGNED=-1  -D MAXPOPS=2 -D MISSING=-999 \
+                     -D MAXALLELES=15 -D NUMLOCI=15  -D LINES=2    \
+                     -D NUMINDS=20 -D MAXRANDOM=2  -D USEPOPINFO=1    \
+                     -D LOCPRIOR=1  -D NOTAMBIGUOUS=-1  -D NUMLOCATIONS=5    \
+                     -D PFROMPOPFLAGONLY=0 ";
+
     clDict = malloc(sizeof *clDict);
 
     InitCLDict(clDict);
-    ret = CompileKernels(clDict,names,vals,NUMVALS);
+    ret = CompileKernels(clDict,options);
     printf("return code: %d\n",ret);
     ReleaseCLDict(clDict);
     return ret;
