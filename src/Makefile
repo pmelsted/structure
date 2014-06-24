@@ -100,7 +100,7 @@ KernelTest: Kernels.c
 	$(CC) -o KernelTest Kernels.c  -Wall -pedantic -lOpenCL
 
 clean:
-	@rm -f *.o structure KernelTest
+	@rm -f *.o structure
 
 test: structure
 	./structure -m testdata/mainparams -i testdata/testdata1.str -o testdata1.out

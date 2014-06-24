@@ -96,8 +96,8 @@ double RGammaDisc(double n,double lambda,RndDiscState *randState)
 
     double x=0.0;
     if(n<1) {
-        const double E=2.71828182;
-        const double b=(n+E)/E;
+        double E=2.71828182;
+        double b=(n+E)/E;
         double p=0.0;
 one:
         p=b*rndDisc(randState);
@@ -139,12 +139,12 @@ twenty:
 thirty:
         return (a+u0)/lambda;
     } else {
-        double static nprev=0.0;
-        double static c1=0.0;
-        double static c2=0.0;
-        double static c3=0.0;
-        double static c4=0.0;
-        double static c5=0.0;
+        double nprev=0.0;
+        double c1=0.0;
+        double c2=0.0;
+        double c3=0.0;
+        double c4=0.0;
+        double c5=0.0;
         double u1;
         double u2;
         if(n!=nprev) {
@@ -201,4 +201,63 @@ void RDirichletDisc(double * a, int k, double * b,RndDiscState *randState)
     for(i=0; i<k; i++) {
         b[i] /= sum;
     }
+}
+
+/* Melissa's version, adapted from an algorithm on wikipedia.  January 08 */
+double LogRGammaDisc(double n, double lambda, RndDiscState *randState)
+{
+    double v0, v[3], E=2.71828182, em, logem, lognm;
+    int i;
+    if (n >= 1.0) {
+        return log(RGammaDisc(n, lambda,randState));
+    }
+    v0 = E/(E+n);
+    while (1) {
+        for (i=0; i<3; i++) {
+            v[i] = rndDisc(randState);
+        }
+
+        if (v[0] <= v0) {
+            logem = 1.0/n*log(v[1]);
+            em = exp(logem);
+            lognm = log(v[2])+(n-1)*logem;
+        } else {
+            em = 1.0-log(v[1]);
+            logem = log(em);
+            lognm = log(v[2]) - em;
+        }
+        if (lognm <= (n-1)*logem - em) {
+            return logem - log(lambda);
+        }
+    }
+}
+
+/*O(k)*/
+void LogRDirichletDisc (double *a, int k,__global double *b, __global double *c,
+                   RndDiscState *randState)
+{
+    int i;
+    double sum = 0.0;
+    double sum2;
+    for (i = 0; i < k; i++) {
+        c[i] = LogRGammaDisc (a[i], 1,randState);
+        b[i]=exp(c[i]);
+        sum += b[i];
+    }
+
+    /* patch added May 2007 to set gene frequencies equal if all draws
+       from the Gamma distribution are very low.
+       Ensures that P and logP remain defined in this rare event */
+    /*if(sum<UNDERFLO) {
+        for(i=0; i<k; i++) {
+            b[i] = 1.0/(double)(k);
+            c[i] = log(b[i]);
+        }
+    } else {*/
+        sum2=log(sum);
+        for (i = 0; i < k; i++) {
+            c[i]-=sum2;
+            b[i]/=sum;
+        }
+    /*}*/
 }

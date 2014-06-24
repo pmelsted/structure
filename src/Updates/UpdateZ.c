@@ -77,53 +77,53 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,
     err = 0;
     err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[QCL], CL_TRUE, 0,
                                sizeof(double) * QSIZE, Q, 0, NULL, NULL);
-    handleCLErr(err,"Error: Failed to write buffer Q!");
+    handleCLErr(err, clDict,"UpdateZ Error: Failed to write buffer Q!");
 
     err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[PCL], CL_TRUE, 0,
                                sizeof(double) * PSIZE, P, 0, NULL, NULL);
-    handleCLErr(err,"Error: Failed to write buffer P!");
+    handleCLErr(err, clDict,"UpdateZ Error: Failed to write buffer P!");
 
     err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[GENOCL], CL_TRUE,
                                0, sizeof(int) * GENOSIZE, Geno, 0, NULL, NULL);
-    handleCLErr(err,"Error: Failed to write buffer geno!");
+    handleCLErr(err, clDict,"UpdateZ Error: Failed to write buffer geno!");
 
     err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[RANDCL], CL_TRUE,
                                0, sizeof(double) * NUMINDS*NUMLOCI*LINES, randomArr, 0, NULL, NULL);
-    handleCLErr(err,"Error: Failed to write buffer rand!");
+    handleCLErr(err, clDict,"UpdateZ Error: Failed to write buffer rand!");
 
     err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[ERRORCL], CL_TRUE,
                                0, sizeof(int), error, 0, NULL, NULL);
-    handleCLErr(err,"Error: Failed to write error buffer!");
+    handleCLErr(err, clDict,"UpdateZ Error: Failed to write error buffer!");
 
 
     err = 0;
     err  = clSetKernelArg(clDict->kernels[UpdateZKernel], 0, sizeof(cl_mem),
                           &(clDict->buffers[QCL]));
-    handleCLErr(err,"Error: Failed to set arg 0!");
+    handleCLErr(err, clDict,"UpdateZ Error: Failed to set arg 0!");
     err = clSetKernelArg(clDict->kernels[UpdateZKernel], 1, sizeof(cl_mem),
                          &(clDict->buffers[PCL]));
-    handleCLErr(err,"Error: Failed to set arg 1!");
+    handleCLErr(err, clDict,"UpdateZ Error: Failed to set arg 1!");
     err = clSetKernelArg(clDict->kernels[UpdateZKernel], 2, sizeof(cl_mem),
                          &(clDict->buffers[GENOCL]));
-    handleCLErr(err,"Error: Failed to set arg 2!");
+    handleCLErr(err, clDict,"UpdateZ Error: Failed to set arg 2!");
     err = clSetKernelArg(clDict->kernels[UpdateZKernel], 3, sizeof(cl_mem),
                          &(clDict->buffers[RANDCL]));
-    handleCLErr(err,"Error: Failed to set arg 3!");
+    handleCLErr(err, clDict,"UpdateZ Error: Failed to set arg 3!");
     err = clSetKernelArg(clDict->kernels[UpdateZKernel], 4, sizeof(cl_mem),
                          &(clDict->buffers[ZCL]));
-    handleCLErr(err,"Error: Failed to set arg 4!");
+    handleCLErr(err, clDict,"UpdateZ Error: Failed to set arg 4!");
 
     err = clSetKernelArg(clDict->kernels[UpdateZKernel], 5, sizeof(cl_mem),
                          &(clDict->buffers[ERRORCL]));
-    handleCLErr(err,"Error: Failed to set arg 5!");
+    handleCLErr(err, clDict,"UpdateZ Error: Failed to set arg 5!");
 
     err = clGetKernelWorkGroupInfo(clDict->kernels[UpdateZKernel],
                                    clDict->device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL);
-    handleCLErr(err,"Error: Failed to retrieve kernel work group info!");
+    handleCLErr(err, clDict,"UpdateZ Error: Failed to retrieve kernel work group info!");
 
     err = clEnqueueNDRangeKernel(clDict->commands, clDict->kernels[UpdateZKernel],
                                  2, NULL, global, NULL, 0, NULL, NULL);
-    handleCLErr(err,"Error: Failed to execute kernel!");
+    handleCLErr(err, clDict,"UpdateZ Error: Failed to execute kernel!");
 
     err = clFinish(clDict->commands);
 

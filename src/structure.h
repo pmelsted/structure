@@ -1,3 +1,5 @@
+#ifndef STRUCTURE
+#define STRUCTURE
 #define VERSION "2.3.4 (Jul 2012)"
 
 /*Mechanics of the program, should not need to be changed. */
@@ -133,3 +135,4 @@ void Kill ();           /*abort program */
 
 void Welcome (FILE * file);
 int FindMaxAlleles (int *Geno, int *Recessive);
+#endif

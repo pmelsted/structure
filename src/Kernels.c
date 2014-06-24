@@ -165,6 +165,8 @@ void PrintKernelError(int error)
     case KERNEL_OUT_OF_BOUNDS:
         printf("Kernel out of bounds\n");
         break;
+    default:
+        printf("Unknown error %d\n",error);
     }
 }
 
@@ -231,6 +233,7 @@ int initKernel(CLDict *clDict,char * kernelName, enum KERNEL kernelEnumVal)
 {
     cl_kernel kernel;
     int err;
+    printf("%s, %d\n",kernelName,kernelEnumVal);
     kernel = clCreateKernel(clDict->program, kernelName, &err);
     if (!kernel || err != CL_SUCCESS) {
         switch(err) {
@@ -278,11 +281,12 @@ int CompileKernels(CLDict *clDict,  char *options)
     int err;
     int i;
     cl_program program;
+    cl_uint numkernels;
 
-    char *kernelNames[NumberOfKernels] = {"UpdateZ"};
     /*cl_int ret;*/
 
 
+    char *KERNELNAMES[NumberOfKernels] = {"UpdateZ","GetNumFromPops","UpdateP"};
 
     /* Load the source code containing the kernels*/
     fp = fopen("Kernels/Kernels.cl", "r");
@@ -315,7 +319,7 @@ int CompileKernels(CLDict *clDict,  char *options)
         printCLErr(err);
         printf("Error: Failed to build program executable!\n");
         printf("Options:");
-        printf("%s",options);
+        printf("%s\n",options);
         printf("Error:");
         printCLErr(err);
         clGetProgramBuildInfo(program, clDict->device_id, CL_PROGRAM_BUILD_LOG,
@@ -326,22 +330,36 @@ int CompileKernels(CLDict *clDict,  char *options)
     }
 
     clDict->program = program;
+    /*clCreateKernelsInProgram(clDict->program,NumberOfKernels,clDict->kernels,&numkernels);
+    printf("numkernels: %d\n",numkernels);*/
     for(i = 0; i < NumberOfKernels; ++i) {
-        err = initKernel(clDict, kernelNames[i], i);
+        printf("%s\n",KERNELNAMES[i]);
+        err = initKernel(clDict, KERNELNAMES[i], i);
         if(err != EXIT_SUCCESS) {
             return EXIT_FAILURE;
         }
     }
+    for(i=0;i<NumberOfKernels;++i)
+    {
+        char name[512];
+        cl_uint numargs;
+        clGetKernelInfo(clDict->kernels[i],CL_KERNEL_FUNCTION_NAME,sizeof(name),name,NULL);
+
+        printf("info: %s\n",name);
+        clGetKernelInfo(clDict->kernels[i],CL_KERNEL_NUM_ARGS,sizeof(numargs),&numargs,NULL);
+        printf("info: %d\n",numargs);
+    }
 
     return EXIT_SUCCESS;
 }
-void handleCLErr(cl_int err, char * message)
+void handleCLErr(cl_int err,CLDict *clDict, char * message)
 {
     if (err != CL_SUCCESS) {
         printf("CL Error:\n");
         printf("%s\n",message);
         printCLErr(err);
-        exit(1);
+        ReleaseCLDict(clDict);
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -350,55 +368,64 @@ void createCLBuffers(CLDict *clDict)
     cl_int err;
     clDict->buffers[QCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,
                                           sizeof(double)*QSIZE,NULL, &err);
-    handleCLErr(err,"Error: Failed create buffer Q!");
+    handleCLErr(err, clDict,"Error: Failed create buffer Q!");
 
 
     clDict->buffers[PCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,
                                           sizeof(double)*PSIZE,NULL, &err);
-    handleCLErr(err,"Error: Failed create buffer P!");
+    handleCLErr(err, clDict,"Error: Failed create buffer P!");
+
+    clDict->buffers[LOGPCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,
+                                          sizeof(double)*PSIZE,NULL, &err);
+    handleCLErr(err, clDict,"Error: Failed create buffer LogP!");
+
+    clDict->buffers[LAMBDACL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,
+                                          sizeof(double)*MAXPOPS,NULL, &err);
+    handleCLErr(err, clDict,"Error: Failed create buffer Lambda!");
 
     clDict->buffers[ZCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,
                                           sizeof(int)*ZSIZE,NULL, &err);
-    handleCLErr(err,"Error: Failed create buffer Z!");
+    handleCLErr(err, clDict,"Error: Failed create buffer Z!");
 
     clDict->buffers[GENOCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,
                               sizeof(int)*GENOSIZE,NULL, &err);
-    handleCLErr(err,"Error: Failed create buffer Geno!");
+    handleCLErr(err, clDict,"Error: Failed create buffer Geno!");
 
 
     if (RECESSIVEALLELES) {
         clDict->buffers[PREGENOCL] = clCreateBuffer(clDict->context,
                                      CL_MEM_READ_WRITE,  sizeof(int)*GENOSIZE,NULL, &err);
-        handleCLErr(err,"Error: Failed create buffer PreGeno!");
+        handleCLErr(err, clDict,"Error: Failed create buffer PreGeno!");
 
         clDict->buffers[RECESSIVECL] = clCreateBuffer(clDict->context,
                                        CL_MEM_READ_WRITE,  sizeof(int)*NUMLOCI,NULL, &err);
-        handleCLErr(err,"Error: Failed create buffer Recessive!");
+        handleCLErr(err, clDict,"Error: Failed create buffer Recessive!");
     }
     clDict->buffers[NUMALLELESCL] = clCreateBuffer(clDict->context,
                                     CL_MEM_READ_WRITE,  sizeof(int)*NUMLOCI,NULL, &err);
-    handleCLErr(err,"Error: Failed create buffer NumAlleles!");
+    handleCLErr(err, clDict,"Error: Failed create buffer NumAlleles!");
 
     if (PFROMPOPFLAGONLY){
         clDict->buffers[POPFLAGCL] = clCreateBuffer(clDict->context,
                                         CL_MEM_READ_WRITE,  sizeof(int)*NUMINDS,NULL, &err);
-        handleCLErr(err,"Error: Failed create buffer PopFlag");
+        handleCLErr(err, clDict,"Error: Failed create buffer PopFlag");
     }
 
     clDict->buffers[NUMAFROMPOPSCL] = clCreateBuffer(clDict->context,
                                     CL_MEM_READ_WRITE,  sizeof(int)*NUMLOCI*MAXPOPS*MAXALLELES,NULL, &err);
-    handleCLErr(err,"Error: Failed create buffer NumAlleles!");
+    handleCLErr(err, clDict,"Error: Failed create buffer NumAlleles!");
+
 
 
     clDict->buffers[RANDCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,
                               sizeof(double)*RANDSIZE,NULL, &err);
 
-    handleCLErr(err,"Error: Failed create buffer rand!");
+    handleCLErr(err, clDict,"Error: Failed create buffer rand!");
 
     clDict->buffers[ERRORCL] = clCreateBuffer(clDict->context,  CL_MEM_WRITE_ONLY,
-                               sizeof(int),NULL, &err);
+                               sizeof(int)*2,NULL, &err);
 
-    handleCLErr(err,"Error: Failed create error buffer!");
+    handleCLErr(err, clDict,"Error: Failed create error buffer!");
 }
 
 /*
@@ -493,7 +520,7 @@ int InitCLDict(CLDict *clDictToInit)
                       , LOCPRIOR, NOTAMBIGUOUS, NUMLOCATIONS
                       , PFROMPOPFLAGONLY);
 
-    printf("%s",options);
+    printf("%s\n",options);
     compileret = CompileKernels(clDictToInit,options);
 
     if(compileret != EXIT_SUCCESS) {

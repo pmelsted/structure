@@ -37,7 +37,7 @@ __kernel void UpdateZ (
             }
         }
         if (randState->randomValsTaken > randState->maxrandom) {
-            *error = KERNEL_OUT_OF_BOUNDS;
+            error[0] = KERNEL_OUT_OF_BOUNDS;
         }
     }
 }

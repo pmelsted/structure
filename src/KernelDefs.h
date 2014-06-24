@@ -5,19 +5,22 @@
 
 enum KERNEL {
     UpdateZKernel,
-    /*UpdateQKernel,*/
-    /*GetNumFromPopsKernel,*/
+    GetNumFromPopsKernel,
+    UpdatePKernel,
     NumberOfKernels
 };
+
 
 enum BUFFER {
     QCL,
     PCL,
+    LOGPCL,
     ZCL,
     GENOCL,
     PREGENOCL,
     RECESSIVECL,
     NUMALLELESCL,
+    LAMBDACL,
     POPFLAGCL,
     NUMAFROMPOPSCL,
     RANDCL, /* buffer for random numbers */
