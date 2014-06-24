@@ -330,6 +330,8 @@ int main (int argc, char *argv[])
         FillArrayWithRandom(randomArr,RANDSIZE);
         UpdateP (P,LogP, Epsilon, Fst, NumAlleles, Geno, Z, lambda, Individual,
                  randomArr);
+        /*UpdatePCL (clDict,P,LogP, Epsilon, Fst, NumAlleles, Geno, Z, lambda, Individual,
+                 randomArr);*/
 
         /* Update Q */
         FillArrayWithRandom(randomArr,NUMINDS*MAXRANDOM);

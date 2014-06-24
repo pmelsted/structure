@@ -48,7 +48,7 @@ __kernel void UpdateP (
     if(loc < NUMLOCI){
         int offset = loc*MAXPOPS*MAXALLELES;
         int pos,line,popvalue,allelevalue;
-        initRndDiscState(randState,randomArr,MAXPOPS*MAXALLELES*MAXRANDOM);
+        initRndDiscState(randState,randomArr,(NUMINDS*MAXRANDOM)/NUMLOCI);
         rndDiscStateReset(randState,offset);
 
         for (pop = 0; pop < MAXPOPS; pop++) {
