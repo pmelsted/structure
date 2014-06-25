@@ -13,8 +13,9 @@ __kernel void GetNumFromPops (
     int offset = loc*MAXPOPS*MAXALLELES;
     int pos,line,popvalue,allelevalue;
 
-    if(ind < NUMINDS && loc < NUMLOCI){
-        if (!PFROMPOPFLAGONLY || popflags[ind] == 1) {    /*individual must have popflag turned on*/
+    if(ind < NUMINDS && loc < NUMLOCI) {
+        if (!PFROMPOPFLAGONLY
+                || popflags[ind] == 1) {    /*individual must have popflag turned on*/
             for (line = 0; line < LINES; line++) {
                 popvalue = Z[ZPos (ind, line, loc)];
                 allelevalue = Geno[GenPos (ind, line, loc)];
@@ -36,12 +37,12 @@ __kernel void UpdateP (
     , __global int* NumAFromPops
     , __global double* randomArr
     , __global int* error
-#if FREQSCORR
+    #if FREQSCORR
     , __global double *Epsilon
     , __global double *Fst
-#else
+    #else
     , __global double* lambda
-#endif
+    #endif
 )
 {
     int loc = get_global_id(0);
@@ -51,20 +52,21 @@ __kernel void UpdateP (
     RndDiscState randState[1];
     int allele;
 
-    if(loc < NUMLOCI && pop < MAXPOPS){
+    if(loc < NUMLOCI && pop < MAXPOPS) {
         int offset = loc*MAXPOPS*MAXALLELES;
         int pos,line,popvalue,allelevalue;
         initRndDiscState(randState,randomArr,MAXALLELES*MAXRANDOM);
         rndDiscStateReset(randState,offset*MAXRANDOM+pop*MAXALLELES*MAXRANDOM);
 
         for (allele = 0; allele < numalleles; allele++) {
-#if FREQSCORR
-                Parameters[allele] = Epsilon[EpsPos (loc, allele)]
-                                     *(1.0- Fst[pop])/Fst[pop]
-                                     + NumAFromPops[NumAFromPopPos (pop, allele)+offset];
-#else
-                Parameters[allele] = lambda[pop] + NumAFromPops[NumAFromPopPos (pop, allele)+offset];
-#endif
+            #if FREQSCORR
+            Parameters[allele] = Epsilon[EpsPos (loc, allele)]
+                                 *(1.0- Fst[pop])/Fst[pop]
+                                 + NumAFromPops[NumAFromPopPos (pop, allele)+offset];
+            #else
+            Parameters[allele] = lambda[pop] + NumAFromPops[NumAFromPopPos (pop,
+                                 allele)+offset];
+            #endif
         }
 
         /*return a value of P simulated from the posterior Di(Parameters) */

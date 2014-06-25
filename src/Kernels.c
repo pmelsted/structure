@@ -199,7 +199,8 @@ void handleCLErr(cl_int err,CLDict *clDict, char * message)
     }
 }
 
-void setKernelArgs(CLDict *clDict){
+void setKernelArgs(CLDict *clDict)
+{
     cl_int err;
     err = 0;
 
@@ -277,7 +278,7 @@ void setKernelArgs(CLDict *clDict){
                          &(clDict->buffers[ERRORCL]));
     handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 5!");
 
-    if (FREQSCORR){
+    if (FREQSCORR) {
         err = clSetKernelArg(clDict->kernels[UpdatePKernel], 6, sizeof(cl_mem),
                              &(clDict->buffers[EPSILONCL]));
         handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 6!");
@@ -294,20 +295,27 @@ void setKernelArgs(CLDict *clDict){
 }
 
 
-void getLocals(CLDict *clDict){
+void getLocals(CLDict *clDict)
+{
     cl_int err;
 
     err = clGetKernelWorkGroupInfo(clDict->kernels[UpdateZKernel],
-                                   clDict->device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(size_t), &(clDict->locals[UpdateZKernel]), NULL);
-    handleCLErr(err, clDict,"Error: Failed to retrieve kernel work group info of UpdateZ");
+                                   clDict->device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(size_t),
+                                   &(clDict->locals[UpdateZKernel]), NULL);
+    handleCLErr(err, clDict,
+                "Error: Failed to retrieve kernel work group info of UpdateZ");
     err = clGetKernelWorkGroupInfo(clDict->kernels[GetNumFromPopsKernel],
-                                   clDict->device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(size_t), &(clDict->locals[GetNumFromPopsKernel]), NULL);
-    handleCLErr(err, clDict,"Error: Failed to retrieve kernel work group info of GetNumFromPops");
+                                   clDict->device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(size_t),
+                                   &(clDict->locals[GetNumFromPopsKernel]), NULL);
+    handleCLErr(err, clDict,
+                "Error: Failed to retrieve kernel work group info of GetNumFromPops");
 
 
     err = clGetKernelWorkGroupInfo(clDict->kernels[UpdatePKernel],
-                                   clDict->device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(size_t), &(clDict->locals[UpdatePKernel]), NULL);
-    handleCLErr(err, clDict,"Error: Failed to retrieve kernel work group info of UpdateP");
+                                   clDict->device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(size_t),
+                                   &(clDict->locals[UpdatePKernel]), NULL);
+    handleCLErr(err, clDict,
+                "Error: Failed to retrieve kernel work group info of UpdateP");
 
 }
 
@@ -403,7 +411,7 @@ int CompileKernels(CLDict *clDict,  char *options)
     int err;
     int i;
     cl_program program;
-    cl_uint numkernels;
+    /*cl_uint numkernels;*/
 
     /*cl_int ret;*/
 
@@ -461,14 +469,15 @@ int CompileKernels(CLDict *clDict,  char *options)
             return EXIT_FAILURE;
         }
     }
-    for(i=0;i<NumberOfKernels;++i)
-    {
+    for(i=0; i<NumberOfKernels; ++i) {
         char name[512];
         cl_uint numargs;
-        clGetKernelInfo(clDict->kernels[i],CL_KERNEL_FUNCTION_NAME,sizeof(name),name,NULL);
+        clGetKernelInfo(clDict->kernels[i],CL_KERNEL_FUNCTION_NAME,sizeof(name),name,
+                        NULL);
 
         printf("info: %s\n",name);
-        clGetKernelInfo(clDict->kernels[i],CL_KERNEL_NUM_ARGS,sizeof(numargs),&numargs,NULL);
+        clGetKernelInfo(clDict->kernels[i],CL_KERNEL_NUM_ARGS,sizeof(numargs),&numargs,
+                        NULL);
         printf("info: %d\n",numargs);
     }
 
@@ -488,20 +497,21 @@ void createCLBuffers(CLDict *clDict)
     handleCLErr(err, clDict,"Error: Failed create buffer P!");
 
     clDict->buffers[LOGPCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,
-                                          sizeof(double)*PSIZE,NULL, &err);
+                              sizeof(double)*PSIZE,NULL, &err);
     handleCLErr(err, clDict,"Error: Failed create buffer LogP!");
 
-    if (FREQSCORR){
+    if (FREQSCORR) {
         clDict->buffers[FSTCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,
-                                              sizeof(double)*MAXPOPS,NULL, &err);
+                                                sizeof(double)*MAXPOPS,NULL, &err);
         handleCLErr(err, clDict,"Error: Failed create buffer FST!");
 
-        clDict->buffers[EPSILONCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,
-                                              sizeof(double)*NUMLOCI*MAXALLELES,NULL, &err);
+        clDict->buffers[EPSILONCL] = clCreateBuffer(clDict->context,
+                                     CL_MEM_READ_WRITE,
+                                     sizeof(double)*NUMLOCI*MAXALLELES,NULL, &err);
         handleCLErr(err, clDict,"Error: Failed create buffer EPSILON!");
     } else {
         clDict->buffers[LAMBDACL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,
-                                              sizeof(double)*MAXPOPS,NULL, &err);
+                                    sizeof(double)*MAXPOPS,NULL, &err);
         handleCLErr(err, clDict,"Error: Failed create buffer Lambda!");
     }
 
@@ -527,14 +537,14 @@ void createCLBuffers(CLDict *clDict)
                                     CL_MEM_READ_WRITE,  sizeof(int)*NUMLOCI,NULL, &err);
     handleCLErr(err, clDict,"Error: Failed create buffer NumAlleles!");
 
-    if (PFROMPOPFLAGONLY){
+    if (PFROMPOPFLAGONLY) {
         clDict->buffers[POPFLAGCL] = clCreateBuffer(clDict->context,
-                                        CL_MEM_READ_WRITE,  sizeof(int)*NUMINDS,NULL, &err);
+                                     CL_MEM_READ_WRITE,  sizeof(int)*NUMINDS,NULL, &err);
         handleCLErr(err, clDict,"Error: Failed create buffer PopFlag");
     }
 
     clDict->buffers[NUMAFROMPOPSCL] = clCreateBuffer(clDict->context,
-                                    CL_MEM_READ_WRITE,  sizeof(int)*NUMLOCI*MAXPOPS*MAXALLELES,NULL, &err);
+                                      CL_MEM_READ_WRITE,  sizeof(int)*NUMLOCI*MAXPOPS*MAXALLELES,NULL, &err);
     handleCLErr(err, clDict,"Error: Failed create buffer NumAFromPops!");
 
 
@@ -639,11 +649,11 @@ int InitCLDict(CLDict *clDictToInit)
                      -D NUMINDS=%d -D MAXRANDOM=%d  -D USEPOPINFO=%d    \
                      -D LOCPRIOR=%d  -D NOTAMBIGUOUS=%d  -D NUMLOCATIONS=%d    \
                      -D PFROMPOPFLAGONLY=%d -D FREQSCORR=%d "
-                      , UNASSIGNED, MAXPOPS, MISSING
-                      , MAXALLELES, NUMLOCI, LINES
-                      , NUMINDS, MAXRANDOM, USEPOPINFO
-                      , LOCPRIOR, NOTAMBIGUOUS, NUMLOCATIONS
-                      , PFROMPOPFLAGONLY,FREQSCORR);
+            , UNASSIGNED, MAXPOPS, MISSING
+            , MAXALLELES, NUMLOCI, LINES
+            , NUMINDS, MAXRANDOM, USEPOPINFO
+            , LOCPRIOR, NOTAMBIGUOUS, NUMLOCATIONS
+            , PFROMPOPFLAGONLY,FREQSCORR);
 
     printf("%s\n",options);
     compileret = CompileKernels(clDictToInit,options);
@@ -686,6 +696,51 @@ void copyToLocal( double * globalArr, double *localArr,
         localArr[i] = globalArr[dimLoc(dims,dimMaxs,numDims)];
     }
     dims[numDims-1] = origLastDim;
+}
+
+
+void readBuffer(CLDict *clDict, void * dest, size_t size, enum BUFFER buffer,
+                char *name)
+{
+    cl_int err;
+    char msg[120];
+    err = clEnqueueReadBuffer(clDict->commands, clDict->buffers[buffer], CL_TRUE,
+                              0,
+                              size, dest, 0, NULL, NULL );
+    strcpy(msg,"Failed to read buffer: ");
+    strcat(msg,name);
+    strcat(msg,"!\n");
+    handleCLErr(err, clDict,msg);
+}
+
+void writeBuffer(CLDict *clDict, void * source, size_t size,
+                 enum BUFFER buffer, char *name)
+{
+    cl_int err;
+    char msg[80];
+    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[buffer], CL_TRUE,
+                               0,
+                               size, source, 0, NULL, NULL );
+    strcpy(msg,"Failed to write buffer: ");
+    strcat(msg,name);
+    strcat(msg,"!\n");
+    handleCLErr(err, clDict,msg);
+}
+
+void runKernel(CLDict *clDict, enum KERNEL kernel, int numdims, size_t *dims,
+               char *name)
+{
+    cl_int err;
+    char msg[120];
+    err = clEnqueueNDRangeKernel(clDict->commands, clDict->kernels[kernel],
+                                 numdims, NULL, dims, NULL, 0, NULL, NULL);
+    strcpy(msg,"Failed to run kernel: ");
+    strcat(msg,name);
+    strcat(msg,"!\n");
+    handleCLErr(err, clDict,msg);
+
+    err = clFinish(clDict->commands);
+    handleCLErr(err, clDict,"clFinish error!\n");
 }
 
 

@@ -125,13 +125,11 @@ ten:
         u0=u;
 twenty:
         ustar=rndDisc(randState);
-        if(u<ustar)
-        {
+        if(u<ustar) {
             goto thirty;
         }
         u=rndDisc(randState);
-        if(u<ustar)
-        {
+        if(u<ustar) {
             goto twenty;
         }
         a += 1;
@@ -233,8 +231,9 @@ double LogRGammaDisc(double n, double lambda, RndDiscState *randState)
 }
 
 /*O(k)*/
-void LogRDirichletDisc (double *a, int k,__global double *b, __global double *c,
-                   RndDiscState *randState)
+void LogRDirichletDisc (double *a, int k,__global double *b,
+                        __global double *c,
+                        RndDiscState *randState)
 {
     int i;
     double sum = 0.0;
@@ -254,10 +253,10 @@ void LogRDirichletDisc (double *a, int k,__global double *b, __global double *c,
             c[i] = log(b[i]);
         }
     } else {*/
-        sum2=log(sum);
-        for (i = 0; i < k; i++) {
-            c[i]-=sum2;
-            b[i]/=sum;
-        }
+    sum2=log(sum);
+    for (i = 0; i < k; i++) {
+        c[i]-=sum2;
+        b[i]/=sum;
+    }
     /*}*/
 }

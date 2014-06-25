@@ -103,7 +103,10 @@ void compareZCLandZ(CLDict *clDict,int *OrigZ, double *Q, double *P,int *Geno,
 }
 
 
-void comparePCLandP(CLDict *clDict,double *OrigP, double *OrigLogP, double *Epsilon, double *Fst, int *NumAlleles, int *Geno, int *Z, double *lambda, struct IND *Individual, double *randomArr){
+void comparePCLandP(CLDict *clDict,double *OrigP, double *OrigLogP,
+                    double *Epsilon, double *Fst, int *NumAlleles, int *Geno, int *Z,
+                    double *lambda, struct IND *Individual, double *randomArr)
+{
 
     double *OldP;
     double *P;
@@ -122,8 +125,9 @@ void comparePCLandP(CLDict *clDict,double *OrigP, double *OrigLogP, double *Epsi
              randomArr);
     memcpy(OldLogP,LogP,PSIZE*sizeof(double));
     memcpy(OldP,P,PSIZE*sizeof(double));
-    UpdatePCL (clDict,P,LogP, Epsilon, Fst, NumAlleles, Geno, Z, lambda, Individual,
-             randomArr);
+    UpdatePCL (clDict,P,LogP, Epsilon, Fst, NumAlleles, Geno, Z, lambda,
+               Individual,
+               randomArr);
     ret = compareDoubleArrs(P,OldP,PSIZE,"P and old P");
     if (ret == EXIT_FAILURE) {
         ReleaseCLDict(clDict);
@@ -380,8 +384,8 @@ int main (int argc, char *argv[])
 
     /*=====Main MCMC loop=======================================*/
 
-    #define DEBUGCOMPARE 0
-    #define USEWORKINGCL 0
+#define DEBUGCOMPARE 1
+#define USEWORKINGCL 1
     for (rep = 0; rep < (NUMREPS + BURNIN); rep++) {
 
         FillArrayWithRandom(randomArr,NUMLOCI*MAXALLELES*MAXPOPS*MAXRANDOM);
@@ -389,14 +393,15 @@ int main (int argc, char *argv[])
 
         if(DEBUGCOMPARE) {
             comparePCLandP(clDict,P,LogP, Epsilon, Fst, NumAlleles, Geno, Z,
-                    lambda, Individual, randomArr);
+                           lambda, Individual, randomArr);
         }
-        if (USEWORKINGCL){
-            UpdatePCL (clDict,P,LogP, Epsilon, Fst, NumAlleles, Geno, Z, lambda, Individual,
-                  randomArr);
+        if (USEWORKINGCL) {
+            UpdatePCL (clDict,P,LogP, Epsilon, Fst, NumAlleles, Geno, Z, lambda,
+                       Individual,
+                       randomArr);
         }  else {
             UpdateP (P,LogP, Epsilon, Fst, NumAlleles, Geno, Z, lambda, Individual,
-                  randomArr);
+                     randomArr);
         }
 
         /* Update Q */
@@ -430,11 +435,10 @@ int main (int argc, char *argv[])
             }
         } else {
             FillArrayWithRandom(randomArr,NUMINDS*NUMLOCI*LINES);
-            if (DEBUGCOMPARE)
-            {
+            if (DEBUGCOMPARE) {
                 compareZCLandZ(clDict,Z,Q,P,Geno,randomArr);
             }
-            if (USEWORKINGCL){
+            if (USEWORKINGCL) {
                 UpdateZCL (clDict,Z,  Q, P, Geno,randomArr);
             } else {
                 UpdateZ (Z,  Q, P, Geno,randomArr);

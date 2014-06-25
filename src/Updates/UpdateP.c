@@ -56,7 +56,8 @@ GetNumFromPop (int *NumAFromPop, int *Geno, int *Z, int loc,
     }
 }
 
-void GetNumFromPopsCL (CLDict *clDict,int *NumAFromPops, int *Geno, int *Z, int *NumAlleles, struct IND *Individual)
+void GetNumFromPopsCL (CLDict *clDict,int *NumAFromPops, int *Geno, int *Z,
+                       int *NumAlleles, struct IND *Individual)
 {
     cl_int err;
     size_t local;
@@ -74,13 +75,14 @@ void GetNumFromPopsCL (CLDict *clDict,int *NumAFromPops, int *Geno, int *Z, int 
     global[0] = NUMINDS;
     global[1] = NUMLOCI;
 
-    if(PFROMPOPFLAGONLY){
+    if(PFROMPOPFLAGONLY) {
         popflag = calloc(NUMINDS,sizeof(int));
-        for(ind = 0; ind < NUMINDS; ++ind){
+        for(ind = 0; ind < NUMINDS; ++ind) {
             popflag[ind] = Individual[ind].PopFlag;
         }
 
-        err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[POPFLAGCL], CL_TRUE,
+        err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[POPFLAGCL],
+                                   CL_TRUE,
                                    0, sizeof(int) * NUMINDS, popflag, 0, NULL, NULL);
         handleCLErr(err, clDict,"UpdateP Error: Failed to write buffer popflags!");
     }
@@ -93,12 +95,15 @@ void GetNumFromPopsCL (CLDict *clDict,int *NumAFromPops, int *Geno, int *Z, int 
                                0, sizeof(int) * ZSIZE, Z, 0, NULL, NULL);
     handleCLErr(err, clDict,"UpdateP Error: Failed to write buffer Z!");
 
-    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[NUMAFROMPOPSCL], CL_TRUE,
+    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[NUMAFROMPOPSCL],
+                               CL_TRUE,
                                0, sizeof(int) * NUMLOCI*MAXPOPS*MAXALLELES, NumAFromPops, 0, NULL, NULL);
 
-    handleCLErr(err, clDict,"UpdateP Error: Failed to write buffer NumAFromPopsCL!");
+    handleCLErr(err, clDict,
+                "UpdateP Error: Failed to write buffer NumAFromPopsCL!");
 
-    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[NUMALLELESCL], CL_TRUE,
+    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[NUMALLELESCL],
+                               CL_TRUE,
                                0, sizeof(int) * NUMLOCI, NumAlleles, 0, NULL, NULL);
     handleCLErr(err, clDict,"UpdateP Error: Failed to write buffer NUMALLELES!");
     err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[ERRORCL], CL_TRUE,
@@ -131,16 +136,19 @@ void GetNumFromPopsCL (CLDict *clDict,int *NumAFromPops, int *Geno, int *Z, int 
 
     err = clGetKernelWorkGroupInfo(clDict->kernels[GetNumFromPopsKernel],
                                    clDict->device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL);
-    handleCLErr(err, clDict,"UpdateP Error: Failed to retrieve kernel work group info!");
+    handleCLErr(err, clDict,
+                "UpdateP Error: Failed to retrieve kernel work group info!");
 
 
-    err = clEnqueueNDRangeKernel(clDict->commands, clDict->kernels[GetNumFromPopsKernel],
+    err = clEnqueueNDRangeKernel(clDict->commands,
+                                 clDict->kernels[GetNumFromPopsKernel],
                                  2, NULL, global, NULL, 0, NULL, NULL);
     handleCLErr(err, clDict,"UpdateP Error: Failed to execute kernel!");
 
     err = clFinish(clDict->commands);
 
-    err = clEnqueueReadBuffer(clDict->commands, clDict->buffers[NUMAFROMPOPSCL], CL_TRUE, 0,
+    err = clEnqueueReadBuffer(clDict->commands, clDict->buffers[NUMAFROMPOPSCL],
+                              CL_TRUE, 0,
                               sizeof(int) * NUMLOCI*MAXPOPS * MAXALLELES, NumAFromPops, 0, NULL, NULL );
 
     err = clEnqueueReadBuffer(clDict->commands, clDict->buffers[ERRORCL], CL_TRUE,
@@ -160,7 +168,8 @@ void GetNumFromPopsCL (CLDict *clDict,int *NumAFromPops, int *Geno, int *Z, int 
 
 }
 
-void GetNumFromPops (int *NumAFromPops, int *Geno, int *Z, int *NumAlleles, struct IND *Individual)
+void GetNumFromPops (int *NumAFromPops, int *Geno, int *Z, int *NumAlleles,
+                     struct IND *Individual)
 {
     int loc;
     int ind, line, pop, allele;
@@ -183,19 +192,21 @@ void GetNumFromPops (int *NumAFromPops, int *Geno, int *Z, int *NumAlleles, stru
         }
 
         /* O(NUMINDS*LINES) */
-            for (ind = 0; ind < NUMINDS; ind++) {
-                if (!PFROMPOPFLAGONLY || Individual[ind].PopFlag == 1) {    /*individual must have popflag turned on*/
-                    for (line = 0; line < LINES; line++) {
-                        popvalue = Z[ZPos (ind, line, loc)];
-                        allelevalue = Geno[GenPos (ind, line, loc)];
+        for (ind = 0; ind < NUMINDS; ind++) {
+            if (!PFROMPOPFLAGONLY
+                    || Individual[ind].PopFlag ==
+                    1) {    /*individual must have popflag turned on*/
+                for (line = 0; line < LINES; line++) {
+                    popvalue = Z[ZPos (ind, line, loc)];
+                    allelevalue = Geno[GenPos (ind, line, loc)];
 
-                        if ((allelevalue != MISSING) && (popvalue != UNASSIGNED)) {
-                            NumAFromPops[NumAFromPopPos (popvalue, allelevalue) + offset]++;
-                        }
+                    if ((allelevalue != MISSING) && (popvalue != UNASSIGNED)) {
+                        NumAFromPops[NumAFromPopPos (popvalue, allelevalue) + offset]++;
                     }
                 }
             }
         }
+    }
 }
 
 /*------------------------------------------*/
@@ -300,38 +311,14 @@ void UpdateP (double *P, double *LogP, double *Epsilon, double *Fst,
 }
 
 
-void UpdatePCL (CLDict *clDict,double *P, double *LogP, double *Epsilon, double *Fst,
-              int *NumAlleles, int *Geno, int *Z, double *lambda, struct IND *Individual,
-              double * randomArr)
+void UpdatePCL (CLDict *clDict,double *P, double *LogP, double *Epsilon,
+                double *Fst,
+                int *NumAlleles, int *Geno, int *Z, double *lambda, struct IND *Individual,
+                double * randomArr)
 /*Simulate new allele frequencies from Dirichlet distribution */
 {
-    /*int loc, pop, allele;
-    double *Parameters;           [>[MAXALLS] **Parameters of posterior on P <]
-    [>int *NumAFromPop;             [>[MAXPOPS][MAXALLS] **number of each allele from each pop <]<]
-
-    [>int *NumAFromPops;<]
-    [>[NUMLOCI][MAXPOPS][MAXALLS] **number of each allele from each pop at each loc <]
-    int *NumAFromPopsCL;[>[NUMLOCI][MAXPOPS][MAXALLS] **number of each allele from each pop at each loc <]
-    int popsoffset;
-
-    RndDiscState randState[1];
-
-    Parameters = calloc(MAXALLELES, sizeof (double));
-    [>NumAFromPop = calloc(MAXPOPS * MAXALLELES, sizeof (int));<]
-
-    [>NumAFromPops = calloc(NUMLOCI*MAXPOPS * MAXALLELES, sizeof (int));<]
-    NumAFromPopsCL = calloc(NUMLOCI*MAXPOPS * MAXALLELES, sizeof (int));
-
-    if ((Parameters == NULL) ||  (NumAFromPopsCL == NULL)) {
-        printf ("WARNING: unable to allocate array space in UpdateP\n");
-        Kill ();
-    }*/
-
-    /*initialize the NumAFromPops array*/
-    /*GetNumFromPopsCL (clDict,NumAFromPopsCL,Geno, Z, NumAlleles, Individual);*/
 
     int *NumAFromPops;
-    cl_int err;
     size_t *global;
     /* for error handling in kernel */
     int *error;
@@ -347,41 +334,29 @@ void UpdatePCL (CLDict *clDict,double *P, double *LogP, double *Epsilon, double 
     global[0] = NUMINDS;
     global[1] = NUMLOCI;
 
-    if(PFROMPOPFLAGONLY){
+    if(PFROMPOPFLAGONLY) {
         popflag = calloc(NUMINDS,sizeof(int));
-        for(ind = 0; ind < NUMINDS; ++ind){
+        for(ind = 0; ind < NUMINDS; ++ind) {
             popflag[ind] = Individual[ind].PopFlag;
         }
 
-        err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[POPFLAGCL], CL_TRUE,
-                                   0, sizeof(int) * NUMINDS, popflag, 0, NULL, NULL);
-        handleCLErr(err, clDict,"UpdateP Error: Failed to write buffer popflags!");
+        writeBuffer(clDict,popflag,sizeof(int) * NUMINDS,POPFLAGCL,"Popflags");
     }
     /*
      * GetNumFromPops writes
      */
 
     /* =================================================== */
-    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[GENOCL], CL_TRUE,
-                               0, sizeof(int) * GENOSIZE, Geno, 0, NULL, NULL);
-    handleCLErr(err, clDict,"UpdateP Error: Failed to write buffer geno!");
+    writeBuffer(clDict,Geno,sizeof(int) * GENOSIZE,GENOCL,"Geno");
+    writeBuffer(clDict,Z,sizeof(int)*ZSIZE,ZCL,"Z");
 
-    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[ZCL], CL_TRUE,
-                               0, sizeof(int) * ZSIZE, Z, 0, NULL, NULL);
-    handleCLErr(err, clDict,"UpdateP Error: Failed to write buffer Z!");
+    writeBuffer(clDict,NumAFromPops,sizeof(int)* NUMLOCI*MAXPOPS*MAXALLELES,
+                NUMAFROMPOPSCL,"NumAFromPops");
 
-    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[NUMAFROMPOPSCL], CL_TRUE,
-                               0, sizeof(int) * NUMLOCI*MAXPOPS*MAXALLELES, NumAFromPops, 0, NULL, NULL);
+    writeBuffer(clDict,NumAlleles,sizeof(int) * NUMLOCI,NUMALLELESCL,"NumAlleles");
 
-    handleCLErr(err, clDict,"UpdateP Error: Failed to write buffer NumAFromPopsCL!");
+    writeBuffer(clDict,error,sizeof(int),ERRORCL,"error");
 
-    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[NUMALLELESCL], CL_TRUE,
-                               0, sizeof(int) * NUMLOCI, NumAlleles, 0, NULL, NULL);
-    handleCLErr(err, clDict,"UpdateP Error: Failed to write buffer NUMALLELES!");
-
-    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[ERRORCL], CL_TRUE,
-                               0, sizeof(int)*2, error, 0, NULL, NULL);
-    handleCLErr(err, clDict,"UpdateP Error: Failed to write error buffer!");
     /* =================================================== */
 
     /*
@@ -389,66 +364,38 @@ void UpdatePCL (CLDict *clDict,double *P, double *LogP, double *Epsilon, double 
      */
 
     /* =================================================== */
-    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[PCL], CL_TRUE, 0,
-                               sizeof(double) * PSIZE, P, 0, NULL, NULL);
-    handleCLErr(err, clDict,"UpdateP Error: Failed to write buffer P!");
 
-    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[LOGPCL], CL_TRUE, 0,
-                               sizeof(double) * PSIZE, P, 0, NULL, NULL);
-    handleCLErr(err, clDict,"UpdateP Error: Failed to write buffer LogP!");
-    if (FREQSCORR){
-        err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[FSTCL], CL_TRUE, 0,
-                                   sizeof(double) * MAXPOPS, Fst, 0, NULL, NULL);
-        handleCLErr(err, clDict,"UpdateP Error: Failed to write buffer FST!");
-        err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[EPSILONCL], CL_TRUE, 0,
-                                   sizeof(double) * NUMLOCI*MAXALLELES, Epsilon, 0, NULL, NULL);
-        handleCLErr(err, clDict,"UpdateP Error: Failed to write buffer EPSILON!");
+    readBuffer(clDict,P,sizeof(double) * PSIZE,PCL,"P");
+    readBuffer(clDict,LogP,sizeof(double) * PSIZE,LOGPCL,"LogP");
+
+    if (FREQSCORR) {
+        writeBuffer(clDict,Fst,sizeof(double) * MAXPOPS,FSTCL,"FST");
+        writeBuffer(clDict,Epsilon,sizeof(double) * NUMLOCI*MAXALLELES,EPSILONCL,
+                    "EPSILON");
     } else {
-        err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[LAMBDACL], CL_TRUE, 0,
-                                   sizeof(double) * MAXPOPS, lambda, 0, NULL, NULL);
-        handleCLErr(err, clDict,"UpdateP Error: Failed to write buffer LAMBDA!");
+        writeBuffer(clDict,lambda,sizeof(double) * MAXPOPS,LAMBDACL,"LAMBDA");
     }
 
-    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[RANDCL], CL_TRUE,
-                               0, sizeof(double) * NUMLOCI*MAXALLELES*MAXPOPS*MAXRANDOM, randomArr, 0, NULL, NULL);
-    handleCLErr(err, clDict,"UpdateP Error: Failed to write buffer rand!");
+    writeBuffer(clDict,randomArr,
+                sizeof(double) * NUMLOCI*MAXALLELES*MAXPOPS*MAXRANDOM,RANDCL,"randomArr");
+
 
     /* =================================================== */
 
 
 
-
-    err = clEnqueueNDRangeKernel(clDict->commands, clDict->kernels[GetNumFromPopsKernel],
-                                 2, NULL, global, NULL, 0, NULL, NULL);
-    handleCLErr(err, clDict,"UpdateP Error: Failed to execute kernel!");
-
-    err = clFinish(clDict->commands);
-
-    /* =================================================== */
-
-    /*err = clEnqueueReadBuffer(clDict->commands, clDict->buffers[NUMAFROMPOPSCL], CL_TRUE, 0,
-                              sizeof(int) * NUMLOCI*MAXPOPS * MAXALLELES, NumAFromPops, 0, NULL, NULL );*/
-
+    runKernel(clDict,GetNumFromPopsKernel,2,global,"GetNumFromPops");
 
 
     global[0] = NUMLOCI;
     global[1] = MAXPOPS;
 
-    err = clEnqueueNDRangeKernel(clDict->commands, clDict->kernels[UpdatePKernel],
-                                 2, NULL, global, NULL, 0, NULL, NULL);
-    handleCLErr(err, clDict,"UpdateP Error: Failed to execute kernel!");
+    runKernel(clDict,UpdatePKernel,2,global,"UpdateP");
 
-    err = clFinish(clDict->commands);
+    readBuffer(clDict,P,sizeof(double) * PSIZE,PCL,"P");
+    readBuffer(clDict,LogP,sizeof(double) * PSIZE,LOGPCL,"LogP");
+    readBuffer(clDict,error,sizeof(int),ERRORCL,"Error");
 
-
-    err = clEnqueueReadBuffer(clDict->commands, clDict->buffers[PCL], CL_TRUE,
-                              0, sizeof(double)*PSIZE, P, 0, NULL, NULL );
-
-    err = clEnqueueReadBuffer(clDict->commands, clDict->buffers[LOGPCL], CL_TRUE,
-                              0, sizeof(double)*PSIZE, LogP, 0, NULL, NULL );
-
-    err = clEnqueueReadBuffer(clDict->commands, clDict->buffers[ERRORCL], CL_TRUE,
-                              0, sizeof(int)*2, error, 0, NULL, NULL );
 
 
     free(global);

@@ -61,8 +61,6 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,
                 double * randomArr)
 /*update Z: population origin of each allele */
 {
-    cl_int err;
-    size_t local;
     size_t *global;
     /* for error handling in kernel */
     int *error;
@@ -74,41 +72,18 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,
     global[1] = NUMLOCI;
 
 
-    err = 0;
-    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[QCL], CL_TRUE, 0,
-                               sizeof(double) * QSIZE, Q, 0, NULL, NULL);
-    handleCLErr(err, clDict,"UpdateZ Error: Failed to write buffer Q!");
-
-    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[PCL], CL_TRUE, 0,
-                               sizeof(double) * PSIZE, P, 0, NULL, NULL);
-    handleCLErr(err, clDict,"UpdateZ Error: Failed to write buffer P!");
-
-    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[GENOCL], CL_TRUE,
-                               0, sizeof(int) * GENOSIZE, Geno, 0, NULL, NULL);
-    handleCLErr(err, clDict,"UpdateZ Error: Failed to write buffer geno!");
-
-    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[RANDCL], CL_TRUE,
-                               0, sizeof(double) * NUMINDS*NUMLOCI*LINES, randomArr, 0, NULL, NULL);
-    handleCLErr(err, clDict,"UpdateZ Error: Failed to write buffer rand!");
-
-    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[ERRORCL], CL_TRUE,
-                               0, sizeof(int), error, 0, NULL, NULL);
-    handleCLErr(err, clDict,"UpdateZ Error: Failed to write error buffer!");
+    writeBuffer(clDict,Q,sizeof(double) * QSIZE,QCL,"Q");
+    writeBuffer(clDict,P,sizeof(double) * PSIZE,PCL,"P");
+    writeBuffer(clDict,Geno,sizeof(int) * GENOSIZE,GENOCL,"Geno");
+    writeBuffer(clDict,randomArr, sizeof(double) * NUMINDS*NUMLOCI*LINES,RANDCL,
+                "randomArr");
+    writeBuffer(clDict,error,sizeof(int),ERRORCL,"error");
 
 
+    runKernel(clDict,UpdateZKernel,2,global,"UpdateZ");
 
-    err = clEnqueueNDRangeKernel(clDict->commands, clDict->kernels[UpdateZKernel],
-                                 2, NULL, global, NULL, 0, NULL, NULL);
-    handleCLErr(err, clDict,"UpdateZ Error: Failed to execute kernel!");
-
-    err = clFinish(clDict->commands);
-
-    err = clEnqueueReadBuffer(clDict->commands, clDict->buffers[ZCL], CL_TRUE, 0,
-                              sizeof(int) * ZSIZE, Z, 0, NULL, NULL );
-
-    err = clEnqueueReadBuffer(clDict->commands, clDict->buffers[ERRORCL], CL_TRUE,
-                              0, sizeof(int), error, 0, NULL, NULL );
-
+    readBuffer(clDict,Z,sizeof(int)*ZSIZE,ZCL,"Z");
+    readBuffer(clDict,error,sizeof(int),ERRORCL,"Error");
     free(global);
 
     /* some error handling */
