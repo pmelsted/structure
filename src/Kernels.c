@@ -699,13 +699,15 @@ void copyToLocal( double * globalArr, double *localArr,
     dims[numDims-1] = origLastDim;
 }
 
-
-void readBuffer(CLDict *clDict, void * dest, size_t size, enum BUFFER buffer,
+/*
+ * Reads the buffer fource from the gpu to the array dest
+ */
+void readBuffer(CLDict *clDict, void * dest, size_t size, enum BUFFER source,
                 char *name)
 {
     cl_int err;
     char msg[120];
-    err = clEnqueueReadBuffer(clDict->commands, clDict->buffers[buffer], CL_TRUE,
+    err = clEnqueueReadBuffer(clDict->commands, clDict->buffers[source], CL_TRUE,
                               0,
                               size, dest, 0, NULL, NULL );
     strcpy(msg,"Failed to read buffer: ");
@@ -714,12 +716,16 @@ void readBuffer(CLDict *clDict, void * dest, size_t size, enum BUFFER buffer,
     handleCLErr(err, clDict,msg);
 }
 
+/*
+ * Writes the array source to the buffer dest on the GPU
+ */
+
 void writeBuffer(CLDict *clDict, void * source, size_t size,
-                 enum BUFFER buffer, char *name)
+                 enum BUFFER dest, char *name)
 {
     cl_int err;
-    char msg[80];
-    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[buffer], CL_TRUE,
+    char msg[120];
+    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[dest], CL_TRUE,
                                0,
                                size, source, 0, NULL, NULL );
     strcpy(msg,"Failed to write buffer: ");
