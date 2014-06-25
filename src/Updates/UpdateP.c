@@ -233,8 +233,7 @@ void UpdateP (double *P, double *LogP, double *Epsilon, double *Fst,
 
     /* O(NUMLOCI*(MAXPOPS* (max_loc NumAlleles[loc]) + NUMINDS*LINES)) */
 
-    /*initRndDiscState(randState,randomArr,NUMLOCI*MAXPOPS*MAXALLELES*MAXRANDOM);*/
-    initRndDiscState(randState,randomArr,MAXPOPS*MAXALLELES*MAXRANDOM);
+    initRndDiscState(randState,randomArr,MAXALLELES*MAXRANDOM);
     for (loc = 0; loc < NUMLOCI; loc++) {
         popsoffset = loc*MAXPOPS*MAXALLELES;
         /*count number of each allele from each pop */

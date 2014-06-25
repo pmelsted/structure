@@ -380,7 +380,8 @@ int main (int argc, char *argv[])
 
     /*=====Main MCMC loop=======================================*/
 
-    #define DEBUGCOMPARE 1
+    #define DEBUGCOMPARE 0
+    #define USEWORKINGCL 0
     for (rep = 0; rep < (NUMREPS + BURNIN); rep++) {
 
         FillArrayWithRandom(randomArr,NUMLOCI*MAXALLELES*MAXPOPS*MAXRANDOM);
@@ -390,10 +391,13 @@ int main (int argc, char *argv[])
             comparePCLandP(clDict,P,LogP, Epsilon, Fst, NumAlleles, Geno, Z,
                     lambda, Individual, randomArr);
         }
-        UpdatePCL (clDict,P,LogP, Epsilon, Fst, NumAlleles, Geno, Z, lambda, Individual,
-                 randomArr);
-        /*UpdateP (P,LogP, Epsilon, Fst, NumAlleles, Geno, Z, lambda, Individual,
-                 randomArr);*/
+        if (USEWORKINGCL){
+            UpdatePCL (clDict,P,LogP, Epsilon, Fst, NumAlleles, Geno, Z, lambda, Individual,
+                  randomArr);
+        }  else {
+            UpdateP (P,LogP, Epsilon, Fst, NumAlleles, Geno, Z, lambda, Individual,
+                  randomArr);
+        }
 
         /* Update Q */
         FillArrayWithRandom(randomArr,NUMINDS*MAXRANDOM);
@@ -430,10 +434,11 @@ int main (int argc, char *argv[])
             {
                 compareZCLandZ(clDict,Z,Q,P,Geno,randomArr);
             }
-            UpdateZCL (clDict,Z,  Q, P, Geno,randomArr);
-            /*
-            UpdateZ (Z,  Q, P, Geno,randomArr);
-            */
+            if (USEWORKINGCL){
+                UpdateZCL (clDict,Z,  Q, P, Geno,randomArr);
+            } else {
+                UpdateZ (Z,  Q, P, Geno,randomArr);
+            }
             /*      printf("done updatez alpha[2]=%e\n", Alpha[2]); */
         }
 
