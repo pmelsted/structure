@@ -384,8 +384,14 @@ int main (int argc, char *argv[])
 
     /*=====Main MCMC loop=======================================*/
 
-#define DEBUGCOMPARE 1
+#define DEBUGCOMPARE 0
 #define USEWORKINGCL 1
+    /* init buffers on GPU */
+    if (DEBUGCOMPARE) {
+        writeBuffer(clDict,P,sizeof(double) * PSIZE,PCL,"P");
+        writeBuffer(clDict,LogP,sizeof(double) * PSIZE,LOGPCL,"LogP");
+    }
+    writeBuffer(clDict,Z,sizeof(int)*ZSIZE,ZCL,"Z");
     for (rep = 0; rep < (NUMREPS + BURNIN); rep++) {
 
         FillArrayWithRandom(randomArr,NUMLOCI*MAXALLELES*MAXPOPS*MAXRANDOM);

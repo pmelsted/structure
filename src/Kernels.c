@@ -560,6 +560,7 @@ void createCLBuffers(CLDict *clDict)
     handleCLErr(err, clDict,"Error: Failed create error buffer!");
 }
 
+
 /*
  * Inits the dict, but the program must still be compiled.
  */

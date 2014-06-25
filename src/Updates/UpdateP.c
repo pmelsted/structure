@@ -349,7 +349,6 @@ void UpdatePCL (CLDict *clDict,double *P, double *LogP, double *Epsilon,
     /* =================================================== */
     writeBuffer(clDict,Geno,sizeof(int) * GENOSIZE,GENOCL,"Geno");
     writeBuffer(clDict,Z,sizeof(int)*ZSIZE,ZCL,"Z");
-
     writeBuffer(clDict,NumAFromPops,sizeof(int)* NUMLOCI*MAXPOPS*MAXALLELES,
                 NUMAFROMPOPSCL,"NumAFromPops");
 
@@ -365,8 +364,6 @@ void UpdatePCL (CLDict *clDict,double *P, double *LogP, double *Epsilon,
 
     /* =================================================== */
 
-    readBuffer(clDict,P,sizeof(double) * PSIZE,PCL,"P");
-    readBuffer(clDict,LogP,sizeof(double) * PSIZE,LOGPCL,"LogP");
 
     if (FREQSCORR) {
         writeBuffer(clDict,Fst,sizeof(double) * MAXPOPS,FSTCL,"FST");

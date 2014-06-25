@@ -73,7 +73,8 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,
 
 
     writeBuffer(clDict,Q,sizeof(double) * QSIZE,QCL,"Q");
-    writeBuffer(clDict,P,sizeof(double) * PSIZE,PCL,"P");
+    /* P is now updated on gpu */
+    /*writeBuffer(clDict,P,sizeof(double) * PSIZE,PCL,"P");*/
     writeBuffer(clDict,Geno,sizeof(int) * GENOSIZE,GENOCL,"Geno");
     writeBuffer(clDict,randomArr, sizeof(double) * NUMINDS*NUMLOCI*LINES,RANDCL,
                 "randomArr");
