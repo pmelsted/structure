@@ -232,7 +232,9 @@ void UpdateP (double *P, double *LogP, double *Epsilon, double *Fst,
 
 
     /* O(NUMLOCI*(MAXPOPS* (max_loc NumAlleles[loc]) + NUMINDS*LINES)) */
-    initRndDiscState(randState,randomArr,NUMLOCI*MAXPOPS*MAXALLELES*MAXRANDOM);
+
+    /*initRndDiscState(randState,randomArr,NUMLOCI*MAXPOPS*MAXALLELES*MAXRANDOM);*/
+    initRndDiscState(randState,randomArr,MAXPOPS*MAXALLELES*MAXRANDOM);
     for (loc = 0; loc < NUMLOCI; loc++) {
         popsoffset = loc*MAXPOPS*MAXALLELES;
         /*count number of each allele from each pop */
@@ -255,6 +257,7 @@ void UpdateP (double *P, double *LogP, double *Epsilon, double *Fst,
 
         /* O(MAXPOPS*NumAlleles[loc])*/
         for (pop = 0; pop < MAXPOPS; pop++) {
+            rndDiscStateReset(randState,popsoffset*MAXRANDOM+pop*MAXALLELES*MAXRANDOM);
             for (allele = 0; allele < NumAlleles[loc]; allele++) {
                 if (FREQSCORR) {
                     Parameters[allele] = Epsilon[EpsPos (loc, allele)]
@@ -330,7 +333,6 @@ void UpdatePCL (CLDict *clDict,double *P, double *LogP, double *Epsilon, double 
 
     int *NumAFromPops;
     cl_int err;
-    size_t local;
     size_t *global;
     /* for error handling in kernel */
     int *error;
@@ -395,10 +397,18 @@ void UpdatePCL (CLDict *clDict,double *P, double *LogP, double *Epsilon, double 
     err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[LOGPCL], CL_TRUE, 0,
                                sizeof(double) * PSIZE, P, 0, NULL, NULL);
     handleCLErr(err, clDict,"UpdateP Error: Failed to write buffer LogP!");
-
-    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[LAMBDACL], CL_TRUE, 0,
-                               sizeof(double) * MAXPOPS, P, 0, NULL, NULL);
-    handleCLErr(err, clDict,"UpdateP Error: Failed to write buffer LAMBDA!");
+    if (FREQSCORR){
+        err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[FSTCL], CL_TRUE, 0,
+                                   sizeof(double) * MAXPOPS, Fst, 0, NULL, NULL);
+        handleCLErr(err, clDict,"UpdateP Error: Failed to write buffer FST!");
+        err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[EPSILONCL], CL_TRUE, 0,
+                                   sizeof(double) * NUMLOCI*MAXALLELES, Epsilon, 0, NULL, NULL);
+        handleCLErr(err, clDict,"UpdateP Error: Failed to write buffer EPSILON!");
+    } else {
+        err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[LAMBDACL], CL_TRUE, 0,
+                                   sizeof(double) * MAXPOPS, lambda, 0, NULL, NULL);
+        handleCLErr(err, clDict,"UpdateP Error: Failed to write buffer LAMBDA!");
+    }
 
     err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[RANDCL], CL_TRUE,
                                0, sizeof(double) * NUMLOCI*MAXALLELES*MAXPOPS*MAXRANDOM, randomArr, 0, NULL, NULL);
@@ -407,36 +417,6 @@ void UpdatePCL (CLDict *clDict,double *P, double *LogP, double *Epsilon, double 
     /* =================================================== */
 
 
-
-    /*
-     * Run GetNumPops
-     */
-    /* =================================================== */
-    err = 0;
-    err  = clSetKernelArg(clDict->kernels[GetNumFromPopsKernel], 0, sizeof(cl_mem),
-                          &(clDict->buffers[ZCL]));
-    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 0!");
-    err = clSetKernelArg(clDict->kernels[GetNumFromPopsKernel], 1, sizeof(cl_mem),
-                         &(clDict->buffers[GENOCL]));
-    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 1!");
-    err = clSetKernelArg(clDict->kernels[GetNumFromPopsKernel], 2, sizeof(cl_mem),
-                         &(clDict->buffers[NUMALLELESCL]));
-    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 2!");
-    err = clSetKernelArg(clDict->kernels[GetNumFromPopsKernel], 3, sizeof(cl_mem),
-                         &(clDict->buffers[POPFLAGCL]));
-    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 3!");
-
-    err = clSetKernelArg(clDict->kernels[GetNumFromPopsKernel], 4, sizeof(cl_mem),
-                         &(clDict->buffers[NUMAFROMPOPSCL]));
-    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 4!");
-
-    err = clSetKernelArg(clDict->kernels[GetNumFromPopsKernel], 5, sizeof(cl_mem),
-                         &(clDict->buffers[ERRORCL]));
-    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 5!");
-
-    err = clGetKernelWorkGroupInfo(clDict->kernels[GetNumFromPopsKernel],
-                                   clDict->device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL);
-    handleCLErr(err, clDict,"UpdateP Error: Failed to retrieve kernel work group info!");
 
 
     err = clEnqueueNDRangeKernel(clDict->commands, clDict->kernels[GetNumFromPopsKernel],
@@ -452,45 +432,11 @@ void UpdatePCL (CLDict *clDict,double *P, double *LogP, double *Epsilon, double 
 
 
 
-    /*
-     * Run UpdateP
-     */
-    /* =================================================== */
-    err = 0;
-    err  = clSetKernelArg(clDict->kernels[UpdatePKernel], 0, sizeof(cl_mem),
-                          &(clDict->buffers[PCL]));
-    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 0!");
-    err = clSetKernelArg(clDict->kernels[UpdatePKernel], 1, sizeof(cl_mem),
-                         &(clDict->buffers[LOGPCL]));
-    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 1!");
-    err = clSetKernelArg(clDict->kernels[UpdatePKernel], 2, sizeof(cl_mem),
-                         &(clDict->buffers[LAMBDACL]));
-    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 2!");
-
-    err = clSetKernelArg(clDict->kernels[UpdatePKernel], 3, sizeof(cl_mem),
-                         &(clDict->buffers[NUMALLELESCL]));
-    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 3!");
-
-    err = clSetKernelArg(clDict->kernels[UpdatePKernel], 4, sizeof(cl_mem),
-                         &(clDict->buffers[NUMAFROMPOPSCL]));
-    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 4!");
-
-    err = clSetKernelArg(clDict->kernels[UpdatePKernel], 5, sizeof(cl_mem),
-                         &(clDict->buffers[RANDCL]));
-    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 5!");
-
-    err = clSetKernelArg(clDict->kernels[UpdatePKernel], 6, sizeof(cl_mem),
-                         &(clDict->buffers[ERRORCL]));
-    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 6!");
-
-    err = clGetKernelWorkGroupInfo(clDict->kernels[UpdatePKernel],
-                                   clDict->device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL);
-    handleCLErr(err, clDict,"UpdateP Error: Failed to retrieve kernel work group info!");
-
     global[0] = NUMLOCI;
+    global[1] = MAXPOPS;
 
     err = clEnqueueNDRangeKernel(clDict->commands, clDict->kernels[UpdatePKernel],
-                                 1, NULL, global, NULL, 0, NULL, NULL);
+                                 2, NULL, global, NULL, 0, NULL, NULL);
     handleCLErr(err, clDict,"UpdateP Error: Failed to execute kernel!");
 
     err = clFinish(clDict->commands);

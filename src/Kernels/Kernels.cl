@@ -7,6 +7,7 @@
 #define PPos(loc,pop,allele) ((loc)*(MAXPOPS)*(MAXALLELES)+(pop)*(MAXALLELES)+(allele))
 #define QPos(ind,pop) ((ind)*(MAXPOPS)+(pop))
 #define NumAFromPopPos(pop,allele) ((pop)*(MAXALLELES)+(allele))    /* NumAFromPop */
+#define EpsPos(loc,allele) ((loc)*(MAXALLELES)+(allele))    /* Epsilon */
 
 #include "Kernels/util.cl"
 #include "Kernels/KernelErrors.h"

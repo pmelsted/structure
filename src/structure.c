@@ -38,20 +38,39 @@
 #include "Init.h"
 #include "Util.h"
 
-int compareZAndOldZ(int Z[], int OldZ[])
+int compareArrs(int Z[], int OldZ[], int total, char *names)
 {
     int i;
     int notSame=0;
-    int same =ZSIZE;
-    for(i = 0; i < ZSIZE; i++) {
+    int same =total;
+    for(i = 0; i < total; i++) {
         if(Z[i] != OldZ[i]) {
             notSame++;
             same--;
         }
     }
     if(notSame > 0) {
-        printf("Z and Old Z differ!\n");
-        printf("Difference between Z and OldZ: same: %d, not same %d\n",same,notSame);
+        printf("%s differ!\n",names);
+        printf("Difference : same: %d, not same %d\n",same,notSame);
+        return EXIT_FAILURE;
+    }
+    return EXIT_SUCCESS;
+}
+int compareDoubleArrs(double Z[], double OldZ[], int total, char *names)
+{
+    int i;
+    int notSame=0;
+    int same =total;
+    for(i = 0; i < total; i++) {
+        if(fabs(Z[i] - OldZ[i]) > 10e-8) {
+            printf("%f,%f\n",Z[i],OldZ[i]);
+            notSame++;
+            same--;
+        }
+    }
+    if(notSame > 0) {
+        printf("%s differ!\n",names);
+        printf("Difference : same: %d, not same %d\n",same,notSame);
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
@@ -73,7 +92,7 @@ void compareZCLandZ(CLDict *clDict,int *OrigZ, double *Q, double *P,int *Geno,
     UpdateZ(Z,Q,P,Geno,randomArr);
     memcpy(OldZ,Z,ZSIZE*sizeof(int));
     UpdateZCL(clDict,Z,Q,P,Geno,randomArr);
-    ret = compareZAndOldZ(Z,OldZ);
+    ret = compareArrs(Z,OldZ,ZSIZE,"Z and old Z");
     if (ret == EXIT_FAILURE) {
         ReleaseCLDict(clDict);
         exit(EXIT_FAILURE);
@@ -83,6 +102,43 @@ void compareZCLandZ(CLDict *clDict,int *OrigZ, double *Q, double *P,int *Geno,
     free(Z);
 }
 
+
+void comparePCLandP(CLDict *clDict,double *OrigP, double *OrigLogP, double *Epsilon, double *Fst, int *NumAlleles, int *Geno, int *Z, double *lambda, struct IND *Individual, double *randomArr){
+
+    double *OldP;
+    double *P;
+    double *OldLogP;
+    double *LogP;
+    int ret;
+
+    OldP = calloc(PSIZE,sizeof(double));
+    P = calloc(PSIZE,sizeof(double));
+    memcpy(P,OrigP,PSIZE*sizeof(double));
+    OldLogP = calloc(PSIZE,sizeof(double));
+    LogP = calloc(PSIZE,sizeof(double));
+    memcpy(LogP,OrigLogP,PSIZE*sizeof(double));
+
+    UpdateP (P,LogP, Epsilon, Fst, NumAlleles, Geno, Z, lambda, Individual,
+             randomArr);
+    memcpy(OldLogP,LogP,PSIZE*sizeof(double));
+    memcpy(OldP,P,PSIZE*sizeof(double));
+    UpdatePCL (clDict,P,LogP, Epsilon, Fst, NumAlleles, Geno, Z, lambda, Individual,
+             randomArr);
+    ret = compareDoubleArrs(P,OldP,PSIZE,"P and old P");
+    if (ret == EXIT_FAILURE) {
+        ReleaseCLDict(clDict);
+        exit(EXIT_FAILURE);
+    }
+    ret = compareDoubleArrs(LogP,OldLogP,PSIZE,"LogP and old LogP");
+    if (ret == EXIT_FAILURE) {
+        ReleaseCLDict(clDict);
+        exit(EXIT_FAILURE);
+    }
+    free(OldP);
+    free(OldLogP);
+    free(P);
+    free(LogP);
+}
 
 /*=============MAIN======================================*/
 
@@ -324,13 +380,19 @@ int main (int argc, char *argv[])
 
     /*=====Main MCMC loop=======================================*/
 
+    #define DEBUGCOMPARE 1
     for (rep = 0; rep < (NUMREPS + BURNIN); rep++) {
 
-        /*FillArrayWithRandom(randomArr,NUMLOCI*MAXALLELES*MAXPOPS*MAXRANDOM);*/
-        FillArrayWithRandom(randomArr,RANDSIZE);
-        UpdateP (P,LogP, Epsilon, Fst, NumAlleles, Geno, Z, lambda, Individual,
+        FillArrayWithRandom(randomArr,NUMLOCI*MAXALLELES*MAXPOPS*MAXRANDOM);
+        /*FillArrayWithRandom(randomArr,RANDSIZE);*/
+
+        if(DEBUGCOMPARE) {
+            comparePCLandP(clDict,P,LogP, Epsilon, Fst, NumAlleles, Geno, Z,
+                    lambda, Individual, randomArr);
+        }
+        UpdatePCL (clDict,P,LogP, Epsilon, Fst, NumAlleles, Geno, Z, lambda, Individual,
                  randomArr);
-        /*UpdatePCL (clDict,P,LogP, Epsilon, Fst, NumAlleles, Geno, Z, lambda, Individual,
+        /*UpdateP (P,LogP, Epsilon, Fst, NumAlleles, Geno, Z, lambda, Individual,
                  randomArr);*/
 
         /* Update Q */
@@ -364,7 +426,10 @@ int main (int argc, char *argv[])
             }
         } else {
             FillArrayWithRandom(randomArr,NUMINDS*NUMLOCI*LINES);
-            compareZCLandZ(clDict,Z,Q,P,Geno,randomArr);
+            if (DEBUGCOMPARE)
+            {
+                compareZCLandZ(clDict,Z,Q,P,Geno,randomArr);
+            }
             UpdateZCL (clDict,Z,  Q, P, Geno,randomArr);
             /*
             UpdateZ (Z,  Q, P, Geno,randomArr);

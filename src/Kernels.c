@@ -182,12 +182,134 @@ void ReleaseCLDict(CLDict *clDict)
         clReleaseMemObject(clDict->buffers[i]);
     }
     free(clDict->buffers);
+    free(clDict->locals);
     clReleaseCommandQueue(clDict->commands);
     clReleaseContext(clDict->context);
     free(clDict);
 }
 
+void handleCLErr(cl_int err,CLDict *clDict, char * message)
+{
+    if (err != CL_SUCCESS) {
+        printf("CL Error:\n");
+        printf("%s\n",message);
+        printCLErr(err);
+        ReleaseCLDict(clDict);
+        exit(EXIT_FAILURE);
+    }
+}
 
+void setKernelArgs(CLDict *clDict){
+    cl_int err;
+    err = 0;
+
+
+    err = 0;
+    /*=========================== Update Z =================*/
+    err  = clSetKernelArg(clDict->kernels[UpdateZKernel], 0, sizeof(cl_mem),
+                          &(clDict->buffers[QCL]));
+    handleCLErr(err, clDict,"UpdateZ Error: Failed to set arg 0!");
+    err = clSetKernelArg(clDict->kernels[UpdateZKernel], 1, sizeof(cl_mem),
+                         &(clDict->buffers[PCL]));
+    handleCLErr(err, clDict,"UpdateZ Error: Failed to set arg 1!");
+    err = clSetKernelArg(clDict->kernels[UpdateZKernel], 2, sizeof(cl_mem),
+                         &(clDict->buffers[GENOCL]));
+    handleCLErr(err, clDict,"UpdateZ Error: Failed to set arg 2!");
+    err = clSetKernelArg(clDict->kernels[UpdateZKernel], 3, sizeof(cl_mem),
+                         &(clDict->buffers[RANDCL]));
+    handleCLErr(err, clDict,"UpdateZ Error: Failed to set arg 3!");
+    err = clSetKernelArg(clDict->kernels[UpdateZKernel], 4, sizeof(cl_mem),
+                         &(clDict->buffers[ZCL]));
+    handleCLErr(err, clDict,"UpdateZ Error: Failed to set arg 4!");
+
+    err = clSetKernelArg(clDict->kernels[UpdateZKernel], 5, sizeof(cl_mem),
+                         &(clDict->buffers[ERRORCL]));
+    handleCLErr(err, clDict,"UpdateZ Error: Failed to set arg 5!");
+    /*=====================================================*/
+
+
+
+    /* ========== Get num from pops ======= */
+    err  = clSetKernelArg(clDict->kernels[GetNumFromPopsKernel], 0, sizeof(cl_mem),
+                          &(clDict->buffers[ZCL]));
+    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 0!");
+    err = clSetKernelArg(clDict->kernels[GetNumFromPopsKernel], 1, sizeof(cl_mem),
+                         &(clDict->buffers[GENOCL]));
+    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 1!");
+    err = clSetKernelArg(clDict->kernels[GetNumFromPopsKernel], 2, sizeof(cl_mem),
+                         &(clDict->buffers[NUMALLELESCL]));
+    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 2!");
+    err = clSetKernelArg(clDict->kernels[GetNumFromPopsKernel], 3, sizeof(cl_mem),
+                         &(clDict->buffers[POPFLAGCL]));
+    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 3!");
+
+    err = clSetKernelArg(clDict->kernels[GetNumFromPopsKernel], 4, sizeof(cl_mem),
+                         &(clDict->buffers[NUMAFROMPOPSCL]));
+    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 4!");
+
+    err = clSetKernelArg(clDict->kernels[GetNumFromPopsKernel], 5, sizeof(cl_mem),
+                         &(clDict->buffers[ERRORCL]));
+    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 5!");
+    /*=====================================================*/
+
+
+    /*=========================== Update P =================*/
+    err  = clSetKernelArg(clDict->kernels[UpdatePKernel], 0, sizeof(cl_mem),
+                          &(clDict->buffers[PCL]));
+    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 0!");
+    err = clSetKernelArg(clDict->kernels[UpdatePKernel], 1, sizeof(cl_mem),
+                         &(clDict->buffers[LOGPCL]));
+    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 1!");
+
+    err = clSetKernelArg(clDict->kernels[UpdatePKernel], 2, sizeof(cl_mem),
+                         &(clDict->buffers[NUMALLELESCL]));
+    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 2!");
+
+    err = clSetKernelArg(clDict->kernels[UpdatePKernel], 3, sizeof(cl_mem),
+                         &(clDict->buffers[NUMAFROMPOPSCL]));
+    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 3!");
+
+    err = clSetKernelArg(clDict->kernels[UpdatePKernel], 4, sizeof(cl_mem),
+                         &(clDict->buffers[RANDCL]));
+    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 4!");
+
+    err = clSetKernelArg(clDict->kernels[UpdatePKernel], 5, sizeof(cl_mem),
+                         &(clDict->buffers[ERRORCL]));
+    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 5!");
+
+    if (FREQSCORR){
+        err = clSetKernelArg(clDict->kernels[UpdatePKernel], 6, sizeof(cl_mem),
+                             &(clDict->buffers[EPSILONCL]));
+        handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 6!");
+        err = clSetKernelArg(clDict->kernels[UpdatePKernel], 7, sizeof(cl_mem),
+                             &(clDict->buffers[FSTCL]));
+        handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 7!");
+    } else {
+        err = clSetKernelArg(clDict->kernels[UpdatePKernel], 6, sizeof(cl_mem),
+                             &(clDict->buffers[LAMBDACL]));
+        handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 6!");
+
+    }
+    /*=====================================================*/
+}
+
+
+void getLocals(CLDict *clDict){
+    cl_int err;
+
+    err = clGetKernelWorkGroupInfo(clDict->kernels[UpdateZKernel],
+                                   clDict->device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(size_t), &(clDict->locals[UpdateZKernel]), NULL);
+    handleCLErr(err, clDict,"Error: Failed to retrieve kernel work group info of UpdateZ");
+    err = clGetKernelWorkGroupInfo(clDict->kernels[GetNumFromPopsKernel],
+                                   clDict->device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(size_t), &(clDict->locals[GetNumFromPopsKernel]), NULL);
+    handleCLErr(err, clDict,"Error: Failed to retrieve kernel work group info of GetNumFromPops");
+
+
+    err = clGetKernelWorkGroupInfo(clDict->kernels[UpdatePKernel],
+                                   clDict->device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(size_t), &(clDict->locals[UpdatePKernel]), NULL);
+    handleCLErr(err, clDict,"Error: Failed to retrieve kernel work group info of UpdateP");
+
+}
 
 char * searchReplace(char * string,  char *toReplace[], char *replacements[],
                      int numReplacements)
@@ -352,16 +474,6 @@ int CompileKernels(CLDict *clDict,  char *options)
 
     return EXIT_SUCCESS;
 }
-void handleCLErr(cl_int err,CLDict *clDict, char * message)
-{
-    if (err != CL_SUCCESS) {
-        printf("CL Error:\n");
-        printf("%s\n",message);
-        printCLErr(err);
-        ReleaseCLDict(clDict);
-        exit(EXIT_FAILURE);
-    }
-}
 
 void createCLBuffers(CLDict *clDict)
 {
@@ -379,9 +491,19 @@ void createCLBuffers(CLDict *clDict)
                                           sizeof(double)*PSIZE,NULL, &err);
     handleCLErr(err, clDict,"Error: Failed create buffer LogP!");
 
-    clDict->buffers[LAMBDACL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,
-                                          sizeof(double)*MAXPOPS,NULL, &err);
-    handleCLErr(err, clDict,"Error: Failed create buffer Lambda!");
+    if (FREQSCORR){
+        clDict->buffers[FSTCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,
+                                              sizeof(double)*MAXPOPS,NULL, &err);
+        handleCLErr(err, clDict,"Error: Failed create buffer FST!");
+
+        clDict->buffers[EPSILONCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,
+                                              sizeof(double)*NUMLOCI*MAXALLELES,NULL, &err);
+        handleCLErr(err, clDict,"Error: Failed create buffer EPSILON!");
+    } else {
+        clDict->buffers[LAMBDACL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,
+                                              sizeof(double)*MAXPOPS,NULL, &err);
+        handleCLErr(err, clDict,"Error: Failed create buffer Lambda!");
+    }
 
     clDict->buffers[ZCL] = clCreateBuffer(clDict->context,  CL_MEM_READ_WRITE,
                                           sizeof(int)*ZSIZE,NULL, &err);
@@ -413,7 +535,7 @@ void createCLBuffers(CLDict *clDict)
 
     clDict->buffers[NUMAFROMPOPSCL] = clCreateBuffer(clDict->context,
                                     CL_MEM_READ_WRITE,  sizeof(int)*NUMLOCI*MAXPOPS*MAXALLELES,NULL, &err);
-    handleCLErr(err, clDict,"Error: Failed create buffer NumAlleles!");
+    handleCLErr(err, clDict,"Error: Failed create buffer NumAFromPops!");
 
 
 
@@ -435,6 +557,7 @@ int InitCLDict(CLDict *clDictToInit)
 {
     cl_kernel *kernels;
     cl_mem *buffers;
+    size_t *locals;
     cl_platform_id platform_id;
     cl_uint ret_num_devices;
     cl_uint ret_num_platforms;
@@ -490,8 +613,10 @@ int InitCLDict(CLDict *clDictToInit)
 
     kernels = calloc(NumberOfKernels, sizeof(cl_kernel));
     buffers = calloc(NumberOfBuffers, sizeof(cl_mem));
+    locals = calloc(NumberOfKernels, sizeof(size_t));
     clDictToInit->kernels = kernels;
     clDictToInit->buffers = buffers;
+    clDictToInit->locals = locals;
     clDictToInit->platform_id = platform_id;
     clDictToInit->ret_num_devices = ret_num_devices;
     clDictToInit->ret_num_platforms = ret_num_platforms;
@@ -513,12 +638,12 @@ int InitCLDict(CLDict *clDictToInit)
                      -D MAXALLELES=%d -D NUMLOCI=%d  -D LINES=%d    \
                      -D NUMINDS=%d -D MAXRANDOM=%d  -D USEPOPINFO=%d    \
                      -D LOCPRIOR=%d  -D NOTAMBIGUOUS=%d  -D NUMLOCATIONS=%d    \
-                     -D PFROMPOPFLAGONLY=%d "
+                     -D PFROMPOPFLAGONLY=%d -D FREQSCORR=%d "
                       , UNASSIGNED, MAXPOPS, MISSING
                       , MAXALLELES, NUMLOCI, LINES
                       , NUMINDS, MAXRANDOM, USEPOPINFO
                       , LOCPRIOR, NOTAMBIGUOUS, NUMLOCATIONS
-                      , PFROMPOPFLAGONLY);
+                      , PFROMPOPFLAGONLY,FREQSCORR);
 
     printf("%s\n",options);
     compileret = CompileKernels(clDictToInit,options);
@@ -530,6 +655,8 @@ int InitCLDict(CLDict *clDictToInit)
         printf("Kernels compiled!\n");
     }
     createCLBuffers(clDictToInit);
+    setKernelArgs(clDictToInit);
+    getLocals(clDictToInit);
     return EXIT_SUCCESS;
 }
 

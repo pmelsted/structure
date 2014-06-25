@@ -23,6 +23,8 @@ enum BUFFER {
     LAMBDACL,
     POPFLAGCL,
     NUMAFROMPOPSCL,
+    EPSILONCL,
+    FSTCL,
     RANDCL, /* buffer for random numbers */
     ERRORCL, /* buffer for error codes */
     NumberOfBuffers
@@ -31,6 +33,7 @@ typedef struct CLDict {
     cl_kernel *kernels;
     cl_mem *buffers;
     cl_program program;
+    size_t *locals;
     cl_platform_id platform_id;
     cl_uint ret_num_devices;
     cl_uint ret_num_platforms;

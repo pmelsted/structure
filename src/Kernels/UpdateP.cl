@@ -30,42 +30,53 @@ __kernel void GetNumFromPops (
 }
 
 __kernel void UpdateP (
-    __global double* P,
-    __global double* LogP,
-    __global double* lambda,
-    __global int* NumAlleles,
-    __global int* NumAFromPops,
-    __global double* randomArr,
-    __global int* error
+    __global double* P
+    , __global double* LogP
+    , __global int* NumAlleles
+    , __global int* NumAFromPops
+    , __global double* randomArr
+    , __global int* error
+#if FREQSCORR
+    , __global double *Epsilon
+    , __global double *Fst
+#else
+    , __global double* lambda
+#endif
 )
 {
     int loc = get_global_id(0);
+    int pop = get_global_id(1);
     int numalleles = NumAlleles[loc];
     double Parameters[MAXALLELES];
     RndDiscState randState[1];
-    int pop, allele;
+    int allele;
 
-    if(loc < NUMLOCI){
+    if(loc < NUMLOCI && pop < MAXPOPS){
         int offset = loc*MAXPOPS*MAXALLELES;
         int pos,line,popvalue,allelevalue;
-        initRndDiscState(randState,randomArr,(NUMINDS*MAXRANDOM)/NUMLOCI);
-        rndDiscStateReset(randState,offset);
+        initRndDiscState(randState,randomArr,MAXALLELES*MAXRANDOM);
+        rndDiscStateReset(randState,offset*MAXRANDOM+pop*MAXALLELES*MAXRANDOM);
 
-        for (pop = 0; pop < MAXPOPS; pop++) {
-            for (allele = 0; allele < numalleles; allele++) {
-                    Parameters[allele] = lambda[pop] + NumAFromPops[NumAFromPopPos (pop, allele)+offset];
-            }
-            /*return a value of P simulated from the posterior Di(Parameters) */
-            /*O(NumAlleles[loc]) */
-            LogRDirichletDisc (Parameters, numalleles,
-                               P + PPos (loc, pop, 0),
-                               LogP +PPos(loc,pop,0),
-                               randState);
-
+        for (allele = 0; allele < numalleles; allele++) {
+#if FREQSCORR
+                Parameters[allele] = Epsilon[EpsPos (loc, allele)]
+                                     *(1.0- Fst[pop])/Fst[pop]
+                                     + NumAFromPops[NumAFromPopPos (pop, allele)+offset];
+#else
+                Parameters[allele] = lambda[pop] + NumAFromPops[NumAFromPopPos (pop, allele)+offset];
+#endif
         }
+
+        /*return a value of P simulated from the posterior Di(Parameters) */
+        /*O(NumAlleles[loc]) */
+        LogRDirichletDisc (Parameters, numalleles,
+                           P + PPos (loc, pop, 0),
+                           LogP +PPos(loc,pop,0),
+                           randState);
+
         if (randState->randomValsTaken > randState->maxrandom) {
             error[0] = KERNEL_OUT_OF_BOUNDS;
-            error[1] = (randState->randomValsTaken - randState->maxrandom)/(MAXALLELES*MAXPOPS);
+            error[1] = randState->randomValsTaken - randState->maxrandom;
         }
     }
 }
