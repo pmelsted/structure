@@ -183,6 +183,35 @@ double CalcLikeIndCL (int *Geno, double *Q, double *P, int ind)
 }
 
 
+void CalcLogdiffsCL(int *Geno,double *TestQ, double *Q, double *P, double *logdiffs)
+{
+
+    double termP,termM;
+    double logterm;
+    int allele;
+    int line, loc, pop,ind;
+
+    for (ind =0; ind < NUMINDS; ind++){
+        logterm = 0.0;
+        for (loc = 0; loc < NUMLOCI; loc++) {
+            for (line = 0; line < LINES; line++) {
+                allele = Geno[GenPos (ind, line, loc)];
+                if (allele != MISSING) {
+                    termP = 0.0;
+                    termM = 0.0;
+                    for (pop = 0; pop < MAXPOPS; pop++) {
+                        termP += TestQ[QPos(ind,pop)] * P[PPos (loc, pop, allele)];
+                        termM += Q[QPos(ind,pop)] * P[PPos (loc, pop, allele)];
+                    }
+                    logterm += log(termP) - log(termM);
+                }
+            }
+        }
+        logdiffs[ind] = logterm;
+    }
+}
+
+
 double CalcLikeIndDiff (int *Geno, int *PreGeno, double *AncVectorPlus,
                         double *AncVectorMinus, double *P, int ind, int *Recessive)
 {

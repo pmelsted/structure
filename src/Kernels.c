@@ -649,7 +649,7 @@ int InitCLDict(CLDict *clDictToInit)
                      -D MAXALLELES=%d -D NUMLOCI=%d  -D LINES=%d    \
                      -D NUMINDS=%d -D MAXRANDOM=%d  -D USEPOPINFO=%d    \
                      -D LOCPRIOR=%d  -D NOTAMBIGUOUS=%d  -D NUMLOCATIONS=%d    \
-                     -D PFROMPOPFLAGONLY=%d -D FREQSCORR=%d "
+                     -D PFROMPOPFLAGONLY=%d -D FREQSCORR=%d -D blockSize=64"
             , UNASSIGNED, MAXPOPS, MISSING
             , MAXALLELES, NUMLOCI, LINES
             , NUMINDS, MAXRANDOM, USEPOPINFO
@@ -759,7 +759,7 @@ void runKernel(CLDict *clDict, enum KERNEL kernel, int numdims, size_t *dims,
                      -D MAXALLELES=15 -D NUMLOCI=15  -D LINES=2    \
                      -D NUMINDS=20 -D MAXRANDOM=2  -D USEPOPINFO=1    \
                      -D LOCPRIOR=1  -D NOTAMBIGUOUS=-1  -D NUMLOCATIONS=5    \
-                     -D PFROMPOPFLAGONLY=0 ";
+                     -D PFROMPOPFLAGONLY=0 -D blockSize=64";
 
     clDict = malloc(sizeof *clDict);
 

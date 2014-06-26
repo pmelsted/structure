@@ -23,7 +23,7 @@ extern void FillArrayWithRandom(double *random, int n);
 extern double numToRange(double low, double high, double num);
 extern double rndDisc(RndDiscState *randState);
 extern double RGammaDisc(double n,double lambda,RndDiscState *randState);
-extern void RDirichletDisc(const double * a, const int k, double * b,
+extern void RDirichletDisc(const double * a, const int k, double * b, int offset,
                            RndDiscState *randState);
 extern double LogRGammaDisc(double n, double lambda, RndDiscState *randState);
 extern void LogRDirichletDisc (const double *a, const int k, double *b,

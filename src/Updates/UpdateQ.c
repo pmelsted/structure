@@ -47,39 +47,31 @@ void UpdateQMetroCL (int *Geno, int *PreGeno, double *Q, double *P,
     int numhits = 0;
 
     double *TestQ;
-    double *PriorQ1;
     double *logdiffs;
 
     RndDiscState randState[1];
 
-    /* Removed:
-     *   RECESSIVE ALLELES
+    /*
+     * Removed:
+     *   RECESSIVEALLELES
      *   LOCPRIOR
+     *
      */
 
 
     TestQ = calloc (NUMINDS*MAXPOPS, sizeof (double));
-    PriorQ1 = calloc (NUMINDS*MAXPOPS, sizeof (double));
     logdiffs = calloc(NUMINDS,sizeof(double));
 
 
     initRndDiscState(randState,randomArr,NUMINDS + NUMINDS*MAXRANDOM);
-    rndDiscStateReset(randState, 0);
-    /* ====== SAMPLE ======= */
-    for(ind=0;ind < NUMINDS; ind++){
-        for (pop = 0; pop < MAXPOPS; pop++) {
-            PriorQ1[QPos(ind,pop)] = Alpha[pop];
-        }
-    }
 
-    RDirichletDisc (PriorQ1, NUMINDS*MAXPOPS, TestQ, randState);
+    /* ======== Sample ====== */
+    for (ind = 0; ind < NUMINDS; ind++) {
+        RDirichletDisc(Alpha, MAXPOPS, TestQ,ind*MAXPOPS,randState);
+    }
 
     /* ======== Calculate likelihood ====== */
-    for (ind = 0; ind < NUMINDS; ind++) {
-        logdiffs[ind] = 0.0;
-        logdiffs[ind] += CalcLikeIndCL (Geno,TestQ,P, ind);
-        logdiffs[ind] -= CalcLikeIndCL (Geno,Q, P, ind);
-    }
+    CalcLogdiffsCL(Geno,TestQ,Q,P,logdiffs);
 
     /* ========= Acceptance test ========= */
     for (ind = 0; ind < NUMINDS; ind++){
@@ -101,7 +93,6 @@ void UpdateQMetroCL (int *Geno, int *PreGeno, double *Q, double *P,
         }
     }
 
-    free (PriorQ1);
     free (TestQ);
     free (logdiffs);
 }
@@ -170,7 +161,7 @@ void UpdateQMetro (int *Geno, int *PreGeno, double *Q, double *P,
                 PriorQ1 = &Alpha[AlphaPos(Individual[ind].myloc, 0)];
             }
             /*return TestQ, sampled from the prior */
-            RDirichletDisc (PriorQ1, MAXPOPS, TestQ, randState);
+            RDirichletDisc (PriorQ1, MAXPOPS, TestQ,0, randState);
 
             /*  for (i=0;i<MAXPOPS;i++)
             if (TestQ[i]==0) { ok=0; break;}

@@ -1205,7 +1205,7 @@ six:
  * b is the output array, where b ~ Dirichlet(a)
  */
 
-void RDirichletDisc(const double * a, const int k, double * b,
+void RDirichletDisc(const double * a, const int k, double * b, int offset,
                     RndDiscState *randState)
 {
     int i;
@@ -1218,6 +1218,7 @@ void RDirichletDisc(const double * a, const int k, double * b,
         b[i] /= sum;
     }
 }
+
 
 /* Melissa's version, adapted from an algorithm on wikipedia.  January 08 */
 double LogRGammaDisc(double n, double lambda, RndDiscState *randState)
