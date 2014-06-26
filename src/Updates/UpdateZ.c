@@ -61,13 +61,11 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,
                 double * randomArr)
 /*update Z: population origin of each allele */
 {
-    size_t *global;
+    size_t global[2];
     /* for error handling in kernel */
-    int *error;
+    int error[1];
 
-    error = calloc(1,sizeof(int));
-    *error = 0;
-    global = calloc(2,sizeof(size_t));
+    error[0] = 0;
     global[0] = NUMINDS;
     global[1] = NUMLOCI;
 
@@ -75,7 +73,10 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,
     writeBuffer(clDict,Q,sizeof(double) * QSIZE,QCL,"Q");
     /* P is now updated on gpu */
     /*writeBuffer(clDict,P,sizeof(double) * PSIZE,PCL,"P");*/
-    writeBuffer(clDict,Geno,sizeof(int) * GENOSIZE,GENOCL,"Geno");
+
+    if(RECESSIVEALLELES){
+        writeBuffer(clDict,Geno,sizeof(int) * GENOSIZE,GENOCL,"Geno");
+    }
     writeBuffer(clDict,randomArr, sizeof(double) * NUMINDS*NUMLOCI*LINES,RANDCL,
                 "randomArr");
     writeBuffer(clDict,error,sizeof(int),ERRORCL,"error");
@@ -85,7 +86,6 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,
 
     readBuffer(clDict,Z,sizeof(int)*ZSIZE,ZCL,"Z");
     readBuffer(clDict,error,sizeof(int),ERRORCL,"Error");
-    free(global);
 
     /* some error handling */
     if (*error != KERNEL_SUCCESS ) {

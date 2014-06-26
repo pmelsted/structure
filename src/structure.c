@@ -38,6 +38,15 @@
 #include "Init.h"
 #include "Util.h"
 
+void initQ(double *Q){
+    int ind, pop;
+    for(ind=0;ind<NUMINDS;++ind){
+        for (pop = 0; pop < MAXPOPS; pop++) {
+            Q[QPos (ind, pop)] = (double) 1 / MAXPOPS;
+        }
+    }
+}
+
 int compareArrs(int Z[], int OldZ[], int total, char *names)
 {
     int i;
@@ -392,6 +401,15 @@ int main (int argc, char *argv[])
         writeBuffer(clDict,LogP,sizeof(double) * PSIZE,LOGPCL,"LogP");
     }
     writeBuffer(clDict,Z,sizeof(int)*ZSIZE,ZCL,"Z");
+    if(!RECESSIVEALLELES){
+        writeBuffer(clDict,Geno,sizeof(int)*GENOSIZE,GENOCL,"Geno");
+    }
+    /*printf("%d, %d",INFERALPHA,INFERLAMBDA);
+    handleCLErr(1,clDict,"heyhey");*/
+
+    /*Initialize Q */
+    initQ(Q);
+
     for (rep = 0; rep < (NUMREPS + BURNIN); rep++) {
 
         FillArrayWithRandom(randomArr,NUMLOCI*MAXALLELES*MAXPOPS*MAXRANDOM);
@@ -411,7 +429,7 @@ int main (int argc, char *argv[])
         }
 
         /* Update Q */
-        FillArrayWithRandom(randomArr,NUMINDS*MAXRANDOM);
+        FillArrayWithRandom(randomArr,NUMINDS + NUMINDS*MAXRANDOM);
         if (LINKAGE && rep >= ADMBURNIN) {
             UpdateQMetroRecombine (Geno, Q, Z, P, Alpha, rep,
                                    Individual, Mapdistance, R, Phase,Phasemodel,randomArr);

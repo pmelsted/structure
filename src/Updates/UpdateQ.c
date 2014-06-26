@@ -34,6 +34,77 @@ void GetNumLociPop (int *NumLociPop, int *Z, int ind)
     }
 }
 
+/*----------------------------------------*/
+/*Melissa updated 7/12/07 to incorporate locprior*/
+void UpdateQMetroCL (int *Geno, int *PreGeno, double *Q, double *P,
+                   double *Alpha, int rep, struct IND *Individual, int *Recessive,
+                   double * randomArr)
+
+{
+    int pop;
+    double randomnum;
+    int ind;
+    int numhits = 0;
+
+    double *TestQ;
+    double *PriorQ1;
+    double *logdiffs;
+
+    RndDiscState randState[1];
+
+    /* Removed:
+     *   RECESSIVE ALLELES
+     *   LOCPRIOR
+     */
+
+
+    TestQ = calloc (NUMINDS*MAXPOPS, sizeof (double));
+    PriorQ1 = calloc (NUMINDS*MAXPOPS, sizeof (double));
+    logdiffs = calloc(NUMINDS,sizeof(double));
+
+
+    initRndDiscState(randState,randomArr,NUMINDS + NUMINDS*MAXRANDOM);
+    rndDiscStateReset(randState, 0);
+    /* ====== SAMPLE ======= */
+    for(ind=0;ind < NUMINDS; ind++){
+        for (pop = 0; pop < MAXPOPS; pop++) {
+            PriorQ1[QPos(ind,pop)] = Alpha[pop];
+        }
+    }
+
+    RDirichletDisc (PriorQ1, NUMINDS*MAXPOPS, TestQ, randState);
+
+    /* ======== Calculate likelihood ====== */
+    for (ind = 0; ind < NUMINDS; ind++) {
+        logdiffs[ind] = 0.0;
+        logdiffs[ind] += CalcLikeIndCL (Geno,TestQ,P, ind);
+        logdiffs[ind] -= CalcLikeIndCL (Geno,Q, P, ind);
+    }
+
+    /* ========= Acceptance test ========= */
+    for (ind = 0; ind < NUMINDS; ind++){
+        if (!((USEPOPINFO) && (Individual[ind].PopFlag))) {
+            randomnum = rndDisc(randState);
+            if (randomnum < exp (logdiffs[ind])) {    /*accept */
+                for (pop = 0; pop < MAXPOPS; pop++) {
+                    Q[QPos (ind, pop)] = TestQ[QPos(ind,pop)];
+                }
+                numhits++;
+            }
+        }
+    }
+
+    if (REPORTHITRATE) {           /*does this once every UPDATEFREQ reps */
+        if ((int) (rep - METROFREQ) / UPDATEFREQ < (int) rep / UPDATEFREQ) {
+            printf ("Acceptance rate in UpdateQMetro %1.3f\n",
+                    (double) numhits / NUMINDS);
+        }
+    }
+
+    free (PriorQ1);
+    free (TestQ);
+    free (logdiffs);
+}
 
 
 
@@ -98,21 +169,13 @@ void UpdateQMetro (int *Geno, int *PreGeno, double *Q, double *P,
             if (LOCPRIOR) {
                 PriorQ1 = &Alpha[AlphaPos(Individual[ind].myloc, 0)];
             }
-            RDirichletDisc (PriorQ1, MAXPOPS, TestQ,
-                            randState);     /*return TestQ, sampled from the prior */
+            /*return TestQ, sampled from the prior */
+            RDirichletDisc (PriorQ1, MAXPOPS, TestQ, randState);
 
             /*  for (i=0;i<MAXPOPS;i++)
             if (TestQ[i]==0) { ok=0; break;}
             }
             while (ok==0); */
-
-
-            if (rep ==
-                    0) {             /*If this is the first rep, Q will not be initialized */
-                for (pop = 0; pop < MAXPOPS; pop++) {
-                    Q[QPos (ind, pop)] = (double) 1 / MAXPOPS;
-                }
-            }
 
             for (pop = 0; pop < MAXPOPS; pop++) {
                 CurrentQ[pop] = Q[QPos (ind, pop)];
@@ -182,8 +245,9 @@ UpdateQNoAdmix (int *Geno, double *Q, double *P, struct IND *Individual,
     for (ind = 0; ind < NUMINDS; ind++) {
         if (!((USEPOPINFO) && (Individual[ind].PopFlag))) {
             /* ie don't use individuals for whom prior pop info is used */
-            for (pop = 0; pop < MAXPOPS;
-                    pop++) {      /*make a vector of log probs for each pop */
+
+            /*make a vector of log probs for each pop */
+            for (pop = 0; pop < MAXPOPS; pop++) {
                 sumlogs = 0;
 
                 /*Melissa added 7/12/07*/
@@ -519,7 +583,7 @@ void UpdateQ (int *Geno, int *PreGeno, double *Q, double *P, int *Z,
     } else {
         /*admixture model */
         if (METROFREQ > 0 && rep%METROFREQ==0) {
-            UpdateQMetro (Geno, PreGeno, Q, P, Alpha, rep, Individual, Recessive,
+            UpdateQMetroCL (Geno, PreGeno, Q, P, Alpha, rep, Individual, Recessive,
                           randomArr);
         } else {
             UpdateQAdmixture (Q, Z, Alpha, Individual,randomArr);

@@ -319,18 +319,16 @@ void UpdatePCL (CLDict *clDict,double *P, double *LogP, double *Epsilon,
 {
 
     int *NumAFromPops;
-    size_t *global;
+    size_t global[2];
     /* for error handling in kernel */
-    int *error;
+    int error[2];
 
     int ind;
     int *popflag;
 
     NumAFromPops = calloc(NUMLOCI*MAXPOPS * MAXALLELES, sizeof (int));
-    error = calloc(2,sizeof(int));
     error[0] = 0;
     error[1] = 0;
-    global = calloc(2,sizeof(size_t));
     global[0] = NUMINDS;
     global[1] = NUMLOCI;
 
@@ -347,7 +345,9 @@ void UpdatePCL (CLDict *clDict,double *P, double *LogP, double *Epsilon,
      */
 
     /* =================================================== */
-    writeBuffer(clDict,Geno,sizeof(int) * GENOSIZE,GENOCL,"Geno");
+    if(RECESSIVEALLELES){
+        writeBuffer(clDict,Geno,sizeof(int) * GENOSIZE,GENOCL,"Geno");
+    }
     writeBuffer(clDict,Z,sizeof(int)*ZSIZE,ZCL,"Z");
     writeBuffer(clDict,NumAFromPops,sizeof(int)* NUMLOCI*MAXPOPS*MAXALLELES,
                 NUMAFROMPOPSCL,"NumAFromPops");
@@ -395,7 +395,6 @@ void UpdatePCL (CLDict *clDict,double *P, double *LogP, double *Epsilon,
 
 
 
-    free(global);
     /* some error handling */
     if (error[0] != KERNEL_SUCCESS ) {
         printf("UpdateP Error in Kernel:\n");
@@ -404,7 +403,6 @@ void UpdatePCL (CLDict *clDict,double *P, double *LogP, double *Epsilon,
         ReleaseCLDict(clDict);
         exit(EXIT_FAILURE);
     }
-    free(error);
     /*GetNumFromPops (NumAFromPops,Geno, Z, NumAlleles, Individual);
     for(loc = 0; loc < NUMLOCI*MAXALLELES*MAXPOPS; ++loc){
         if(NumAFromPopsCL[loc] != NumAFromPops[loc]){
