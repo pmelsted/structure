@@ -5,7 +5,6 @@ OPT = -O3
 CFLAGS = -Wall -pedantic -g
 CC = clang
 LIBS = -lm -lOpenCL
-OBJFS = structure.o
 
 all: target
 
@@ -29,8 +28,8 @@ prof: target
 
 UPDATES = ForwardAndBackward.o UpdateQ.o UpdateZ.o UpdateP.o UpdateLocPrior.o UpdateAlpha.o UpdateGeno.o UpdateEpsilon.o UpdateFst.o UpdateLambda.o
 
-structure: structure.o params.o datain.o output.o ran.o mymath.o debug.o $(UPDATES) Init.o Util.o Kernels.o randGen.o
-	$(CC) -o structure $(OBJFS) params.o datain.o output.o ran.o debug.o mymath.o $(UPDATES) Init.o Util.o Kernels.o randGen.o $(OPT) $(LIBS) $(CFLAGS)
+structure: structure.o params.o datain.o output.o ran.o mymath.o debug.o $(UPDATES) Init.o Util.o Kernels.o randGen.o CalcLike.o
+	$(CC) -o structure structure.o CalcLike.o params.o datain.o output.o ran.o debug.o mymath.o $(UPDATES) Init.o Util.o Kernels.o randGen.o $(OPT) $(LIBS) $(CFLAGS)
 
 #STRAT: STRAT.o params.o datain.o ran.o mymath.o
 #	$(CC) -o STRAT STRAT.o params.o datain.o ran.o mymath.o $(OPT) $(LIBS)
@@ -41,9 +40,11 @@ structure: structure.o params.o datain.o output.o ran.o mymath.o debug.o $(UPDAT
 structure.o: structure.c
 	$(CC) -c structure.c $(OPT) $(CFLAGS)
 
-debug.o: OBJFS += debug.o
 debug.o: debug.c
 	$(CC) -c debug.c $(OPT) $(CFLAGS)
+
+CalcLike.o: CalcLike.c
+	$(CC) -c CalcLike.c $(OPT) $(CFLAGS)
 
 output.o: output.c
 	$(CC) -c output.c $(OPT) $(CFLAGS)

@@ -31,10 +31,4 @@ OutPutResults (int *Geno, int rep, int savefreq, struct IND *Individual,
                double *lambda, double *sumlambda, double *PopPriorSum,
                int PopPriorLen, double *sumindlikes, double *indlikes_norm,
                int argc, char *argv[]);
-double CalcLikeInd(int *Geno, int *PreGeno, double *Q, double *P,
-                   int ind, int *Recessive);
-
-double CalcLikeIndDiff(int *Geno, int *PreGeno, double *QPlus, double *QMinus,
-                       double *P,
-                       int ind, int *Recessive);
 

@@ -6,6 +6,7 @@
 #include "../structure.h"
 #include "../output.h"
 #include "../Kernels.h"
+#include "../CalcLike.h"
 #include "ForwardAndBackward.h"
 
 void UpdateQAdmixture (double *Q, int *Z, double *Alpha,
