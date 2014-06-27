@@ -209,6 +209,15 @@ void setKernelArg(CLDict *clDict, enum KERNEL kernel, enum BUFFER buffer,int arg
 
 }
 
+
+void setKernelArgNULL(CLDict *clDict, enum KERNEL kernel,size_t size, void *arg, int argnum){
+    cl_int err;
+    err = 0;
+    err  = clSetKernelArg(clDict->kernels[kernel], argnum, size, arg);
+    handleCLErr(err, clDict,"Failed to set arg!");
+
+}
+
 void setKernelArgs(CLDict *clDict)
 {
     cl_int err;
@@ -262,6 +271,10 @@ void setKernelArgs(CLDict *clDict)
     setKernelArg(clDict,mapLogDiffsKernel,GENOCL,4);
     setKernelArg(clDict,mapLogDiffsKernel,ERRORCL,5);
 
+    /*=====  reduce log diffs *==== */
+    setKernelArg(clDict,reduceLogDiffsKernel,LOGTERMSCL,0);
+    setKernelArg(clDict,reduceLogDiffsKernel,LOGDIFFSCL,1);
+    setKernelArgNULL(clDict,reduceLogDiffsKernel,sizeof(double)*NUMLOCI,NULL,2);
 
 }
 
@@ -381,7 +394,7 @@ int CompileKernels(CLDict *clDict,  char *options)
     /*cl_int ret;*/
 
 
-    char *KERNELNAMES[NumberOfKernels] = {"UpdateZ","GetNumFromPops","UpdateP","mapLogDiffs"};
+    char *KERNELNAMES[NumberOfKernels] = {"UpdateZ","GetNumFromPops","UpdateP","mapLogDiffs","reduceLogDiffs"};
 
     /* Load the source code containing the kernels*/
     fp = fopen("Kernels/Kernels.cl", "r");

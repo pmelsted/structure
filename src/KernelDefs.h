@@ -8,6 +8,7 @@ enum KERNEL {
     GetNumFromPopsKernel,
     UpdatePKernel,
     mapLogDiffsKernel,
+    reduceLogDiffsKernel,
     NumberOfKernels
 };
 

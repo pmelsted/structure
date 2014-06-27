@@ -247,13 +247,11 @@ void CalcLogdiffsCL(CLDict *clDict,int *Geno,double *TestQ, double *Q, double *P
     readBuffer(clDict,logterms,sizeof(double) * NUMINDS*NUMLOCI,LOGTERMSCL,"Logterms");
     reduceLogdiffsCL(logterms,logdiffs);
 
+
     if (DEBUGCOMPARE){
         for(ind = 0; ind < NUMINDS; ind++){
             if(fabs(logdiffs[ind]-logdiffsnoncl[ind]) > 10e-6){
-                    printf("C %f G %f\n ",
-                           logdiffs[ind],
-                           logdiffsnoncl[ind]
-                        );
+                    printf("C %f G %f\n ", logdiffs[ind], logdiffsnoncl[ind]);
                     ReleaseCLDict(clDict);
                     exit(EXIT_FAILURE);
             }
