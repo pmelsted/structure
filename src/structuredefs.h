@@ -1,6 +1,9 @@
 #ifndef structuredefs
 #define structuredefs
 
+#define DEBUGCOMPARE 0
+#define USEWORKINGCL 1
+
 #define QSIZE NUMINDS*MAXPOPS
 #define PSIZE NUMLOCI*MAXPOPS*MAXALLELES
 #define ZSIZE NUMINDS*LINES*NUMLOCI

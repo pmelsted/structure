@@ -7,6 +7,7 @@ enum KERNEL {
     UpdateZKernel,
     GetNumFromPopsKernel,
     UpdatePKernel,
+    mapLogDiffsKernel,
     NumberOfKernels
 };
 
@@ -25,6 +26,9 @@ enum BUFFER {
     NUMAFROMPOPSCL,
     EPSILONCL,
     FSTCL,
+    LOGTERMSCL,
+    LOGDIFFSCL,
+    TESTQCL,
     RANDCL, /* buffer for random numbers */
     ERRORCL, /* buffer for error codes */
     NumberOfBuffers

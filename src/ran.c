@@ -1211,11 +1211,11 @@ void RDirichletDisc(const double * a, const int k, double * b, int offset,
     int i;
     double sum=0.0;
     for(i=0; i<k; i++) {
-        b[i]=RGammaDisc(a[i],1,randState);
-        sum += b[i];
+        b[i+offset]=RGammaDisc(a[i],1,randState);
+        sum += b[i+offset];
     }
     for(i=0; i<k; i++) {
-        b[i] /= sum;
+        b[i+offset] /= sum;
     }
 }
 

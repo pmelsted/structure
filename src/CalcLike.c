@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "structure.h"
+#include "Kernels.h"
 
 /*-----------------------------------------*/
 double
@@ -182,34 +183,101 @@ double CalcLikeIndCL (int *Geno, double *Q, double *P, int ind)
     return logterm;
 }
 
+void reduceLogdiffsCL(double *logterms, double *logdiffs){
+    double logterm;
+    int ind, loc;
+    for (ind =0; ind < NUMINDS; ind++){
+        logterm = 0.0;
+        for (loc = 0; loc < NUMLOCI; loc++) {
+            logterm += logterms[ind*NUMLOCI + loc];
+        }
+        logdiffs[ind] = logterm;
+    }
+}
 
-void CalcLogdiffsCL(int *Geno,double *TestQ, double *Q, double *P, double *logdiffs)
+void CalcLogdiffsCL(CLDict *clDict,int *Geno,double *TestQ, double *Q, double *P, double *logdiffs)
 {
 
     double termP,termM;
     double logterm;
     int allele;
     int line, loc, pop,ind;
+    double * logdiffsnoncl;
+    double *logterms;
+    size_t global[2];
+    global[0] = NUMINDS;
+    global[1] = NUMLOCI;
 
-    for (ind =0; ind < NUMINDS; ind++){
-        logterm = 0.0;
-        for (loc = 0; loc < NUMLOCI; loc++) {
-            for (line = 0; line < LINES; line++) {
-                allele = Geno[GenPos (ind, line, loc)];
-                if (allele != MISSING) {
-                    termP = 0.0;
-                    termM = 0.0;
-                    for (pop = 0; pop < MAXPOPS; pop++) {
-                        termP += TestQ[QPos(ind,pop)] * P[PPos (loc, pop, allele)];
-                        termM += Q[QPos(ind,pop)] * P[PPos (loc, pop, allele)];
+    logterms = calloc(NUMINDS*NUMLOCI,sizeof(double));
+
+    if(DEBUGCOMPARE){
+        logdiffsnoncl = calloc(NUMINDS,sizeof(double));
+        for (ind =0; ind < NUMINDS; ind++){
+            logterm = 0.0;
+            for (loc = 0; loc < NUMLOCI; loc++) {
+                logterms[ind*NUMLOCI + loc] = 0.0;
+                for (line = 0; line < LINES; line++) {
+                    allele = Geno[GenPos (ind, line, loc)];
+                    if (allele != MISSING) {
+                        termP = 0.0;
+                        termM = 0.0;
+                        for (pop = 0; pop < MAXPOPS; pop++) {
+                            termP += TestQ[QPos(ind,pop)] * P[PPos (loc, pop, allele)];
+                            termM += Q[QPos(ind,pop)] * P[PPos (loc, pop, allele)];
+                        }
+                        logterm += log(termP) - log(termM);
                     }
-                    logterm += log(termP) - log(termM);
                 }
             }
+            logdiffsnoncl[ind] = logterm;
         }
-        logdiffs[ind] = logterm;
     }
+
+
+    writeBuffer(clDict,Q,sizeof(double) * QSIZE,QCL,"Q");
+    writeBuffer(clDict,TestQ,sizeof(double) * QSIZE,TESTQCL,"TestQ");
+    /* Already up to date on GPU */
+    /*
+    writeBuffer(clDict,P,sizeof(double) * PSIZE,PCL,"P");
+    writeBuffer(clDict,Geno,sizeof(int) * GENOSIZE,GENOCL,"GENO");
+    */
+
+
+    runKernel(clDict,mapLogDiffsKernel,2,global,"mapLogDiffs");
+    readBuffer(clDict,logterms,sizeof(double) * NUMINDS*NUMLOCI,LOGTERMSCL,"Logterms");
+    reduceLogdiffsCL(logterms,logdiffs);
+
+    if (DEBUGCOMPARE){
+        for(ind = 0; ind < NUMINDS; ind++){
+            if(fabs(logdiffs[ind]-logdiffsnoncl[ind]) > 10e-6){
+                    printf("C %f G %f\n ",
+                           logdiffs[ind],
+                           logdiffsnoncl[ind]
+                        );
+                    ReleaseCLDict(clDict);
+                    exit(EXIT_FAILURE);
+            }
+        }
+    }
+
+
+
+    /*for(ind = 0; ind < NUMINDS; ind++){
+        for(loc=0;loc < NUMLOCI; loc++){
+            if(fabs(logtermscl[ind]-logterms[ind]) > 10e-8){
+                printf("%f, %f, %d,%d\n", logtermscl[ind*NUMLOCI + loc],logterms[ind*NUMLOCI + loc], ind,loc);
+            }
+        }
+    }*/
+
+    free(logterms);
+
+    if(DEBUGCOMPARE){
+        free(logdiffsnoncl);
+    }
+
 }
+
 
 
 double CalcLikeIndDiff (int *Geno, int *PreGeno, double *AncVectorPlus,

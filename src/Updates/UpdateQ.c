@@ -36,7 +36,7 @@ void GetNumLociPop (int *NumLociPop, int *Z, int ind)
 
 /*----------------------------------------*/
 /*Melissa updated 7/12/07 to incorporate locprior*/
-void UpdateQMetroCL (int *Geno, int *PreGeno, double *Q, double *P,
+void UpdateQMetroCL (CLDict *clDict,int *Geno, int *PreGeno, double *Q, double *P,
                    double *Alpha, int rep, struct IND *Individual, int *Recessive,
                    double * randomArr)
 
@@ -48,6 +48,7 @@ void UpdateQMetroCL (int *Geno, int *PreGeno, double *Q, double *P,
 
     double *TestQ;
     double *logdiffs;
+    double *logterms;
 
     RndDiscState randState[1];
 
@@ -58,7 +59,7 @@ void UpdateQMetroCL (int *Geno, int *PreGeno, double *Q, double *P,
      *
      */
 
-
+    logterms = calloc(NUMINDS*NUMLOCI,sizeof(double));
     TestQ = calloc (NUMINDS*MAXPOPS, sizeof (double));
     logdiffs = calloc(NUMINDS,sizeof(double));
 
@@ -71,7 +72,7 @@ void UpdateQMetroCL (int *Geno, int *PreGeno, double *Q, double *P,
     }
 
     /* ======== Calculate likelihood ====== */
-    CalcLogdiffsCL(Geno,TestQ,Q,P,logdiffs);
+    CalcLogdiffsCL(clDict,Geno,TestQ,Q,P,logdiffs);
 
     /* ========= Acceptance test ========= */
     for (ind = 0; ind < NUMINDS; ind++){
@@ -95,6 +96,7 @@ void UpdateQMetroCL (int *Geno, int *PreGeno, double *Q, double *P,
 
     free (TestQ);
     free (logdiffs);
+    free(logterms);
 }
 
 
@@ -545,7 +547,7 @@ UpdateQWithPops (int *Geno, double *Q, double *P, int *Z, double *Alpha,
 
 /*-----------------------------------------*/
 /*Melissa updated 7/12/07 to incorporate LocPriors*/
-void UpdateQ (int *Geno, int *PreGeno, double *Q, double *P, int *Z,
+void UpdateQ (CLDict *clDict,int *Geno, int *PreGeno, double *Q, double *P, int *Z,
               double *Alpha, int rep,
               struct IND *Individual, double *UsePopProbs, int *Recessive, double *LocPrior,
               double * randomArr)
@@ -574,7 +576,7 @@ void UpdateQ (int *Geno, int *PreGeno, double *Q, double *P, int *Z,
     } else {
         /*admixture model */
         if (METROFREQ > 0 && rep%METROFREQ==0) {
-            UpdateQMetroCL (Geno, PreGeno, Q, P, Alpha, rep, Individual, Recessive,
+            UpdateQMetroCL (clDict,Geno, PreGeno, Q, P, Alpha, rep, Individual, Recessive,
                           randomArr);
         } else {
             UpdateQAdmixture (Q, Z, Alpha, Individual,randomArr);

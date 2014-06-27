@@ -56,24 +56,27 @@ __kernel void mapLogDiffs(__global double *logterms,
                           __global double *Q,
                           __global double *TestQ,
                           __global double *P,
-                          __global double *Geno)
+                          __global int *Geno,
+                          __global int *error)
 {
     int allele, line, pop;
 
     int ind = get_global_id(0);
     int loc = get_global_id(1);
-    double termP = 0.0;
-    double termM = 0.0;
+    double termP;
+    double termM;
 
     logterms[ind*NUMLOCI + loc] = 0.0;
-
     for (line = 0; line < LINES; line++) {
         allele = Geno[GenPos (ind, line, loc)];
         if (allele != MISSING) {
+            termP = 0.0;
+            termM = 0.0;
             for (pop = 0; pop < MAXPOPS; pop++) {
                 termP += TestQ[QPos(ind,pop)] * P[PPos (loc, pop, allele)];
                 termM += Q[QPos(ind,pop)] * P[PPos (loc, pop, allele)];
             }
+            //logterms[ind*NUMLOCI + loc] += log(termP) - log(termM);
             logterms[ind*NUMLOCI + loc] += log(termP) - log(termM);
         }
     }
