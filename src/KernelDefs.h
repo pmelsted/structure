@@ -9,6 +9,7 @@ enum KERNEL {
     UpdatePKernel,
     mapLogDiffsKernel,
     reduceLogDiffsKernel,
+    mapReduceLogDiffsKernel,
     NumberOfKernels
 };
 

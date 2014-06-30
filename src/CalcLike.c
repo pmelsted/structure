@@ -203,19 +203,20 @@ void CalcLogdiffsCL(CLDict *clDict,int *Geno,double *TestQ, double *Q, double *P
     int allele;
     int line, loc, pop,ind;
     double * logdiffsnoncl;
-    double *logterms;
+    /*double *logterms, *lgtcl;*/
     size_t global[2];
-    global[0] = NUMINDS;
-    global[1] = NUMLOCI;
+    global[0] = NUMLOCI;
+    global[1] = NUMINDS;
 
-    logterms = calloc(NUMINDS*NUMLOCI,sizeof(double));
+    /*logterms = calloc(NUMINDS*NUMLOCI,sizeof(double));*/
+    /*lgtcl = calloc(NUMINDS*NUMLOCI,sizeof(double));
+    logdiffsnoncl = calloc(NUMINDS,sizeof(double));*/
 
     if(DEBUGCOMPARE){
         logdiffsnoncl = calloc(NUMINDS,sizeof(double));
         for (ind =0; ind < NUMINDS; ind++){
             logterm = 0.0;
             for (loc = 0; loc < NUMLOCI; loc++) {
-                logterms[ind*NUMLOCI + loc] = 0.0;
                 for (line = 0; line < LINES; line++) {
                     allele = Geno[GenPos (ind, line, loc)];
                     if (allele != MISSING) {
@@ -243,9 +244,18 @@ void CalcLogdiffsCL(CLDict *clDict,int *Geno,double *TestQ, double *Q, double *P
     */
 
 
-    runKernel(clDict,mapLogDiffsKernel,2,global,"mapLogDiffs");
+    /*runKernel(clDict,mapLogDiffsKernel,2,global,"mapLogDiffs");
     readBuffer(clDict,logterms,sizeof(double) * NUMINDS*NUMLOCI,LOGTERMSCL,"Logterms");
-    reduceLogdiffsCL(logterms,logdiffs);
+    [>readBuffer(clDict,logdiffs,sizeof(double) * NUMINDS,LOGDIFFSCL,"Logdiffs");<]
+    reduceLogdiffsCL(logterms,logdiffs);*/
+
+    runKernel(clDict,mapReduceLogDiffsKernel,2,global,"reduceLogDiffs");
+    readBuffer(clDict,logdiffs,sizeof(double) * NUMINDS,LOGDIFFSCL,"Logdiffs");
+
+
+    /*runKernel(clDict,mapReduceLogDiffsKernel,2,global,"mapReduceLogDiffs");*/
+    /*readBuffer(clDict,logdiffsnoncl,sizeof(double) * NUMINDS,LOGDIFFSCL,"Logdiffs");*/
+
 
 
     if (DEBUGCOMPARE){
@@ -257,18 +267,6 @@ void CalcLogdiffsCL(CLDict *clDict,int *Geno,double *TestQ, double *Q, double *P
             }
         }
     }
-
-
-
-    /*for(ind = 0; ind < NUMINDS; ind++){
-        for(loc=0;loc < NUMLOCI; loc++){
-            if(fabs(logtermscl[ind]-logterms[ind]) > 10e-8){
-                printf("%f, %f, %d,%d\n", logtermscl[ind*NUMLOCI + loc],logterms[ind*NUMLOCI + loc], ind,loc);
-            }
-        }
-    }*/
-
-    free(logterms);
 
     if(DEBUGCOMPARE){
         free(logdiffsnoncl);

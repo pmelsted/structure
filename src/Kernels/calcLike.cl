@@ -56,25 +56,25 @@ __kernel void reduceLogDiffs(__global double *logterms,
                              __local  double *scratch,
                              const int ind)
 {
-    int loc = get_global_id(1);
+    int loc = get_group_id(0);
     double logdiff = 0.0;
     while( loc < NUMLOCI){
         double elem = logterms[ind*NUMLOCI+loc];
         logdiff += elem;
-        loc += get_global_size(1);
+        loc += get_num_groups(0);
     }
 
-    int localLoc = get_local_id(1);
+    int localLoc = get_group_id(0);
     scratch[localLoc] = logdiff;
     barrier(CLK_LOCAL_MEM_FENCE);
-    for(int offset = get_local_size(1) /2; offset > 0; offset >>= 1){
+    for(int offset = get_num_groups(0) /2; offset > 0; offset >>= 1){
         if(localLoc < offset){
             scratch[localLoc] += scratch[localLoc + offset];
         }
         barrier(CLK_LOCAL_MEM_FENCE);
     }
     if(localLoc == 0){
-        logdiffs[get_group_id(1)] = scratch[0];
+        logdiffs[ind] = scratch[0];
     }
 }
 
@@ -112,39 +112,28 @@ __kernel void mapReduceLogDiffs(__global double *Q,
                                 __global double *P,
                                 __global int *Geno,
                                 __global double *logdiffs,
-                                __global double *results,
                                 __local  double *scratch)
 {
-    int ind = get_global_id(0);
-    int loc = get_global_id(1);
-    int globalsize = get_global_size(1);
+    int loc = get_group_id(0);
+    int ind = get_group_id(1);
     double logdiff = 0.0;
-    /* ======= Map to functions, and store in local memory ======== */
     while( loc < NUMLOCI){
-        double elem = mapLogDiffsFunc(Q,TestQ,P,Geno,ind,loc)
+        double elem = mapLogDiffsFunc(Q,TestQ,P,Geno,ind,loc);
         logdiff += elem;
-        loc += globalsize;
+        loc += get_num_groups(0);
     }
 
-    int localLoc = get_local_id(1);
+    int localLoc = get_group_id(0);
     scratch[localLoc] = logdiff;
     barrier(CLK_LOCAL_MEM_FENCE);
-    /* ======== Reduce local memory ==========*/
-    for(int offset = get_local_size(1) /2; offset > 0; offset >>= 1){
+    for(int offset = get_num_groups(0) /2; offset > 0; offset >>= 1){
         if(localLoc < offset){
             scratch[localLoc] += scratch[localLoc + offset];
         }
         barrier(CLK_LOCAL_MEM_FENCE);
     }
-    int group = get_group_id(1);
     if(localLoc == 0){
-        results[group] = scratch[0];
-        barrier(CLK_GLOBAL_MEM_FENCE);
-        if (group == 0){
-            for(group =0; group < globalsize; group++){
-                logdiffs[ind] += results[group];
-            }
-        }
+        logdiffs[ind] = scratch[0];
     }
 }
 

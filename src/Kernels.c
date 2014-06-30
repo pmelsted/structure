@@ -276,6 +276,14 @@ void setKernelArgs(CLDict *clDict)
     setKernelArg(clDict,reduceLogDiffsKernel,LOGDIFFSCL,1);
     setKernelArgNULL(clDict,reduceLogDiffsKernel,sizeof(double)*NUMLOCI,NULL,2);
 
+    /*=====  mapreduce log diffs *==== */
+    setKernelArg(clDict,mapReduceLogDiffsKernel,QCL,0);
+    setKernelArg(clDict,mapReduceLogDiffsKernel,TESTQCL,1);
+    setKernelArg(clDict,mapReduceLogDiffsKernel,PCL,2);
+    setKernelArg(clDict,mapReduceLogDiffsKernel,GENOCL,3);
+    setKernelArg(clDict,mapReduceLogDiffsKernel,LOGDIFFSCL,4);
+    setKernelArgNULL(clDict,mapReduceLogDiffsKernel,sizeof(double)*NUMLOCI,NULL,5);
+    /*setKernelArgNULL(clDict,mapReduceLogDiffsKernel,sizeof(double)*NUMLOCI,NULL,5);*/
 }
 
 void getLocal(CLDict *clDict,enum KERNEL kernel){
@@ -394,7 +402,7 @@ int CompileKernels(CLDict *clDict,  char *options)
     /*cl_int ret;*/
 
 
-    char *KERNELNAMES[NumberOfKernels] = {"UpdateZ","GetNumFromPops","UpdateP","mapLogDiffs","reduceLogDiffs"};
+    char *KERNELNAMES[NumberOfKernels] = {"UpdateZ","GetNumFromPops","UpdateP","mapLogDiffs","reduceLogDiffs","mapReduceLogDiffs"};
 
     /* Load the source code containing the kernels*/
     fp = fopen("Kernels/Kernels.cl", "r");
