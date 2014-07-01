@@ -1078,16 +1078,6 @@ double BinoProb(int n, double p,int i)
     return exp(logsum);
 }
 
-void FillArrayWithRandom(double *random, int n)
-{
-    /*Fills an array with floating random numbers in [0,1)*/
-    int i;
-    double d;
-    for(i = 0; i < n; i++) {
-        d = (double) rand() / ((double) RAND_MAX + 1);
-        random[i] = d;
-    }
-}
 
 
 double numToRange(double low, double high, double num)

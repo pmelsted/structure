@@ -1,4 +1,5 @@
 OPT = -O3
+
 #OPT = -O3 -m64 -static
 #OPT = -Wall -g
 
@@ -16,8 +17,8 @@ target: structure
 #valgrind: clean
 #valgrind: target
 
-prof: CFLAGS += -g
 prof: CFLAGS += -pg
+prof: CC = gcc
 prof: target
 
 
@@ -117,6 +118,9 @@ callgrind: prof structure
 
 cleanTest:
 	rm -f testdata1.out_f
+
+gpuprof: prof structure
+	ltpv ./structure -m testdata/mainparams -i testdata/testdata1.str -o testdata1.out
 
 beautify:
 	astyle -n --style=kr -xC79 -c -j -Y -xw -R "*.c" "*.h" "*.cl"
