@@ -74,9 +74,6 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,
     /*writeBuffer(clDict,Q,sizeof(double) * QSIZE,QCL,"Q");*/
     /*writeBuffer(clDict,P,sizeof(double) * PSIZE,PCL,"P");*/
 
-    if(RECESSIVEALLELES){
-        writeBuffer(clDict,Geno,sizeof(int) * GENOSIZE,GENOCL,"Geno");
-    }
     writeBuffer(clDict,randomArr, sizeof(double) * NUMINDS*NUMLOCI*LINES,RANDCL,
                 "randomArr");
     writeBuffer(clDict,error,sizeof(int),ERRORCL,"error");

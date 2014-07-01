@@ -399,6 +399,7 @@ int main (int argc, char *argv[])
     writeBuffer(clDict,P,sizeof(double) * PSIZE,PCL,"P");
     writeBuffer(clDict,LogP,sizeof(double) * PSIZE,LOGPCL,"LogP");
     writeBuffer(clDict,Z,sizeof(int)*ZSIZE,ZCL,"Z");
+    writeBuffer(clDict,NumAlleles,sizeof(int) * NUMLOCI,NUMALLELESCL,"NumAlleles");
     if(!RECESSIVEALLELES){
         writeBuffer(clDict,Geno,sizeof(int)*GENOSIZE,GENOCL,"Geno");
     }
@@ -409,6 +410,13 @@ int main (int argc, char *argv[])
         }
         writeBuffer(clDict,popflags,sizeof(int)*NUMINDS,POPFLAGCL,"popflags");
 
+    }
+    if (FREQSCORR) {
+        writeBuffer(clDict,Fst,sizeof(double) * MAXPOPS,FSTCL,"FST");
+        writeBuffer(clDict,Epsilon,sizeof(double) * NUMLOCI*MAXALLELES,EPSILONCL,
+                    "EPSILON");
+    } else {
+        writeBuffer(clDict,lambda,sizeof(double) * MAXPOPS,LAMBDACL,"LAMBDA");
     }
     /*printf("%d, %d\n",INFERALPHA,INFERLAMBDA);*/
     /*printf("%d\n",USEPOPINFO);*/
@@ -452,6 +460,7 @@ int main (int argc, char *argv[])
 
         if (RECESSIVEALLELES) {
             UpdateGeno (PreGeno, Geno, P, Z, Recessive, NumAlleles, Q);
+            writeBuffer(clDict,Geno,sizeof(int) * GENOSIZE,GENOCL,"Geno");
             /*The Zs are not correct after UpdateGeno, until UpdateZ is run */
         }
 
@@ -491,12 +500,16 @@ int main (int argc, char *argv[])
             } else {
                 UpdateLambda (LogP,Epsilon,lambda, NumAlleles);
             }
+            writeBuffer(clDict,lambda,sizeof(double) * MAXPOPS,LAMBDACL,"LAMBDA");
         }
 
 
         if (FREQSCORR) {
             UpdateEpsilon(P,LogP,Epsilon,Fst,NumAlleles,lambda[0]);
+            writeBuffer(clDict,Epsilon,sizeof(double) * NUMLOCI*MAXALLELES,EPSILONCL,
+                        "EPSILON");
             UpdateFst (Epsilon, Fst, LogP, NumAlleles);
+            writeBuffer(clDict,Fst,sizeof(double) * MAXPOPS,FSTCL,"FST");
         }
 
         /*====book-keeping stuff======================*/

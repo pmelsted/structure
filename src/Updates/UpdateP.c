@@ -212,8 +212,6 @@ void UpdatePCL (CLDict *clDict,double *P, double *LogP, double *Epsilon,
     /* for error handling in kernel */
     int error[2];
 
-    int ind;
-    int *popflag;
 
     NumAFromPops = calloc(NUMLOCI*MAXPOPS * MAXALLELES, sizeof (int));
     error[0] = 0;
@@ -221,29 +219,17 @@ void UpdatePCL (CLDict *clDict,double *P, double *LogP, double *Epsilon,
     global[0] = NUMINDS;
     global[1] = NUMLOCI;
 
-    if(PFROMPOPFLAGONLY) {
-        popflag = calloc(NUMINDS,sizeof(int));
-        for(ind = 0; ind < NUMINDS; ++ind) {
-            popflag[ind] = Individual[ind].PopFlag;
-        }
-
-        writeBuffer(clDict,popflag,sizeof(int) * NUMINDS,POPFLAGCL,"Popflags");
-    }
     /*
      * GetNumFromPops writes
      */
 
     /* =================================================== */
-    if(RECESSIVEALLELES){
-        writeBuffer(clDict,Geno,sizeof(int) * GENOSIZE,GENOCL,"Geno");
-    }
     /* already up to date on gpu */
     /*writeBuffer(clDict,Z,sizeof(int)*ZSIZE,ZCL,"Z");*/
-    /* Clear buffer */
-    writeBuffer(clDict,NumAFromPops,sizeof(int)* NUMLOCI*MAXPOPS*MAXALLELES,
-                NUMAFROMPOPSCL,"NumAFromPops");
 
-    writeBuffer(clDict,NumAlleles,sizeof(int) * NUMLOCI,NUMALLELESCL,"NumAlleles");
+    /* Clear buffer */
+    writeBuffer(clDict,NumAFromPops,sizeof(int)* NUMLOCI*MAXPOPS*MAXALLELES, NUMAFROMPOPSCL,"NumAFromPops");
+
 
     writeBuffer(clDict,error,sizeof(int),ERRORCL,"error");
 
@@ -256,13 +242,6 @@ void UpdatePCL (CLDict *clDict,double *P, double *LogP, double *Epsilon,
     /* =================================================== */
 
 
-    if (FREQSCORR) {
-        writeBuffer(clDict,Fst,sizeof(double) * MAXPOPS,FSTCL,"FST");
-        writeBuffer(clDict,Epsilon,sizeof(double) * NUMLOCI*MAXALLELES,EPSILONCL,
-                    "EPSILON");
-    } else {
-        writeBuffer(clDict,lambda,sizeof(double) * MAXPOPS,LAMBDACL,"LAMBDA");
-    }
 
     writeBuffer(clDict,randomArr,
                 sizeof(double) * NUMLOCI*MAXALLELES*MAXPOPS*MAXRANDOM,RANDCL,"randomArr");
