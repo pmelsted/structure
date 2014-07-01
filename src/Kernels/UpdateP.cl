@@ -12,7 +12,13 @@ __kernel void GetNumFromPops (
     int numalleles = NumAlleles[loc];
     int offset = loc*MAXPOPS*MAXALLELES;
     int pos,line,popvalue,allelevalue;
-
+    /* initialize the NumAFromPops array */
+    if(ind == 0){
+        for(pos = 0; pos < MAXPOPS*MAXALLELES; pos++){
+            NumAFromPops[pos+offset] = 0;
+        }
+    }
+    barrier(CLK_GLOBAL_MEM_FENCE);
     if(ind < NUMINDS && loc < NUMLOCI) {
         if (!PFROMPOPFLAGONLY
                 || popflags[ind] == 1) {    /*individual must have popflag turned on*/

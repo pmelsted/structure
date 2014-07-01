@@ -28,7 +28,14 @@ __kernel void GetNumLociPops(
     int ind = get_global_id(0);
     int loc = get_global_id(1);
     int offset = ind*MAXPOPS;
-    int line, from;
+    int line, from,pop;
+    /* initialize the NumLociPops array */
+    if(loc == 0){
+        for(pop = 0; pop < MAXPOPS; pop++){
+            NumLociPops[pop+offset] = 0;
+        }
+    }
+    barrier(CLK_GLOBAL_MEM_FENCE);
     if(ind < NUMINDS && loc < NUMLOCI) {
         if (!((USEPOPINFO) && (popflags[ind]))) {
             for (line = 0; line < LINES; line++) {

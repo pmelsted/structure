@@ -70,9 +70,6 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,
     global[1] = NUMLOCI;
 
 
-    /*Q, P are now updated on gpu */
-    /*writeBuffer(clDict,Q,sizeof(double) * QSIZE,QCL,"Q");*/
-    /*writeBuffer(clDict,P,sizeof(double) * PSIZE,PCL,"P");*/
 
     writeBuffer(clDict,randomArr, sizeof(double) * NUMINDS*NUMLOCI*LINES,RANDCL,
                 "randomArr");
