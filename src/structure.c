@@ -207,6 +207,8 @@ int main (int argc, char *argv[])
     double sumlikes;              /*sum of likelihood values */
     double sumsqlikes;            /*sum of squared likelihoods */
 
+    double *popflags; /*The populationflags of individuals*/
+
 
     /*Melissa added 7/12/07 for calculating DIC*/
     double *sumIndLikes, *indLikesNorm;
@@ -396,15 +398,23 @@ int main (int argc, char *argv[])
     /* init buffers on GPU */
     writeBuffer(clDict,P,sizeof(double) * PSIZE,PCL,"P");
     writeBuffer(clDict,LogP,sizeof(double) * PSIZE,LOGPCL,"LogP");
-    /*if (DEBUGCOMPARE) {
-        writeBuffer(clDict,P,sizeof(double) * PSIZE,PCL,"P");
-    }*/
     writeBuffer(clDict,Z,sizeof(int)*ZSIZE,ZCL,"Z");
     if(!RECESSIVEALLELES){
         writeBuffer(clDict,Geno,sizeof(int)*GENOSIZE,GENOCL,"Geno");
     }
-    /*printf("%d, %d",INFERALPHA,INFERLAMBDA);
-    handleCLErr(1,clDict,"heyhey");*/
+    if (PFROMPOPFLAGONLY || USEPOPINFO){
+        popflags = calloc(NUMINDS,sizeof(int));
+        for(ind = 0; ind < NUMINDS;ind++){
+            popflags[ind] = Individual[ind].PopFlag;
+        }
+        writeBuffer(clDict,popflags,sizeof(int)*NUMINDS,POPFLAGCL,"popflags");
+
+    }
+    /*printf("%d, %d\n",INFERALPHA,INFERLAMBDA);*/
+    /*printf("%d\n",USEPOPINFO);*/
+    /*printf("%d\n",RECESSIVEALLELES);*/
+    /*printf("%d\n",LINKAGE);*/
+    /*handleCLErr(1,clDict,"heyhey");*/
 
     /*Initialize Q */
     initQ(Q);
@@ -472,6 +482,7 @@ int main (int argc, char *argv[])
             UpdateAlphaLocPrior(Q, Alpha, LocPrior, Individual);
         } else if (INFERALPHA) {
             UpdateAlpha (Q, Alpha, Individual, rep);
+            writeBuffer(clDict,Alpha,sizeof(double) *MAXPOPS,ALPHACL,"Alpha");
         }
 
         if (INFERLAMBDA) {
@@ -490,6 +501,8 @@ int main (int argc, char *argv[])
 
         /*====book-keeping stuff======================*/
         if (rep + 1 > BURNIN) {
+            /*Not used */
+            /*readBuffer(clDict,Z,sizeof(int)*ZSIZE,ZCL,"Z");*/
             DataCollection (Geno, PreGeno, Q, QSum, Z, Z1,  P, PSum,
                             Fst, FstSum, NumAlleles,
                             AncestDist, Alpha, sumAlpha, sumR, varR, &like,

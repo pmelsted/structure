@@ -41,16 +41,17 @@ void UpdateQMetroCL (CLDict *clDict,int *Geno, int *PreGeno, double *Q, double *
                    double * randomArr)
 
 {
-    int pop;
-    double randomnum;
-    int ind;
-    int numhits = 0;
+    /*int pop;*/
+    /*double randomnum;*/
+    /*int ind;*/
+    /*int numhits = 0;*/
 
-    double *TestQ;
-    double *logdiffs;
-    double *logterms;
+    /*double *TestQ;*/
+    /*double *logdiffs;*/
+    /*double *logterms;*/
 
-    RndDiscState randState[1];
+    /*RndDiscState randState[1];*/
+    size_t global[2];
 
     /*
      * Removed:
@@ -59,44 +60,65 @@ void UpdateQMetroCL (CLDict *clDict,int *Geno, int *PreGeno, double *Q, double *
      *
      */
 
-    logterms = calloc(NUMINDS*NUMLOCI,sizeof(double));
-    TestQ = calloc (NUMINDS*MAXPOPS, sizeof (double));
-    logdiffs = calloc(NUMINDS,sizeof(double));
+    /*logterms = calloc(NUMINDS*NUMLOCI,sizeof(double));*/
+    /*TestQ = calloc (NUMINDS*MAXPOPS, sizeof (double));*/
+    /*logdiffs = calloc(NUMINDS,sizeof(double));*/
 
 
-    initRndDiscState(randState,randomArr,NUMINDS + NUMINDS*MAXRANDOM);
+    /*initRndDiscState(randState,randomArr,NUMINDS + NUMINDS*MAXRANDOM);*/
+
+    writeBuffer(clDict,randomArr,sizeof(double) * (NUMINDS*MAXRANDOM+NUMINDS),RANDCL,"Random");
+
+    global[0] = NUMINDS;
+    runKernel(clDict,RDirichletSampleKernel,1,global,"Dirichlet");
+
+    /*readBuffer(clDict,TestQ,sizeof(double) *QSIZE,TESTQCL,"TestQ");*/
 
     /* ======== Sample ====== */
-    for (ind = 0; ind < NUMINDS; ind++) {
-        RDirichletDisc(Alpha, MAXPOPS, TestQ,ind*MAXPOPS,randState);
-    }
+    /*for (ind = 0; ind < NUMINDS; ind++) {*/
+        /*RDirichletDisc(Alpha, MAXPOPS, TestQ,ind*MAXPOPS,randState);*/
+    /*}*/
 
     /* ======== Calculate likelihood ====== */
-    CalcLogdiffsCL(clDict,Geno,TestQ,Q,P,logdiffs);
+
+    /*writeBuffer(clDict,Q,sizeof(double) * QSIZE,QCL,"Q");*/
+
+    global[0] = NUMLOCI;
+    global[1] = NUMINDS;
+
+    runKernel(clDict,mapReduceLogDiffsKernel,2,global,"reduceLogDiffs");
+    /*readBuffer(clDict,logdiffs,sizeof(double) * NUMINDS,LOGDIFFSCL,"Logdiffs");*/
+
+    global[0] = NUMINDS;
+    runKernel(clDict,MetroAcceptTestKernel,1,global,"MetroAcceptTest");
+
+    readBuffer(clDict,Q,sizeof(double) * QSIZE,QCL,"Q");
+    /*CalcLogdiffsCL(clDict,Geno,TestQ,Q,P,logdiffs);*/
+    /*UpdateQMetroAcceptanceTest(clDict,Q,TestQ,logdiffs,randomArr);*/
 
     /* ========= Acceptance test ========= */
-    for (ind = 0; ind < NUMINDS; ind++){
+    /*for (ind = 0; ind < NUMINDS; ind++){
         if (!((USEPOPINFO) && (Individual[ind].PopFlag))) {
             randomnum = rndDisc(randState);
-            if (randomnum < exp (logdiffs[ind])) {    /*accept */
+            if (randomnum < exp (logdiffs[ind])) {    [>accept <]
                 for (pop = 0; pop < MAXPOPS; pop++) {
                     Q[QPos (ind, pop)] = TestQ[QPos(ind,pop)];
                 }
                 numhits++;
             }
         }
-    }
+    }*/
 
-    if (REPORTHITRATE) {           /*does this once every UPDATEFREQ reps */
-        if ((int) (rep - METROFREQ) / UPDATEFREQ < (int) rep / UPDATEFREQ) {
-            printf ("Acceptance rate in UpdateQMetro %1.3f\n",
-                    (double) numhits / NUMINDS);
-        }
-    }
+    /*if (REPORTHITRATE) {           [>does this once every UPDATEFREQ reps <]*/
+        /*if ((int) (rep - METROFREQ) / UPDATEFREQ < (int) rep / UPDATEFREQ) {*/
+            /*printf ("Acceptance rate in UpdateQMetro %1.3f\n",*/
+                    /*(double) numhits / NUMINDS);*/
+        /*}*/
+    /*}*/
 
-    free (TestQ);
-    free (logdiffs);
-    free(logterms);
+    /*free (TestQ);*/
+    /*free (logdiffs);*/
+    /*free(logterms);*/
 }
 
 
@@ -322,12 +344,79 @@ void UpdateQAdmixture (double *Q, int *Z, double *Alpha,
             for (pop = 0; pop < MAXPOPS; pop++) {       /*compute dirichlet parameters */
                 Parameters[pop] = usealpha[pop] + NumLociPop[pop];
             }
-            RDirichlet (Parameters, MAXPOPS, Q + QPos (ind,
-                        0));      /*generate dirichlet RVs */
+            /*generate dirichlet RVs */
+            RDirichlet (Parameters, MAXPOPS, Q + QPos (ind, 0));
         }
     }
     free (NumLociPop);
     free (Parameters);
+}
+
+
+
+/*-----------------------------------------*/
+void UpdateQAdmixtureCL (CLDict *clDict,double *Q, int *Z, double *Alpha,
+                       struct IND *Individual,double * randomArr)
+/*update Q: proportion of ancest of each ind in each pop. */
+{
+    /*int *NumLociPop;              [>[MAXPOPS] -- number of alleles from each pop (by ind) <]
+    double *Parameters;           [>[MAXPOPS] -- dirichlet parameters of posterior on Q <]
+    int ind, pop, loc;
+    double *usealpha=NULL;
+    int offset;*/
+
+    int *NumLociPops;
+    size_t global[2];
+    /*NumLociPop = calloc (MAXPOPS, sizeof (int));*/
+    /*Parameters = calloc (MAXPOPS, sizeof (double));*/
+
+    NumLociPops = calloc (NUMINDS*MAXPOPS, sizeof (int));
+    /*if ((NumLociPop == NULL) || (Parameters == NULL)) {
+        printf ("WARNING: unable to allocate array space in UpdateQAdmixture\n");
+        Kill ();
+    }*/
+
+    /*if (LOCPRIOR==0) {
+        usealpha=Alpha;
+    }*/
+    /* Clear the buffer */
+    writeBuffer(clDict,NumLociPops,sizeof(int)* NUMINDS*MAXPOPS, NUMLOCIPOPSCL,"NumLociPops");
+    global[0] = NUMINDS;
+    global[1] = NUMLOCI;
+
+    runKernel(clDict,GetNumLociPopsKernel,2,global,"getNumLociPops");
+    /*readBuffer(clDict,NumLociPops,sizeof(int)* NUMINDS*MAXPOPS, NUMLOCIPOPSCL,"NumLociPops");*/
+
+    writeBuffer(clDict,randomArr,sizeof(double) *NUMINDS*MAXRANDOM,RANDCL,"Random");
+    runKernel(clDict,UpdQDirichletKernel,1,global,"UpdateQDirichlet");
+    readBuffer(clDict,Q,sizeof(double) * QSIZE,QCL,"Q");
+    /*GetNumLociPopsCL (clDict,NumLociPops, Z, ind);*/
+    /*for (ind = 0; ind < NUMINDS; ind++) {
+        offset = ind*MAXPOPS;
+        if (!((USEPOPINFO) && (Individual[ind].PopFlag))) {
+            [> ie don't use individuals for whom prior pop info is used <]
+            [>GetNumLociPop (NumLociPop, Z, ind);<]
+            [>for (pop = 0; pop < MAXPOPS; pop++) {<]
+                [>if(NumLociPop[pop] != NumLociPops[pop+offset]){<]
+                    [>ReleaseCLDict(clDict);<]
+                    [>printf("%d, %d\n",NumLociPop[pop],NumLociPops[pop+offset]);<]
+                    [>exit(EXIT_FAILURE);<]
+                [>}<]
+            [>}<]
+            if (LOCPRIOR) {
+                loc = Individual[ind].myloc;
+                usealpha = &Alpha[AlphaPos(loc, 0)];
+            }
+
+            for (pop = 0; pop < MAXPOPS; pop++) {       [>compute dirichlet parameters <]
+                Parameters[pop] = usealpha[pop] + NumLociPops[pop+offset];
+            }
+            [>generate dirichlet RVs <]
+            RDirichlet (Parameters, MAXPOPS, Q + QPos (ind, 0));
+        }
+    }
+    free (NumLociPop);
+    free (Parameters);*/
 }
 
 
@@ -579,7 +668,7 @@ void UpdateQ (CLDict *clDict,int *Geno, int *PreGeno, double *Q, double *P, int 
             UpdateQMetroCL (clDict,Geno, PreGeno, Q, P, Alpha, rep, Individual, Recessive,
                           randomArr);
         } else {
-            UpdateQAdmixture (Q, Z, Alpha, Individual,randomArr);
+            UpdateQAdmixtureCL (clDict,Q, Z, Alpha, Individual,randomArr);
         }
     }
 }

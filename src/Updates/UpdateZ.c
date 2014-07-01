@@ -70,8 +70,8 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,
     global[1] = NUMLOCI;
 
 
-    writeBuffer(clDict,Q,sizeof(double) * QSIZE,QCL,"Q");
-    /* P is now updated on gpu */
+    /*Q, P are now updated on gpu */
+    /*writeBuffer(clDict,Q,sizeof(double) * QSIZE,QCL,"Q");*/
     /*writeBuffer(clDict,P,sizeof(double) * PSIZE,PCL,"P");*/
 
     if(RECESSIVEALLELES){
@@ -84,7 +84,8 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,
 
     runKernel(clDict,UpdateZKernel,2,global,"UpdateZ");
 
-    readBuffer(clDict,Z,sizeof(int)*ZSIZE,ZCL,"Z");
+    /*only needed on data collection*/
+    /*readBuffer(clDict,Z,sizeof(int)*ZSIZE,ZCL,"Z");*/
     readBuffer(clDict,error,sizeof(int),ERRORCL,"Error");
 
     /* some error handling */

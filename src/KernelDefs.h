@@ -7,9 +7,13 @@ enum KERNEL {
     UpdateZKernel,
     GetNumFromPopsKernel,
     UpdatePKernel,
-    mapLogDiffsKernel,
-    reduceLogDiffsKernel,
+    /*mapLogDiffsKernel,*/
+    /*reduceLogDiffsKernel,*/
     mapReduceLogDiffsKernel,
+    RDirichletSampleKernel,
+    MetroAcceptTestKernel,
+    GetNumLociPopsKernel,
+    UpdQDirichletKernel,
     NumberOfKernels
 };
 
@@ -26,11 +30,13 @@ enum BUFFER {
     LAMBDACL,
     POPFLAGCL,
     NUMAFROMPOPSCL,
+    NUMLOCIPOPSCL,
     EPSILONCL,
     FSTCL,
-    LOGTERMSCL,
+    /*LOGTERMSCL,*/
     LOGDIFFSCL,
     TESTQCL,
+    ALPHACL,
     RANDCL, /* buffer for random numbers */
     ERRORCL, /* buffer for error codes */
     NumberOfBuffers

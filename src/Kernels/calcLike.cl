@@ -106,7 +106,6 @@ double mapLogDiffsFunc(__global double *Q, __global double *TestQ,
 
 
 
-/* ===== UNFINISHED ======= */
 __kernel void mapReduceLogDiffs(__global double *Q,
                                 __global double *TestQ,
                                 __global double *P,
@@ -114,6 +113,7 @@ __kernel void mapReduceLogDiffs(__global double *Q,
                                 __global double *logdiffs,
                                 __local  double *scratch)
 {
+        //TODO: Take advantage of local memory, use local_ids, etc.
     int loc = get_group_id(0);
     int ind = get_group_id(1);
     double logdiff = 0.0;

@@ -235,9 +235,9 @@ void CalcLogdiffsCL(CLDict *clDict,int *Geno,double *TestQ, double *Q, double *P
     }
 
 
-    writeBuffer(clDict,Q,sizeof(double) * QSIZE,QCL,"Q");
-    writeBuffer(clDict,TestQ,sizeof(double) * QSIZE,TESTQCL,"TestQ");
     /* Already up to date on GPU */
+    /*writeBuffer(clDict,Q,sizeof(double) * QSIZE,QCL,"Q");*/
+    /*writeBuffer(clDict,TestQ,sizeof(double) * QSIZE,TESTQCL,"TestQ");*/
     /*
     writeBuffer(clDict,P,sizeof(double) * PSIZE,PCL,"P");
     writeBuffer(clDict,Geno,sizeof(int) * GENOSIZE,GENOCL,"GENO");

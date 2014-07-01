@@ -56,117 +56,6 @@ GetNumFromPop (int *NumAFromPop, int *Geno, int *Z, int loc,
     }
 }
 
-void GetNumFromPopsCL (CLDict *clDict,int *NumAFromPops, int *Geno, int *Z,
-                       int *NumAlleles, struct IND *Individual)
-{
-    cl_int err;
-    size_t local;
-    size_t *global;
-    /* for error handling in kernel */
-    int *error;
-
-    int ind;
-    int *popflag;
-
-
-    error = calloc(1,sizeof(int));
-    error[0] = 0;
-    global = calloc(2,sizeof(size_t));
-    global[0] = NUMINDS;
-    global[1] = NUMLOCI;
-
-    if(PFROMPOPFLAGONLY) {
-        popflag = calloc(NUMINDS,sizeof(int));
-        for(ind = 0; ind < NUMINDS; ++ind) {
-            popflag[ind] = Individual[ind].PopFlag;
-        }
-
-        err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[POPFLAGCL],
-                                   CL_TRUE,
-                                   0, sizeof(int) * NUMINDS, popflag, 0, NULL, NULL);
-        handleCLErr(err, clDict,"UpdateP Error: Failed to write buffer popflags!");
-    }
-
-    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[GENOCL], CL_TRUE,
-                               0, sizeof(int) * GENOSIZE, Geno, 0, NULL, NULL);
-    handleCLErr(err, clDict,"UpdateP Error: Failed to write buffer geno!");
-
-    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[ZCL], CL_TRUE,
-                               0, sizeof(int) * ZSIZE, Z, 0, NULL, NULL);
-    handleCLErr(err, clDict,"UpdateP Error: Failed to write buffer Z!");
-
-    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[NUMAFROMPOPSCL],
-                               CL_TRUE,
-                               0, sizeof(int) * NUMLOCI*MAXPOPS*MAXALLELES, NumAFromPops, 0, NULL, NULL);
-
-    handleCLErr(err, clDict,
-                "UpdateP Error: Failed to write buffer NumAFromPopsCL!");
-
-    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[NUMALLELESCL],
-                               CL_TRUE,
-                               0, sizeof(int) * NUMLOCI, NumAlleles, 0, NULL, NULL);
-    handleCLErr(err, clDict,"UpdateP Error: Failed to write buffer NUMALLELES!");
-    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[ERRORCL], CL_TRUE,
-                               0, sizeof(int), error, 0, NULL, NULL);
-    handleCLErr(err, clDict,"UpdateP Error: Failed to write error buffer!");
-
-
-
-    err = 0;
-    err  = clSetKernelArg(clDict->kernels[GetNumFromPopsKernel], 0, sizeof(cl_mem),
-                          &(clDict->buffers[ZCL]));
-    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 0!");
-    err = clSetKernelArg(clDict->kernels[GetNumFromPopsKernel], 1, sizeof(cl_mem),
-                         &(clDict->buffers[GENOCL]));
-    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 1!");
-    err = clSetKernelArg(clDict->kernels[GetNumFromPopsKernel], 2, sizeof(cl_mem),
-                         &(clDict->buffers[NUMALLELESCL]));
-    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 2!");
-    err = clSetKernelArg(clDict->kernels[GetNumFromPopsKernel], 3, sizeof(cl_mem),
-                         &(clDict->buffers[POPFLAGCL]));
-    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 3!");
-
-    err = clSetKernelArg(clDict->kernels[GetNumFromPopsKernel], 4, sizeof(cl_mem),
-                         &(clDict->buffers[NUMAFROMPOPSCL]));
-    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 4!");
-
-    err = clSetKernelArg(clDict->kernels[GetNumFromPopsKernel], 5, sizeof(cl_mem),
-                         &(clDict->buffers[ERRORCL]));
-    handleCLErr(err, clDict,"UpdateP Error: Failed to set arg 5!");
-
-    err = clGetKernelWorkGroupInfo(clDict->kernels[GetNumFromPopsKernel],
-                                   clDict->device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL);
-    handleCLErr(err, clDict,
-                "UpdateP Error: Failed to retrieve kernel work group info!");
-
-
-    err = clEnqueueNDRangeKernel(clDict->commands,
-                                 clDict->kernels[GetNumFromPopsKernel],
-                                 2, NULL, global, NULL, 0, NULL, NULL);
-    handleCLErr(err, clDict,"UpdateP Error: Failed to execute kernel!");
-
-    err = clFinish(clDict->commands);
-
-    err = clEnqueueReadBuffer(clDict->commands, clDict->buffers[NUMAFROMPOPSCL],
-                              CL_TRUE, 0,
-                              sizeof(int) * NUMLOCI*MAXPOPS * MAXALLELES, NumAFromPops, 0, NULL, NULL );
-
-    err = clEnqueueReadBuffer(clDict->commands, clDict->buffers[ERRORCL], CL_TRUE,
-                              0, sizeof(int), error, 0, NULL, NULL );
-
-
-    free(global);
-    /* some error handling */
-    if (error[0] != KERNEL_SUCCESS ) {
-        printf("UpdateP Error in Kernel:\n");
-        PrintKernelError(error[0]);
-        ReleaseCLDict(clDict);
-        exit(EXIT_FAILURE);
-    }
-    free(error);
-
-
-}
 
 void GetNumFromPops (int *NumAFromPops, int *Geno, int *Z, int *NumAlleles,
                      struct IND *Individual)
@@ -348,7 +237,9 @@ void UpdatePCL (CLDict *clDict,double *P, double *LogP, double *Epsilon,
     if(RECESSIVEALLELES){
         writeBuffer(clDict,Geno,sizeof(int) * GENOSIZE,GENOCL,"Geno");
     }
-    writeBuffer(clDict,Z,sizeof(int)*ZSIZE,ZCL,"Z");
+    /* already up to date on gpu */
+    /*writeBuffer(clDict,Z,sizeof(int)*ZSIZE,ZCL,"Z");*/
+    /* Clear buffer */
     writeBuffer(clDict,NumAFromPops,sizeof(int)* NUMLOCI*MAXPOPS*MAXALLELES,
                 NUMAFROMPOPSCL,"NumAFromPops");
 
@@ -403,16 +294,6 @@ void UpdatePCL (CLDict *clDict,double *P, double *LogP, double *Epsilon,
         ReleaseCLDict(clDict);
         exit(EXIT_FAILURE);
     }
-    /*GetNumFromPops (NumAFromPops,Geno, Z, NumAlleles, Individual);
-    for(loc = 0; loc < NUMLOCI*MAXALLELES*MAXPOPS; ++loc){
-        if(NumAFromPopsCL[loc] != NumAFromPops[loc]){
-            printf("NumAFromPopsCL not correct!\n");
-            printf("loc %d, size %d\n", loc, NUMLOCI*MAXALLELES*MAXRANDOM);
-            printf("%d, %d\n",NumAFromPopsCL[loc],NumAFromPops[loc]);
-            ReleaseCLDict(clDict);
-            exit(EXIT_FAILURE);
-        }
-    }*/
 
 
     free (NumAFromPops);

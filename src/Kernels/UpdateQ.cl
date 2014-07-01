@@ -1,75 +1,71 @@
-__kernel void UpdateQMetro (
-    __global int *Geno,
-    __global int *PreGeno,
-    __global double *Q,
-    __global double *P,
-    __global double *Alpha,
-    __global int *individualLocs,
-    __global int *individualPopFlags,
-    __global int *Recessive,
-    __global double * randomArr,
-    const int rep,
-    __global int* error
-)
+__kernel void MetroAcceptTest(
+        __global double *TestQ,
+        __global double *Q,
+        __global double *randomArr,
+        __global double *logdiffs,
+        __global int *popflags)
 {
-    double CurrentQ[MAXPOPS];             /*[MAXPOPS]; */
-    double TestQ[MAXPOPS];                /*[MAXPOPS]; */
-    double PriorQ1[MAXPOPS];
-    int pop;
-    double logdiff;
-    double randomnum;
-    int apos;
-    int numhits = 0;
-
-
-    RndDiscState randState[1];
     int ind = get_global_id(0);
+    int pop;
+    RndDiscState randState[1];
 
-    if (ind < NUMINDS) {
-        if (!((USEPOPINFO) && (individualPopFlags[ind]))) {
-            rndDiscStateReset(randState, ind*MAXRANDOM);
-        }
-        #if LOCPRIOR
-        apos = AlphaPos(individualLocs[ind],0);
-        for (pop = 0; pop < MAXPOPS; pop++) {
-            PriorQ1[pop] = Alpha[apos+pop];
-        }
-        #else
-        for (pop = 0; pop < MAXPOPS; pop++) {
-            PriorQ1[pop] = Alpha[pop];
-        }
-        #endif
-
-        RDirichletDisc (PriorQ1, MAXPOPS, TestQ,
-                        randState);     /*return TestQ, sampled from the prior */
-
-
-
-        if (rep == 0) {
+    initRndDiscState(randState,randomArr,1);
+    rndDiscStateReset(randState,NUMINDS*MAXRANDOM+ind);
+    if (!((USEPOPINFO) && (popflags[ind]))) {
+        if(rndDisc(randState) < exp(logdiffs[ind])){
             for (pop = 0; pop < MAXPOPS; pop++) {
-                Q[QPos (ind, pop)] = (double) 1 / MAXPOPS;
+                Q[QPos (ind, pop)] = TestQ[QPos(ind,pop)];
             }
-        }
-
-        for (pop = 0; pop < MAXPOPS; pop++) {
-            CurrentQ[pop] = Q[QPos (ind, pop)];
-        }
-
-
-        logdiff = 0.0;
-        /* logdiff += log(TestQ[pop]) - log(CurrentQ[pop]);
-        logdiff = logdiff*(alpha-1.0); removed prior prob bit */
-
-        logdiff += CalcLikeInd (Geno, PreGeno, TestQ, P, ind,
-                                Recessive);  /*likelihood bit */
-        logdiff -= CalcLikeInd (Geno, PreGeno, CurrentQ, P, ind, Recessive);
-
-        randomnum = rndDisc(randState);
-        if (randomnum < exp (logdiff)) {    /*accept */
-            for (pop = 0; pop < MAXPOPS; pop++) {
-                Q[QPos (ind, pop)] = TestQ[pop];
-            }
-            numhits++;
         }
     }
 }
+
+__kernel void GetNumLociPops(
+        __global int *Z,
+        __global int *popflags,
+        __global int *NumLociPops)
+{
+    int ind = get_global_id(0);
+    int loc = get_global_id(1);
+    int offset = ind*MAXPOPS;
+    int line, from;
+    if(ind < NUMINDS && loc < NUMLOCI) {
+        if (!((USEPOPINFO) && (popflags[ind]))) {
+            for (line = 0; line < LINES; line++) {
+                from = Z[ZPos (ind, line, loc)];
+                if (from != UNASSIGNED) {
+                    atomic_add(&NumLociPops[from+offset],1);
+                }
+            }
+        }
+    }
+}
+
+__kernel void UpdQDirichlet(
+        __global double *Alpha,
+        __global int *NumLociPops,
+        __global double *randomArr,
+        __global double *Q)
+{
+    int ind = get_global_id(0);
+    RndDiscState randState[1];
+
+    initRndDiscState(randState,randomArr,MAXRANDOM);
+    rndDiscStateReset(randState,ind*MAXRANDOM);
+    double GammaSample[MAXPOPS];
+
+    int i = 0;
+    double sum = 0.0;
+    int offset = ind*MAXPOPS;
+    double param;
+    for(i = 0; i < MAXPOPS; i++){
+        param = Alpha[i]+NumLociPops[i+offset];
+        GammaSample[i] = RGammaDisc(param,1,randState);
+        sum += GammaSample[i];
+    }
+    for(i = 0; i < MAXPOPS; i++){
+        Q[i+offset] = GammaSample[i]/sum;
+    }
+}
+
+

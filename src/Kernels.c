@@ -264,17 +264,17 @@ void setKernelArgs(CLDict *clDict)
 
     /*===== map log diffs *==== */
 
-    setKernelArg(clDict,mapLogDiffsKernel,LOGTERMSCL,0);
-    setKernelArg(clDict,mapLogDiffsKernel,QCL,1);
-    setKernelArg(clDict,mapLogDiffsKernel,TESTQCL,2);
-    setKernelArg(clDict,mapLogDiffsKernel,PCL,3);
-    setKernelArg(clDict,mapLogDiffsKernel,GENOCL,4);
-    setKernelArg(clDict,mapLogDiffsKernel,ERRORCL,5);
+    /*setKernelArg(clDict,mapLogDiffsKernel,LOGTERMSCL,0);*/
+    /*setKernelArg(clDict,mapLogDiffsKernel,QCL,1);*/
+    /*setKernelArg(clDict,mapLogDiffsKernel,TESTQCL,2);*/
+    /*setKernelArg(clDict,mapLogDiffsKernel,PCL,3);*/
+    /*setKernelArg(clDict,mapLogDiffsKernel,GENOCL,4);*/
+    /*setKernelArg(clDict,mapLogDiffsKernel,ERRORCL,5);*/
 
     /*=====  reduce log diffs *==== */
-    setKernelArg(clDict,reduceLogDiffsKernel,LOGTERMSCL,0);
-    setKernelArg(clDict,reduceLogDiffsKernel,LOGDIFFSCL,1);
-    setKernelArgNULL(clDict,reduceLogDiffsKernel,sizeof(double)*NUMLOCI,NULL,2);
+    /*setKernelArg(clDict,reduceLogDiffsKernel,LOGTERMSCL,0);*/
+    /*setKernelArg(clDict,reduceLogDiffsKernel,LOGDIFFSCL,1);*/
+    /*setKernelArgNULL(clDict,reduceLogDiffsKernel,sizeof(double)*NUMLOCI,NULL,2);*/
 
     /*=====  mapreduce log diffs *==== */
     setKernelArg(clDict,mapReduceLogDiffsKernel,QCL,0);
@@ -284,6 +284,30 @@ void setKernelArgs(CLDict *clDict)
     setKernelArg(clDict,mapReduceLogDiffsKernel,LOGDIFFSCL,4);
     setKernelArgNULL(clDict,mapReduceLogDiffsKernel,sizeof(double)*NUMLOCI,NULL,5);
     /*setKernelArgNULL(clDict,mapReduceLogDiffsKernel,sizeof(double)*NUMLOCI,NULL,5);*/
+
+    /* RDirichlet sample */
+    setKernelArg(clDict,RDirichletSampleKernel,ALPHACL,0);
+    setKernelArg(clDict,RDirichletSampleKernel,RANDCL,1);
+    setKernelArg(clDict,RDirichletSampleKernel,TESTQCL,2);
+
+    /* Metro accept test*/
+    setKernelArg(clDict,MetroAcceptTestKernel,TESTQCL,0);
+    setKernelArg(clDict,MetroAcceptTestKernel,QCL,1);
+    setKernelArg(clDict,MetroAcceptTestKernel,RANDCL,2);
+    setKernelArg(clDict,MetroAcceptTestKernel,LOGDIFFSCL,3);
+    setKernelArg(clDict,MetroAcceptTestKernel,POPFLAGCL,4);
+
+    /* Get num loci pops */
+    setKernelArg(clDict,GetNumLociPopsKernel,ZCL,0);
+    setKernelArg(clDict,GetNumLociPopsKernel,POPFLAGCL,1);
+    setKernelArg(clDict,GetNumLociPopsKernel,NUMLOCIPOPSCL,2);
+
+    /* UpdQ dirichlet */
+    setKernelArg(clDict,UpdQDirichletKernel,ALPHACL,0);
+    setKernelArg(clDict,UpdQDirichletKernel,NUMLOCIPOPSCL,1);
+    setKernelArg(clDict,UpdQDirichletKernel,RANDCL,2);
+    setKernelArg(clDict,UpdQDirichletKernel,QCL,3);
+
 }
 
 void getLocal(CLDict *clDict,enum KERNEL kernel){
@@ -301,7 +325,6 @@ void getLocals(CLDict *clDict)
     getLocal(clDict,UpdateZKernel);
     getLocal(clDict,GetNumFromPopsKernel);
     getLocal(clDict,UpdatePKernel);
-    getLocal(clDict,mapLogDiffsKernel);
 
 }
 
@@ -402,7 +425,7 @@ int CompileKernels(CLDict *clDict,  char *options)
     /*cl_int ret;*/
 
 
-    char *KERNELNAMES[NumberOfKernels] = {"UpdateZ","GetNumFromPops","UpdateP","mapLogDiffs","reduceLogDiffs","mapReduceLogDiffs"};
+    char *KERNELNAMES[NumberOfKernels] = {"UpdateZ","GetNumFromPops","UpdateP","mapReduceLogDiffs","Dirichlet", "MetroAcceptTest","GetNumLociPops","UpdQDirichlet"};
 
     /* Load the source code containing the kernels*/
     fp = fopen("Kernels/Kernels.cl", "r");
@@ -501,16 +524,18 @@ void createCLBuffers(CLDict *clDict)
     }
     createCLBuffer(clDict,NUMALLELESCL,sizeof(int)*NUMLOCI,CL_MEM_READ_WRITE);
 
-    if (PFROMPOPFLAGONLY) {
+    if (PFROMPOPFLAGONLY || USEPOPINFO) {
         createCLBuffer(clDict,POPFLAGCL,sizeof(int)*NUMINDS,CL_MEM_READ_WRITE);
     }
 
     createCLBuffer(clDict,NUMAFROMPOPSCL,sizeof(int)*NUMLOCI*MAXPOPS*MAXALLELES,CL_MEM_READ_WRITE);
 
+    createCLBuffer(clDict,NUMLOCIPOPSCL,sizeof(int)*NUMINDS*MAXPOPS,CL_MEM_READ_WRITE);
 
     createCLBuffer(clDict,LOGDIFFSCL,sizeof(double)*NUMINDS,CL_MEM_READ_WRITE);
 
-    createCLBuffer(clDict,LOGTERMSCL,sizeof(double)*NUMINDS*NUMLOCI,CL_MEM_READ_WRITE);
+    /*createCLBuffer(clDict,LOGTERMSCL,sizeof(double)*NUMINDS*NUMLOCI,CL_MEM_READ_WRITE);*/
+    createCLBuffer(clDict,ALPHACL,sizeof(double)*MAXPOPS,CL_MEM_READ_WRITE);
     createCLBuffer(clDict,TESTQCL,sizeof(double)*QSIZE,CL_MEM_READ_WRITE);
     createCLBuffer(clDict,RANDCL,sizeof(double)*RANDSIZE,CL_MEM_READ_WRITE);
     createCLBuffer(clDict,ERRORCL,sizeof(int)*2,CL_MEM_READ_WRITE);
@@ -606,12 +631,13 @@ int InitCLDict(CLDict *clDictToInit)
                      -D MAXALLELES=%d -D NUMLOCI=%d  -D LINES=%d    \
                      -D NUMINDS=%d -D MAXRANDOM=%d  -D USEPOPINFO=%d    \
                      -D LOCPRIOR=%d  -D NOTAMBIGUOUS=%d  -D NUMLOCATIONS=%d    \
-                     -D PFROMPOPFLAGONLY=%d -D FREQSCORR=%d -D blockSize=64"
+                     -D PFROMPOPFLAGONLY=%d -D FREQSCORR=%d -D blockSize=64\
+                     -D DEBUGCOMPARE=%d "
             , UNASSIGNED, MAXPOPS, MISSING
             , MAXALLELES, NUMLOCI, LINES
             , NUMINDS, MAXRANDOM, USEPOPINFO
             , LOCPRIOR, NOTAMBIGUOUS, NUMLOCATIONS
-            , PFROMPOPFLAGONLY,FREQSCORR);
+            , PFROMPOPFLAGONLY,FREQSCORR,DEBUGCOMPARE);
 
     printf("%s\n",options);
     compileret = CompileKernels(clDictToInit,options);
