@@ -207,13 +207,13 @@ void UpdatePCL (CLDict *clDict,double *P, double *LogP, double *Epsilon,
 /*Simulate new allele frequencies from Dirichlet distribution */
 {
 
-    int *NumAFromPops;
+    /*int *NumAFromPops;*/
     size_t global[2];
     /* for error handling in kernel */
     int error[2];
 
 
-    NumAFromPops = calloc(NUMLOCI*MAXPOPS * MAXALLELES, sizeof (int));
+    /*NumAFromPops = calloc(NUMLOCI*MAXPOPS * MAXALLELES, sizeof (int));*/
     error[0] = 0;
     error[1] = 0;
     global[0] = NUMINDS;
@@ -225,10 +225,9 @@ void UpdatePCL (CLDict *clDict,double *P, double *LogP, double *Epsilon,
 
     /* =================================================== */
     /* already up to date on gpu */
-    /*writeBuffer(clDict,Z,sizeof(int)*ZSIZE,ZCL,"Z");*/
 
     /* Clear buffer */
-    writeBuffer(clDict,NumAFromPops,sizeof(int)* NUMLOCI*MAXPOPS*MAXALLELES, NUMAFROMPOPSCL,"NumAFromPops");
+    /*writeBuffer(clDict,NumAFromPops,sizeof(int)* NUMLOCI*MAXPOPS*MAXALLELES, NUMAFROMPOPSCL,"NumAFromPops");*/
 
 
     writeBuffer(clDict,error,sizeof(int),ERRORCL,"error");
@@ -259,8 +258,6 @@ void UpdatePCL (CLDict *clDict,double *P, double *LogP, double *Epsilon,
 
     runKernel(clDict,UpdatePKernel,2,global,"UpdateP");
 
-    readBuffer(clDict,P,sizeof(double) * PSIZE,PCL,"P");
-    readBuffer(clDict,LogP,sizeof(double) * PSIZE,LOGPCL,"LogP");
     readBuffer(clDict,error,sizeof(int),ERRORCL,"Error");
 
 
@@ -275,5 +272,5 @@ void UpdatePCL (CLDict *clDict,double *P, double *LogP, double *Epsilon,
     }
 
 
-    free (NumAFromPops);
+    /*free (NumAFromPops);*/
 }

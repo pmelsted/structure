@@ -69,34 +69,31 @@ void UpdateQMetroCL (CLDict *clDict,int *Geno, int *PreGeno, double *Q, double *
 
     writeBuffer(clDict,randomArr,sizeof(double) * (NUMINDS*MAXRANDOM+NUMINDS),RANDCL,"Random");
 
+    /* ======== Sample ====== */
     global[0] = NUMINDS;
     runKernel(clDict,RDirichletSampleKernel,1,global,"Dirichlet");
 
     /*readBuffer(clDict,TestQ,sizeof(double) *QSIZE,TESTQCL,"TestQ");*/
 
-    /* ======== Sample ====== */
     /*for (ind = 0; ind < NUMINDS; ind++) {*/
         /*RDirichletDisc(Alpha, MAXPOPS, TestQ,ind*MAXPOPS,randState);*/
     /*}*/
 
+
+
     /* ======== Calculate likelihood ====== */
-
-    /*writeBuffer(clDict,Q,sizeof(double) * QSIZE,QCL,"Q");*/
-
     global[0] = NUMLOCI;
     global[1] = NUMINDS;
 
     runKernel(clDict,mapReduceLogDiffsKernel,2,global,"reduceLogDiffs");
     /*readBuffer(clDict,logdiffs,sizeof(double) * NUMINDS,LOGDIFFSCL,"Logdiffs");*/
+    /*CalcLogdiffsCL(clDict,Geno,TestQ,Q,P,logdiffs);*/
 
+    /* ========= Acceptance test ========= */
     global[0] = NUMINDS;
     runKernel(clDict,MetroAcceptTestKernel,1,global,"MetroAcceptTest");
 
-    readBuffer(clDict,Q,sizeof(double) * QSIZE,QCL,"Q");
-    /*CalcLogdiffsCL(clDict,Geno,TestQ,Q,P,logdiffs);*/
-    /*UpdateQMetroAcceptanceTest(clDict,Q,TestQ,logdiffs,randomArr);*/
 
-    /* ========= Acceptance test ========= */
     /*for (ind = 0; ind < NUMINDS; ind++){
         if (!((USEPOPINFO) && (Individual[ind].PopFlag))) {
             randomnum = rndDisc(randState);
@@ -109,6 +106,7 @@ void UpdateQMetroCL (CLDict *clDict,int *Geno, int *PreGeno, double *Q, double *
         }
     }*/
 
+    /* TODO: count hits in Acceptance test (put 0,1 in array and reduce?)*/
     /*if (REPORTHITRATE) {           [>does this once every UPDATEFREQ reps <]*/
         /*if ((int) (rep - METROFREQ) / UPDATEFREQ < (int) rep / UPDATEFREQ) {*/
             /*printf ("Acceptance rate in UpdateQMetro %1.3f\n",*/
@@ -365,12 +363,12 @@ void UpdateQAdmixtureCL (CLDict *clDict,double *Q, int *Z, double *Alpha,
     double *usealpha=NULL;
     int offset;*/
 
-    int *NumLociPops;
+    /*int *NumLociPops;*/
     size_t global[2];
     /*NumLociPop = calloc (MAXPOPS, sizeof (int));*/
     /*Parameters = calloc (MAXPOPS, sizeof (double));*/
 
-    NumLociPops = calloc (NUMINDS*MAXPOPS, sizeof (int));
+    /*NumLociPops = calloc (NUMINDS*MAXPOPS, sizeof (int));*/
     /*if ((NumLociPop == NULL) || (Parameters == NULL)) {
         printf ("WARNING: unable to allocate array space in UpdateQAdmixture\n");
         Kill ();
@@ -380,7 +378,7 @@ void UpdateQAdmixtureCL (CLDict *clDict,double *Q, int *Z, double *Alpha,
         usealpha=Alpha;
     }*/
     /* Clear the buffer */
-    writeBuffer(clDict,NumLociPops,sizeof(int)* NUMINDS*MAXPOPS, NUMLOCIPOPSCL,"NumLociPops");
+    /*writeBuffer(clDict,NumLociPops,sizeof(int)* NUMINDS*MAXPOPS, NUMLOCIPOPSCL,"NumLociPops");*/
     global[0] = NUMINDS;
     global[1] = NUMLOCI;
 
@@ -389,7 +387,6 @@ void UpdateQAdmixtureCL (CLDict *clDict,double *Q, int *Z, double *Alpha,
 
     writeBuffer(clDict,randomArr,sizeof(double) *NUMINDS*MAXRANDOM,RANDCL,"Random");
     runKernel(clDict,UpdQDirichletKernel,1,global,"UpdateQDirichlet");
-    readBuffer(clDict,Q,sizeof(double) * QSIZE,QCL,"Q");
     /*GetNumLociPopsCL (clDict,NumLociPops, Z, ind);*/
     /*for (ind = 0; ind < NUMINDS; ind++) {
         offset = ind*MAXPOPS;
@@ -417,6 +414,9 @@ void UpdateQAdmixtureCL (CLDict *clDict,double *Q, int *Z, double *Alpha,
     }
     free (NumLociPop);
     free (Parameters);*/
+
+
+    /*free(NumLociPops);*/
 }
 
 
@@ -636,7 +636,7 @@ UpdateQWithPops (int *Geno, double *Q, double *P, int *Z, double *Alpha,
 
 /*-----------------------------------------*/
 /*Melissa updated 7/12/07 to incorporate LocPriors*/
-void UpdateQ (CLDict *clDict,int *Geno, int *PreGeno, double *Q, double *P, int *Z,
+void UpdateQ (int *Geno, int *PreGeno, double *Q, double *P, int *Z,
               double *Alpha, int rep,
               struct IND *Individual, double *UsePopProbs, int *Recessive, double *LocPrior,
               double * randomArr)
@@ -665,10 +665,10 @@ void UpdateQ (CLDict *clDict,int *Geno, int *PreGeno, double *Q, double *P, int 
     } else {
         /*admixture model */
         if (METROFREQ > 0 && rep%METROFREQ==0) {
-            UpdateQMetroCL (clDict,Geno, PreGeno, Q, P, Alpha, rep, Individual, Recessive,
+            UpdateQMetro (Geno, PreGeno, Q, P, Alpha, rep, Individual, Recessive,
                           randomArr);
         } else {
-            UpdateQAdmixtureCL (clDict,Q, Z, Alpha, Individual,randomArr);
+            UpdateQAdmixture (Q, Z, Alpha, Individual,randomArr);
         }
     }
 }
@@ -815,3 +815,42 @@ UpdateQMetroRecombine (int *Geno, double *Q, int *Z, double *P,
 
 }*/
 
+
+/*-----------------------------------------*/
+/*Melissa updated 7/12/07 to incorporate LocPriors*/
+void UpdateQCL (CLDict *clDict,int *Geno, int *PreGeno, double *Q, double *P, int *Z,
+              double *Alpha, int rep,
+              struct IND *Individual, double *UsePopProbs, int *Recessive, double *LocPrior,
+              double * randomArr)
+/*
+ * update Q: proportion of ancest of each ind in each pop. Three
+ * main options here.  One is update Q with admixture, one is update
+ * Q with no admixture, and one is to use prior population info.
+ * Even when USEPOPINFO is turned on, the other Q updates are still
+ * called, in order to deal with any individuals who lack population
+ * info.  The other functions are written to ignore individuals with
+ * pop data when USEPOPINFO is on.
+ */
+{
+
+    if (USEPOPINFO) {               /*update with prior population information */
+        UpdateQWithPops (Geno, Q, P, Z, Alpha, rep, Individual, UsePopProbs,randomArr);
+    }
+
+    if (NOADMIX) {                  /*no admixture model */
+        /* don't use ADMIBURNIN with LOCPRIOR models */
+        if ((rep > ADMBURNIN) || (rep > BURNIN) || LOCPRIOR) {
+            UpdateQNoAdmix (Geno, Q, P, Individual, LocPrior,randomArr);
+        } else {
+            UpdateQAdmixture (Q, Z, Alpha, Individual,randomArr);       /*initial burnin */
+        }
+    } else {
+        /*admixture model */
+        if (METROFREQ > 0 && rep%METROFREQ==0) {
+            UpdateQMetroCL (clDict,Geno, PreGeno, Q, P, Alpha, rep, Individual, Recessive,
+                          randomArr);
+        } else {
+            UpdateQAdmixtureCL (clDict,Q, Z, Alpha, Individual,randomArr);
+        }
+    }
+}

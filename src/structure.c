@@ -439,6 +439,8 @@ int main (int argc, char *argv[])
             UpdatePCL (clDict,P,LogP, Epsilon, Fst, NumAlleles, Geno, Z, lambda,
                        Individual,
                        randomArr);
+            readBuffer(clDict,P,sizeof(double) * PSIZE,PCL,"P");
+            readBuffer(clDict,LogP,sizeof(double) * PSIZE,LOGPCL,"LogP");
         }  else {
             UpdateP (P,LogP, Epsilon, Fst, NumAlleles, Geno, Z, lambda, Individual,
                      randomArr);
@@ -450,8 +452,9 @@ int main (int argc, char *argv[])
             UpdateQMetroRecombine (Geno, Q, Z, P, Alpha, rep,
                                    Individual, Mapdistance, R, Phase,Phasemodel,randomArr);
         } else {
-            UpdateQ (clDict,Geno, PreGeno, Q, P, Z, Alpha, rep, Individual, UsePopProbs,
+            UpdateQCL (clDict,Geno, PreGeno, Q, P, Z, Alpha, rep, Individual, UsePopProbs,
                      Recessive, LocPrior,randomArr);
+            readBuffer(clDict,Q,sizeof(double) * QSIZE,QCL,"Q");
         }
 
         if (LOCPRIOR && UPDATELOCPRIOR) {
@@ -481,6 +484,8 @@ int main (int argc, char *argv[])
             }
             if (USEWORKINGCL) {
                 UpdateZCL (clDict,Z,  Q, P, Geno,randomArr);
+                /* Not needed */
+                readBuffer(clDict,Z,sizeof(int)*ZSIZE,ZCL,"Z");
             } else {
                 UpdateZ (Z,  Q, P, Geno,randomArr);
             }
@@ -514,8 +519,6 @@ int main (int argc, char *argv[])
 
         /*====book-keeping stuff======================*/
         if (rep + 1 > BURNIN) {
-            /*Not used */
-            /*readBuffer(clDict,Z,sizeof(int)*ZSIZE,ZCL,"Z");*/
             DataCollection (Geno, PreGeno, Q, QSum, Z, Z1,  P, PSum,
                             Fst, FstSum, NumAlleles,
                             AncestDist, Alpha, sumAlpha, sumR, varR, &like,
