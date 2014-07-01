@@ -14,6 +14,7 @@ enum KERNEL {
     MetroAcceptTestKernel,
     GetNumLociPopsKernel,
     UpdQDirichletKernel,
+    FillArrayWRandomKernel,
     NumberOfKernels
 };
 

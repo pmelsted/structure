@@ -230,7 +230,7 @@ void UpdatePCL (CLDict *clDict,double *P, double *LogP, double *Epsilon,
     /*writeBuffer(clDict,NumAFromPops,sizeof(int)* NUMLOCI*MAXPOPS*MAXALLELES, NUMAFROMPOPSCL,"NumAFromPops");*/
 
 
-    writeBuffer(clDict,error,sizeof(int),ERRORCL,"error");
+    writeBuffer(clDict,error,sizeof(int)*2,ERRORCL,"error");
 
     /* =================================================== */
 
@@ -242,8 +242,7 @@ void UpdatePCL (CLDict *clDict,double *P, double *LogP, double *Epsilon,
 
 
 
-    writeBuffer(clDict,randomArr,
-                sizeof(double) * NUMLOCI*MAXALLELES*MAXPOPS*MAXRANDOM,RANDCL,"randomArr");
+    /*writeBuffer(clDict,randomArr, sizeof(double) * NUMLOCI*MAXALLELES*MAXPOPS*MAXRANDOM,RANDCL,"randomArr");*/
 
 
     /* =================================================== */
@@ -258,7 +257,7 @@ void UpdatePCL (CLDict *clDict,double *P, double *LogP, double *Epsilon,
 
     runKernel(clDict,UpdatePKernel,2,global,"UpdateP");
 
-    readBuffer(clDict,error,sizeof(int),ERRORCL,"Error");
+    readBuffer(clDict,error,sizeof(int)*2,ERRORCL,"Error");
 
 
 

@@ -308,6 +308,9 @@ void setKernelArgs(CLDict *clDict)
     setKernelArg(clDict,UpdQDirichletKernel,RANDCL,2);
     setKernelArg(clDict,UpdQDirichletKernel,QCL,3);
 
+    /* FillArrayWithRandom dirichlet */
+    setKernelArg(clDict,FillArrayWRandomKernel,RANDCL,0);
+
 }
 
 void getLocal(CLDict *clDict,enum KERNEL kernel){
@@ -425,7 +428,7 @@ int CompileKernels(CLDict *clDict,  char *options)
     /*cl_int ret;*/
 
 
-    char *KERNELNAMES[NumberOfKernels] = {"UpdateZ","GetNumFromPops","UpdateP","mapReduceLogDiffs","Dirichlet", "MetroAcceptTest","GetNumLociPops","UpdQDirichlet"};
+    char *KERNELNAMES[NumberOfKernels] = {"UpdateZ","GetNumFromPops","UpdateP","mapReduceLogDiffs","Dirichlet", "MetroAcceptTest","GetNumLociPops","UpdQDirichlet","FillArrayWRandom"};
 
     /* Load the source code containing the kernels*/
     fp = fopen("Kernels/Kernels.cl", "r");

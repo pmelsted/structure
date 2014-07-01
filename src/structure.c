@@ -153,6 +153,17 @@ void comparePCLandP(CLDict *clDict,double *OrigP, double *OrigLogP,
     free(LogP);
 }
 
+void FillArrayWithRandomCL(CLDict *clDict,double *randomArr, int numrands){
+    size_t global[1];
+    int seed = rand();
+    global[0] = numrands/16;
+    setKernelArgNULL(clDict,FillArrayWRandomKernel,sizeof(int),&numrands,1);
+    setKernelArgNULL(clDict,FillArrayWRandomKernel,sizeof(int),&seed,2);
+    runKernel(clDict,FillArrayWRandomKernel,1,global,"FillArrayWRandom");
+    /*readBuffer(clDict,randomArr, sizeof(double) * numrands,RANDCL,*/
+                /*"randomArr");*/
+}
+
 /*=============MAIN======================================*/
 
 int main (int argc, char *argv[])
@@ -422,16 +433,23 @@ int main (int argc, char *argv[])
     /*printf("%d\n",USEPOPINFO);*/
     /*printf("%d\n",RECESSIVEALLELES);*/
     /*printf("%d\n",LINKAGE);*/
+    /*printf("%d\n",COMPUTEPROB);*/
+    /*printf("%d\n",POPALPHAS);*/
+    /*printf("%d\n",UNIFPRIORALPHA);*/
     /*handleCLErr(1,clDict,"heyhey");*/
 
     /*Initialize Q */
     initQ(Q);
     for (rep = 0; rep < (NUMREPS + BURNIN); rep++) {
 
-        FillArrayWithRandom(randomArr,NUMLOCI*MAXALLELES*MAXPOPS*MAXRANDOM);
+        FillArrayWithRandomCL(clDict,randomArr,NUMLOCI*MAXALLELES*MAXPOPS*MAXRANDOM);
+        /*FillArrayWithRandom(randomArr,NUMLOCI*MAXALLELES*MAXPOPS*MAXRANDOM);*/
         /*FillArrayWithRandom(randomArr,RANDSIZE);*/
 
         if(DEBUGCOMPARE) {
+            readBuffer(clDict,randomArr,
+                    sizeof(double) * NUMLOCI*MAXALLELES*MAXPOPS*MAXRANDOM,RANDCL,
+                    "randomArr");
             comparePCLandP(clDict,P,LogP, Epsilon, Fst, NumAlleles, Geno, Z,
                            lambda, Individual, randomArr);
         }
@@ -442,12 +460,15 @@ int main (int argc, char *argv[])
             readBuffer(clDict,P,sizeof(double) * PSIZE,PCL,"P");
             readBuffer(clDict,LogP,sizeof(double) * PSIZE,LOGPCL,"LogP");
         }  else {
+            readBuffer(clDict,randomArr,
+                    sizeof(double) * NUMLOCI*MAXALLELES*MAXPOPS*MAXRANDOM,RANDCL,
+                    "randomArr");
             UpdateP (P,LogP, Epsilon, Fst, NumAlleles, Geno, Z, lambda, Individual,
                      randomArr);
         }
 
         /* Update Q */
-        FillArrayWithRandom(randomArr,NUMINDS + NUMINDS*MAXRANDOM);
+        FillArrayWithRandomCL(clDict,randomArr,NUMINDS+NUMINDS*MAXRANDOM);
         if (LINKAGE && rep >= ADMBURNIN) {
             UpdateQMetroRecombine (Geno, Q, Z, P, Alpha, rep,
                                    Individual, Mapdistance, R, Phase,Phasemodel,randomArr);
@@ -478,8 +499,11 @@ int main (int argc, char *argv[])
                                                indLikesNorm);
             }
         } else {
-            FillArrayWithRandom(randomArr,NUMINDS*NUMLOCI*LINES);
+            FillArrayWithRandomCL(clDict,randomArr,NUMINDS*NUMLOCI*LINES);
             if (DEBUGCOMPARE) {
+                readBuffer(clDict,randomArr,
+                        sizeof(double) * NUMINDS*NUMLOCI*LINES,RANDCL,
+                        "randomArr");
                 compareZCLandZ(clDict,Z,Q,P,Geno,randomArr);
             }
             if (USEWORKINGCL) {
@@ -487,6 +511,9 @@ int main (int argc, char *argv[])
                 /* Not needed */
                 readBuffer(clDict,Z,sizeof(int)*ZSIZE,ZCL,"Z");
             } else {
+                readBuffer(clDict,randomArr,
+                        sizeof(double) * NUMINDS*NUMLOCI*LINES,RANDCL,
+                        "randomArr");
                 UpdateZ (Z,  Q, P, Geno,randomArr);
             }
             /*      printf("done updatez alpha[2]=%e\n", Alpha[2]); */

@@ -71,8 +71,8 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,
 
 
 
-    writeBuffer(clDict,randomArr, sizeof(double) * NUMINDS*NUMLOCI*LINES,RANDCL,
-                "randomArr");
+    /*writeBuffer(clDict,randomArr, sizeof(double) * NUMINDS*NUMLOCI*LINES,RANDCL,*/
+                /*"randomArr");*/
     writeBuffer(clDict,error,sizeof(int),ERRORCL,"error");
 
 

@@ -67,7 +67,7 @@ void UpdateQMetroCL (CLDict *clDict,int *Geno, int *PreGeno, double *Q, double *
 
     /*initRndDiscState(randState,randomArr,NUMINDS + NUMINDS*MAXRANDOM);*/
 
-    writeBuffer(clDict,randomArr,sizeof(double) * (NUMINDS*MAXRANDOM+NUMINDS),RANDCL,"Random");
+    /*writeBuffer(clDict,randomArr,sizeof(double) * (NUMINDS*MAXRANDOM+NUMINDS),RANDCL,"Random");*/
 
     /* ======== Sample ====== */
     global[0] = NUMINDS;
@@ -385,7 +385,7 @@ void UpdateQAdmixtureCL (CLDict *clDict,double *Q, int *Z, double *Alpha,
     runKernel(clDict,GetNumLociPopsKernel,2,global,"getNumLociPops");
     /*readBuffer(clDict,NumLociPops,sizeof(int)* NUMINDS*MAXPOPS, NUMLOCIPOPSCL,"NumLociPops");*/
 
-    writeBuffer(clDict,randomArr,sizeof(double) *NUMINDS*MAXRANDOM,RANDCL,"Random");
+    /*writeBuffer(clDict,randomArr,sizeof(double) *NUMINDS*MAXRANDOM,RANDCL,"Random");*/
     runKernel(clDict,UpdQDirichletKernel,1,global,"UpdateQDirichlet");
     /*GetNumLociPopsCL (clDict,NumLociPops, Z, ind);*/
     /*for (ind = 0; ind < NUMINDS; ind++) {
