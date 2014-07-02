@@ -25,5 +25,5 @@
 *~
 *.sw*
 
-seed.txt
-testdata*.out_f
+src/seed.txt
+src/testdata*.out_f
