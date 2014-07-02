@@ -1,4 +1,5 @@
 #define MAXRANDVAL 4294967296
+#include "Kernels/randGen.cl"
 
 __kernel void Dirichlet(
         __global double *Parameters,
@@ -27,23 +28,24 @@ double uintToUnit(uint rndint){
    return (double) rndint / MAXRANDVAL;
 }
 
+
 __kernel void FillArrayWRandom(
         __global double *randomArr,
-        const int length,
-        const int baseOffset
+        __global uint *randGens,
+        const int length
         )
 {
     int pos = get_global_id(0);
+    mwc64x_state_t rng = getRandGen(randGens,pos);
     uint i;
     double val;
     ulong samplesPerstream = length/get_global_size(0);
     uint offset = pos*samplesPerstream;
     if (offset < length){
-        mwc64x_state_t rng;
-        MWC64X_SeedStreams(&rng,baseOffset,samplesPerstream);
         for(i = 0; i < samplesPerstream && i+offset < length; i++){
             randomArr[offset+i] = uintToUnit(MWC64X_NextUint(&rng));
         }
+        saveRandGen(randGens,pos,rng);
     }
 }
 

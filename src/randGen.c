@@ -37,10 +37,8 @@ double rndDisc(RndDiscState * state)
 
 void FillArrayWithRandomCL(CLDict *clDict,double *randomArr, int numrands){
     size_t global[1];
-    int seed = rand();
     global[0] = numrands/16;
-    setKernelArgNULL(clDict,FillArrayWRandomKernel,sizeof(int),&numrands,1);
-    setKernelArgNULL(clDict,FillArrayWRandomKernel,sizeof(int),&seed,2);
+    setKernelArgNULL(clDict,FillArrayWRandomKernel,sizeof(int),&numrands,2);
     runKernel(clDict,FillArrayWRandomKernel,1,global,"FillArrayWRandom");
     /*readBuffer(clDict,randomArr, sizeof(double) * numrands,RANDCL,*/
                 /*"randomArr");*/

@@ -15,6 +15,7 @@ enum KERNEL {
     GetNumLociPopsKernel,
     UpdQDirichletKernel,
     FillArrayWRandomKernel,
+    InitRandGenKernel,
     NumberOfKernels
 };
 
@@ -35,6 +36,7 @@ enum BUFFER {
     EPSILONCL,
     FSTCL,
     /*LOGTERMSCL,*/
+    RANDGENSCL,
     LOGDIFFSCL,
     TESTQCL,
     ALPHACL,

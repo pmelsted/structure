@@ -153,6 +153,14 @@ void comparePCLandP(CLDict *clDict,double *OrigP, double *OrigLogP,
     free(LogP);
 }
 
+void initRandGens(CLDict *clDict){
+    size_t global[1];
+    int seed = rand();
+    global[0] = NUMRANDGENS;
+    setKernelArgNULL(clDict,InitRandGenKernel,sizeof(int),&seed,1);
+    runKernel(clDict,InitRandGenKernel,1,global,"InitRandGen");
+}
+
 
 /*=============MAIN======================================*/
 
@@ -209,6 +217,7 @@ int main (int argc, char *argv[])
     double sumsqlikes;            /*sum of squared likelihoods */
 
     double *popflags; /*The populationflags of individuals*/
+    unsigned int *randGens;
 
 
     /*Melissa added 7/12/07 for calculating DIC*/
@@ -387,6 +396,7 @@ int main (int argc, char *argv[])
     /*Allocate an array of random numbers. Primarily used so that we can compare
      CL implementation to the original */
     randomArr = calloc(RANDSIZE,sizeof(double));
+    randGens = calloc(NUMRANDGENS,sizeof(unsigned int));
 
     /* ====== OpenCL initialized ====== */
 
@@ -430,6 +440,7 @@ int main (int argc, char *argv[])
 
     /*Initialize Q */
     initQ(Q);
+    initRandGens(clDict);
     for (rep = 0; rep < (NUMREPS + BURNIN); rep++) {
 
         FillArrayWithRandomCL(clDict,randomArr,NUMLOCI*MAXALLELES*MAXPOPS*MAXRANDOM);
@@ -592,6 +603,7 @@ int main (int argc, char *argv[])
             Fst, FstSum, NumLociPop, PSum, QSum,  AncestDist, UsePopProbs, LocPrior,
             sumLocPrior, Alpha, sumAlpha, sumIndLikes, indLikesNorm, clDict);
     free(randomArr);
+    free(randGens);
     return (0);
 }
 
