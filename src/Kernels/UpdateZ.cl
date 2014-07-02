@@ -21,7 +21,7 @@ __kernel void UpdateZ (
 
 
     if(ind < NUMINDS && loc < NUMLOCI) {
-        initRndDiscState(randState,randGens,ind*NUMLOCI*LINES + loc*LINES);
+        initRndDiscState(randState,randGens,ind*NUMLOCI+loc);
         for (line = 0; line < LINES; line++) {
             allele = Geno[GenPos (ind,line,loc)];
             if (allele == MISSING) {   /*Missing Data */

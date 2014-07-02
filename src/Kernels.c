@@ -737,6 +737,7 @@ void runKernel(CLDict *clDict, enum KERNEL kernel, int numdims, size_t *dims,
 {
     cl_int err;
     char msg[120];
+    char fmsg[120];
     err = clEnqueueNDRangeKernel(clDict->commands, clDict->kernels[kernel],
                                  numdims, NULL, dims, NULL, 0, NULL, NULL);
     strcpy(msg,"Failed to run kernel: ");
@@ -744,7 +745,10 @@ void runKernel(CLDict *clDict, enum KERNEL kernel, int numdims, size_t *dims,
     strcat(msg,"!\n");
     handleCLErr(err, clDict,msg);
     err = clFinish(clDict->commands);
-    handleCLErr(err, clDict,"clFinish error!\n");
+    strcpy(fmsg,"clFinish error: ");
+    strcat(fmsg,name);
+    strcat(fmsg,"!\n");
+    handleCLErr(err, clDict,fmsg);
 }
 
 

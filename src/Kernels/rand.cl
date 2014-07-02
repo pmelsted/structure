@@ -8,7 +8,7 @@ __kernel void Dirichlet(
     int ind = get_global_id(0);
     RndDiscState randState[1];
 
-    initRndDiscState(randState,randGens,ind*MAXRANDOM);
+    initRndDiscState(randState,randGens,ind);
     double GammaSample[MAXPOPS];
 
     int i = 0;

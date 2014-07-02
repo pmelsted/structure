@@ -11,7 +11,7 @@ __kernel void MetroAcceptTest(
     int pop;
     RndDiscState randState[1];
 
-    initRndDiscState(randState,randGens,NUMINDS*MAXRANDOM+ind);
+    initRndDiscState(randState,randGens,ind);
     if (!((USEPOPINFO) && (popflags[ind]))) {
         if(rndDisc(randState) < exp(logdiffs[ind])){
             for (pop = 0; pop < MAXPOPS; pop++) {
@@ -59,7 +59,7 @@ __kernel void UpdQDirichlet(
     int ind = get_global_id(0);
     RndDiscState randState[1];
 
-    initRndDiscState(randState,randGens,ind*MAXRANDOM);
+    initRndDiscState(randState,randGens,ind);
     double GammaSample[MAXPOPS];
 
     int i = 0;

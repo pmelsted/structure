@@ -34,7 +34,7 @@ __kernel void InitRandGens(
 {
     int pos = get_global_id(0);
     mwc64x_state_t rng;
-    MWC64X_SeedStreams(&rng,baseOffset,(ulong) pown(2.0,30));
+    MWC64X_SeedStreams(&rng,baseOffset,RANDSPERSTREAM);
     saveRandGen(randGens,pos,rng);
 }
 

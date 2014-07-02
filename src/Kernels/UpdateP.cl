@@ -61,7 +61,7 @@ __kernel void UpdateP (
     if(loc < NUMLOCI && pop < MAXPOPS) {
         int offset = loc*MAXPOPS*MAXALLELES;
         int pos,line,popvalue,allelevalue;
-        initRndDiscState(randState,randGens,offset*MAXRANDOM+pop*MAXALLELES*MAXRANDOM);
+        initRndDiscState(randState,randGens,loc*MAXPOPS +pop);
 
         for (allele = 0; allele < numalleles; allele++) {
             #if FREQSCORR
