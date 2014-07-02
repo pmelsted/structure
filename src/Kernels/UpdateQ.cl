@@ -1,7 +1,9 @@
+#include "Kernels/calcLike.cl"
+
 __kernel void MetroAcceptTest(
         __global double *TestQ,
         __global double *Q,
-        __global double *randomArr,
+        __global uint *randGens,
         __global double *logdiffs,
         __global int *popflags)
 {
@@ -9,8 +11,7 @@ __kernel void MetroAcceptTest(
     int pop;
     RndDiscState randState[1];
 
-    initRndDiscState(randState,randomArr,1);
-    rndDiscStateReset(randState,NUMINDS*MAXRANDOM+ind);
+    initRndDiscState(randState,randGens,NUMINDS*MAXRANDOM+ind);
     if (!((USEPOPINFO) && (popflags[ind]))) {
         if(rndDisc(randState) < exp(logdiffs[ind])){
             for (pop = 0; pop < MAXPOPS; pop++) {
@@ -18,6 +19,7 @@ __kernel void MetroAcceptTest(
             }
         }
     }
+    saveRndDiscState(randState);
 }
 
 __kernel void GetNumLociPops(
@@ -51,14 +53,13 @@ __kernel void GetNumLociPops(
 __kernel void UpdQDirichlet(
         __global double *Alpha,
         __global int *NumLociPops,
-        __global double *randomArr,
+        __global uint *randGens,
         __global double *Q)
 {
     int ind = get_global_id(0);
     RndDiscState randState[1];
 
-    initRndDiscState(randState,randomArr,MAXRANDOM);
-    rndDiscStateReset(randState,ind*MAXRANDOM);
+    initRndDiscState(randState,randGens,ind*MAXRANDOM);
     double GammaSample[MAXPOPS];
 
     int i = 0;
@@ -73,6 +74,7 @@ __kernel void UpdQDirichlet(
     for(i = 0; i < MAXPOPS; i++){
         Q[i+offset] = GammaSample[i]/sum;
     }
+    saveRndDiscState(randState);
 }
 
 

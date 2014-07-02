@@ -41,7 +41,7 @@ __kernel void UpdateP (
     , __global double* LogP
     , __global int* NumAlleles
     , __global int* NumAFromPops
-    , __global double* randomArr
+    , __global uint* randGens
     , __global int* error
     #if FREQSCORR
     , __global double *Epsilon
@@ -61,8 +61,7 @@ __kernel void UpdateP (
     if(loc < NUMLOCI && pop < MAXPOPS) {
         int offset = loc*MAXPOPS*MAXALLELES;
         int pos,line,popvalue,allelevalue;
-        initRndDiscState(randState,randomArr,MAXALLELES*MAXRANDOM);
-        rndDiscStateReset(randState,offset*MAXRANDOM+pop*MAXALLELES*MAXRANDOM);
+        initRndDiscState(randState,randGens,offset*MAXRANDOM+pop*MAXALLELES*MAXRANDOM);
 
         for (allele = 0; allele < numalleles; allele++) {
             #if FREQSCORR
@@ -81,10 +80,6 @@ __kernel void UpdateP (
                            P + PPos (loc, pop, 0),
                            LogP +PPos(loc,pop,0),
                            randState);
-
-        if (randState->randomValsTaken > randState->maxrandom) {
-            error[0] = KERNEL_OUT_OF_BOUNDS;
-            error[1] = randState->randomValsTaken - randState->maxrandom;
-        }
+        saveRndDiscState(randState);
     }
 }

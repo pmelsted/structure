@@ -226,7 +226,7 @@ void setKernelArgs(CLDict *clDict)
     setKernelArg(clDict,UpdateZKernel,QCL,0);
     setKernelArg(clDict,UpdateZKernel,PCL,1);
     setKernelArg(clDict,UpdateZKernel,GENOCL,2);
-    setKernelArg(clDict,UpdateZKernel,RANDCL,3);
+    setKernelArg(clDict,UpdateZKernel,RANDGENSCL,3);
     setKernelArg(clDict,UpdateZKernel,ZCL,4);
     setKernelArg(clDict,UpdateZKernel,ERRORCL,5);
     /*=====================================================*/
@@ -249,7 +249,7 @@ void setKernelArgs(CLDict *clDict)
     setKernelArg(clDict,UpdatePKernel,LOGPCL,1);
     setKernelArg(clDict,UpdatePKernel,NUMALLELESCL,2);
     setKernelArg(clDict,UpdatePKernel,NUMAFROMPOPSCL,3);
-    setKernelArg(clDict,UpdatePKernel,RANDCL,4);
+    setKernelArg(clDict,UpdatePKernel,RANDGENSCL,4);
     setKernelArg(clDict,UpdatePKernel,ERRORCL,5);
 
 
@@ -287,13 +287,13 @@ void setKernelArgs(CLDict *clDict)
 
     /* RDirichlet sample */
     setKernelArg(clDict,RDirichletSampleKernel,ALPHACL,0);
-    setKernelArg(clDict,RDirichletSampleKernel,RANDCL,1);
+    setKernelArg(clDict,RDirichletSampleKernel,RANDGENSCL,1);
     setKernelArg(clDict,RDirichletSampleKernel,TESTQCL,2);
 
     /* Metro accept test*/
     setKernelArg(clDict,MetroAcceptTestKernel,TESTQCL,0);
     setKernelArg(clDict,MetroAcceptTestKernel,QCL,1);
-    setKernelArg(clDict,MetroAcceptTestKernel,RANDCL,2);
+    setKernelArg(clDict,MetroAcceptTestKernel,RANDGENSCL,2);
     setKernelArg(clDict,MetroAcceptTestKernel,LOGDIFFSCL,3);
     setKernelArg(clDict,MetroAcceptTestKernel,POPFLAGCL,4);
 
@@ -305,12 +305,13 @@ void setKernelArgs(CLDict *clDict)
     /* UpdQ dirichlet */
     setKernelArg(clDict,UpdQDirichletKernel,ALPHACL,0);
     setKernelArg(clDict,UpdQDirichletKernel,NUMLOCIPOPSCL,1);
-    setKernelArg(clDict,UpdQDirichletKernel,RANDCL,2);
+    setKernelArg(clDict,UpdQDirichletKernel,RANDGENSCL,2);
     setKernelArg(clDict,UpdQDirichletKernel,QCL,3);
 
     /* FillArrayWithRandom dirichlet */
     setKernelArg(clDict,FillArrayWRandomKernel,RANDCL,0);
     setKernelArg(clDict,FillArrayWRandomKernel,RANDGENSCL,1);
+
     /*Init rand gens */
     setKernelArg(clDict,InitRandGenKernel,RANDGENSCL,0);
 

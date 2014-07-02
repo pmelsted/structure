@@ -13,7 +13,5 @@
 #include "Kernels/KernelErrors.h"
 #include "Kernels/UpdateZ.cl"
 #include "Kernels/UpdateP.cl"
-#include "Kernels/calcLike.cl"
-#include "Kernels/rand.cl"
 #include "Kernels/UpdateQ.cl"
 

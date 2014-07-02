@@ -1,16 +1,14 @@
-#define MAXRANDVAL 4294967296
 #include "Kernels/randGen.cl"
 
 __kernel void Dirichlet(
         __global double *Parameters,
-        __global double *randomArr,
+        __global uint *randGens,
         __global double *TestQ)
 {
     int ind = get_global_id(0);
     RndDiscState randState[1];
 
-    initRndDiscState(randState,randomArr,MAXRANDOM);
-    rndDiscStateReset(randState,ind*MAXRANDOM);
+    initRndDiscState(randState,randGens,ind*MAXRANDOM);
     double GammaSample[MAXPOPS];
 
     int i = 0;
@@ -22,10 +20,7 @@ __kernel void Dirichlet(
     for(i = 0; i < MAXPOPS; i++){
         TestQ[i+ind*MAXPOPS] = GammaSample[i]/sum;
     }
-}
-
-double uintToUnit(uint rndint){
-   return (double) rndint / MAXRANDVAL;
+    saveRndDiscState(randState);
 }
 
 

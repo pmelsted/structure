@@ -443,7 +443,7 @@ int main (int argc, char *argv[])
     initRandGens(clDict);
     for (rep = 0; rep < (NUMREPS + BURNIN); rep++) {
 
-        FillArrayWithRandomCL(clDict,randomArr,NUMLOCI*MAXALLELES*MAXPOPS*MAXRANDOM);
+        /*FillArrayWithRandomCL(clDict,randomArr,NUMLOCI*MAXALLELES*MAXPOPS*MAXRANDOM);*/
         /*FillArrayWithRandom(randomArr,NUMLOCI*MAXALLELES*MAXPOPS*MAXRANDOM);*/
         /*FillArrayWithRandom(randomArr,RANDSIZE);*/
 
@@ -469,7 +469,7 @@ int main (int argc, char *argv[])
         }
 
         /* Update Q */
-        FillArrayWithRandomCL(clDict,randomArr,NUMINDS+NUMINDS*MAXRANDOM);
+        /*FillArrayWithRandomCL(clDict,randomArr,NUMINDS+NUMINDS*MAXRANDOM);*/
         if (LINKAGE && rep >= ADMBURNIN) {
             UpdateQMetroRecombine (Geno, Q, Z, P, Alpha, rep,
                                    Individual, Mapdistance, R, Phase,Phasemodel,randomArr);
@@ -500,7 +500,7 @@ int main (int argc, char *argv[])
                                                indLikesNorm);
             }
         } else {
-            FillArrayWithRandomCL(clDict,randomArr,NUMINDS*NUMLOCI*LINES);
+            /*FillArrayWithRandomCL(clDict,randomArr,NUMINDS*NUMLOCI*LINES);*/
             if (DEBUGCOMPARE) {
                 readBuffer(clDict,randomArr,
                         sizeof(double) * NUMINDS*NUMLOCI*LINES,RANDCL,

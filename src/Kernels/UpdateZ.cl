@@ -1,8 +1,9 @@
+#include "Kernels/rand.cl"
 __kernel void UpdateZ (
     __global double* Q, /* input */
     __global double* P,  /* input */
     __global int* Geno,/* input */
-    __global double* randArr, /*random numbers*/
+    __global uint* randGens, /*random numbers*/
     __global int* Z, /* output */
     __global int* error
 )
@@ -18,9 +19,9 @@ __kernel void UpdateZ (
     /* we can't malloc in opencl, but we need only space for one */
     RndDiscState randState[1];
 
-    initRndDiscState(randState,randArr,LINES);
+
     if(ind < NUMINDS && loc < NUMLOCI) {
-        rndDiscStateReset(randState,ind*NUMLOCI*LINES + loc*LINES);
+        initRndDiscState(randState,randGens,ind*NUMLOCI*LINES + loc*LINES);
         for (line = 0; line < LINES; line++) {
             allele = Geno[GenPos (ind,line,loc)];
             if (allele == MISSING) {   /*Missing Data */
@@ -36,9 +37,7 @@ __kernel void UpdateZ (
                                            randState);
             }
         }
-        if (randState->randomValsTaken > randState->maxrandom) {
-            error[0] = KERNEL_OUT_OF_BOUNDS;
-        }
+        saveRndDiscState(randState);
     }
 }
 
