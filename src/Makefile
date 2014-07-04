@@ -111,10 +111,10 @@ clean:
 	@rm -f *.o structure
 
 test: structure
-	./structure -m testdata/mainparams
+	/usr/bin/time --verbose ./structure -m testdata/mainparams
 
 bigtest: structure
-	./structure -m bigdata/mainparams
+	/usr/bin/time --verbose ./structure -m bigdata/mainparams
 
 callgrind: prof structure
 	valgrind --tool=callgrind ./structure -m testdata/mainparams -i testdata/testdata1.str -o testdata1.out
