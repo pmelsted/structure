@@ -230,7 +230,7 @@ void UpdatePCL (CLDict *clDict,double *P, double *LogP, double *Epsilon,
     /*writeBuffer(clDict,NumAFromPops,sizeof(int)* NUMLOCI*MAXPOPS*MAXALLELES, NUMAFROMPOPSCL,"NumAFromPops");*/
 
 
-    writeBuffer(clDict,error,sizeof(int)*2,ERRORCL,"error");
+    /*writeBuffer(clDict,error,sizeof(int)*2,ERRORCL,"error");*/
 
     /* =================================================== */
 
@@ -257,18 +257,17 @@ void UpdatePCL (CLDict *clDict,double *P, double *LogP, double *Epsilon,
 
     runKernel(clDict,UpdatePKernel,2,global,"UpdateP");
 
-    readBuffer(clDict,error,sizeof(int)*2,ERRORCL,"Error");
+    /*readBuffer(clDict,error,sizeof(int)*2,ERRORCL,"Error"); 
 
 
-
-    /* some error handling */
+    [> some error handling <]
     if (error[0] != KERNEL_SUCCESS ) {
         printf("UpdateP Error in Kernel:\n");
         PrintKernelError(error[0]);
         printf("%d\n",error[1]);
         ReleaseCLDict(clDict);
         exit(EXIT_FAILURE);
-    }
+    }*/
 
 
     /*free (NumAFromPops);*/

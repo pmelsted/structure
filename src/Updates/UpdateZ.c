@@ -73,22 +73,22 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,
 
     /*writeBuffer(clDict,randomArr, sizeof(double) * NUMINDS*NUMLOCI*LINES,RANDCL,*/
                 /*"randomArr");*/
-    writeBuffer(clDict,error,sizeof(int),ERRORCL,"error");
+    /*writeBuffer(clDict,error,sizeof(int),ERRORCL,"error");*/
 
 
     runKernel(clDict,UpdateZKernel,2,global,"UpdateZ");
 
     /*only needed on data collection*/
     /*readBuffer(clDict,Z,sizeof(int)*ZSIZE,ZCL,"Z");*/
-    readBuffer(clDict,error,sizeof(int),ERRORCL,"Error");
+    /*readBuffer(clDict,error,sizeof(int),ERRORCL,"Error");*/
 
-    /* some error handling */
-    if (*error != KERNEL_SUCCESS ) {
-        printf("Error in Kernel:\n");
-        PrintKernelError(*error);
-        ReleaseCLDict(clDict);
-        exit(EXIT_FAILURE);
-    }
+    /*[> some error handling <]*/
+    /*if (*error != KERNEL_SUCCESS ) {*/
+        /*printf("Error in Kernel:\n");*/
+        /*PrintKernelError(*error);*/
+        /*ReleaseCLDict(clDict);*/
+        /*exit(EXIT_FAILURE);*/
+    /*}*/
 
 }
 
