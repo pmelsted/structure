@@ -712,10 +712,11 @@ void readBuffer(CLDict *clDict, void * dest, size_t size, enum BUFFER source,
 {
     cl_int err;
     char msg[120];
-    strcpy(msg,"Preread finish error: ");
-    strcat(msg,name);
-    strcat(msg,"!\n");
-    finishCommands(clDict,msg);
+    /* apparently a blocking enqueue already does this */
+    /*strcpy(msg,"Preread finish error: ");*/
+    /*strcat(msg,name);*/
+    /*strcat(msg,"!\n");*/
+    /*finishCommands(clDict,msg);*/
     err = clEnqueueReadBuffer(clDict->commands, clDict->buffers[source], CL_TRUE,
                               0,
                               size, dest, 0, NULL, NULL );
@@ -737,18 +738,20 @@ void writeBuffer(CLDict *clDict, void * source, size_t size,
     cl_int err;
     char msg[120];
 
-    strcpy(msg,"Prewrite finish error: ");
-    strcat(msg,name);
-    strcat(msg,"!\n");
-    finishCommands(clDict,msg);
-    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[dest], CL_TRUE,
+    /* apparently a blocking enqueue already does this */
+    /*strcpy(msg,"Prewrite finish error: ");*/
+    /*strcat(msg,name);*/
+    /*strcat(msg,"!\n");*/
+    /*finishCommands(clDict,msg);*/
+
+    err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[dest], CL_FALSE,
                                0,
                                size, source, 0, NULL, NULL );
 
-    strcpy(msg,"Failed to write buffer: ");
+    /*strcpy(msg,"Failed to write buffer: ");
     strcat(msg,name);
     strcat(msg,"!\n");
-    handleCLErr(err, clDict,msg);
+    handleCLErr(err, clDict,msg);*/
     /*err = clFinish(clDict->commands);*/
     /*handleCLErr(err, clDict,"clFinish error!\n");*/
 }
