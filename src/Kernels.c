@@ -708,8 +708,8 @@ void readBuffer(CLDict *clDict, void * dest, size_t size, enum BUFFER source,
     strcat(msg,name);
     strcat(msg,"!\n");
     handleCLErr(err, clDict,msg);
-    err = clFinish(clDict->commands);
-    handleCLErr(err, clDict,"clFinish error!\n");
+    /*err = clFinish(clDict->commands);*/
+    /*handleCLErr(err, clDict,"clFinish error!\n");*/
 }
 
 /*
@@ -728,11 +728,12 @@ void writeBuffer(CLDict *clDict, void * source, size_t size,
     strcat(msg,name);
     strcat(msg,"!\n");
     handleCLErr(err, clDict,msg);
-    err = clFinish(clDict->commands);
-    handleCLErr(err, clDict,"clFinish error!\n");
+    /*err = clFinish(clDict->commands);*/
+    /*handleCLErr(err, clDict,"clFinish error!\n");*/
 }
 
-void finishCommands(CLDict *clDict, char * name){
+void finishCommands(CLDict *clDict, char * name)
+{
     cl_int err;
     char fmsg[120];
     err = clFinish(clDict->commands);
@@ -754,7 +755,7 @@ void runKernel(CLDict *clDict, enum KERNEL kernel, int numdims, size_t *dims,
     strcat(msg,"!\n");
     handleCLErr(err, clDict,msg);
 
-    finishCommands(clDict,name);
+    /*finishCommands(clDict,name);*/
 }
 
 

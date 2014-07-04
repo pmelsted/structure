@@ -20,5 +20,7 @@ extern void runKernel(CLDict *clDict, enum KERNEL kernel, int numdims,
                       size_t *dims, char *name);
 
 extern void setKernelArgNULL(CLDict *clDict, enum KERNEL kernel,size_t size, void *arg, int argnum);
+
+extern void finishCommands(CLDict *clDict, char * name);
 #endif
 
