@@ -38,7 +38,7 @@ __kernel void InitRandGens(
     saveRandGen(randGens,pos,rng);
 }
 
-#if DEBUGCOMPARE
+/*#if DEBUGCOMPARE
 typedef struct RndDiscState {
     __global double *randomArr;
     int randomValsTaken;
@@ -61,7 +61,7 @@ double rndDisc(RndDiscState * state)
     state->randomValsTaken++;
     return val;
 }
-#else
+#else*/
 typedef struct RndDiscState {
     __global uint *randGens;
     int randGenId;
@@ -86,7 +86,7 @@ double rndDisc(RndDiscState * state)
 void saveRndDiscState(RndDiscState *state){
     saveRandGen(state->randGens,state->randGenId,state->rng);
 }
-#endif
+/*#endif*/
 
 #endif
 

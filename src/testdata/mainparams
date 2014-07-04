@@ -18,8 +18,8 @@ Basic Program Parameters
 
 Input/Output files
 
-#define INFILE   infile   // (str) name of input data file
-#define OUTFILE  outfile  //(str) name of output data file
+#define INFILE   testdata/testdata1.str   // (str) name of input data file
+#define OUTFILE  testdata/testdata1.out  //(str) name of output data file
 
 Data file format
 

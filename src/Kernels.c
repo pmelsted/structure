@@ -732,24 +732,31 @@ void writeBuffer(CLDict *clDict, void * source, size_t size,
     handleCLErr(err, clDict,"clFinish error!\n");
 }
 
-void runKernel(CLDict *clDict, enum KERNEL kernel, int numdims, size_t *dims,
-               char *name)
-{
+void finishCommands(CLDict *clDict, char * name){
     cl_int err;
-    char msg[120];
     char fmsg[120];
-    err = clEnqueueNDRangeKernel(clDict->commands, clDict->kernels[kernel],
-                                 numdims, NULL, dims, NULL, 0, NULL, NULL);
-    strcpy(msg,"Failed to run kernel: ");
-    strcat(msg,name);
-    strcat(msg,"!\n");
-    handleCLErr(err, clDict,msg);
     err = clFinish(clDict->commands);
     strcpy(fmsg,"clFinish error: ");
     strcat(fmsg,name);
     strcat(fmsg,"!\n");
     handleCLErr(err, clDict,fmsg);
 }
+
+void runKernel(CLDict *clDict, enum KERNEL kernel, int numdims, size_t *dims,
+               char *name)
+{
+    cl_int err;
+    char msg[120];
+    err = clEnqueueNDRangeKernel(clDict->commands, clDict->kernels[kernel],
+                                 numdims, NULL, dims, NULL, 0, NULL, NULL);
+    strcpy(msg,"Failed to run kernel: ");
+    strcat(msg,name);
+    strcat(msg,"!\n");
+    handleCLErr(err, clDict,msg);
+
+    finishCommands(clDict,name);
+}
+
 
 
 
