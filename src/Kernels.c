@@ -693,6 +693,17 @@ void copyToLocal( double * globalArr, double *localArr,
     dims[numDims-1] = origLastDim;
 }
 
+void finishCommands(CLDict *clDict, char * name)
+{
+    cl_int err;
+    char fmsg[120];
+    err = clFinish(clDict->commands);
+    strcpy(fmsg,"clFinish error: ");
+    strcat(fmsg,name);
+    strcat(fmsg,"!\n");
+    handleCLErr(err, clDict,fmsg);
+}
+
 /*
  * Reads the buffer fource from the gpu to the array dest
  */
@@ -701,6 +712,10 @@ void readBuffer(CLDict *clDict, void * dest, size_t size, enum BUFFER source,
 {
     cl_int err;
     char msg[120];
+    strcpy(msg,"Preread finish error: ");
+    strcat(msg,name);
+    strcat(msg,"!\n");
+    finishCommands(clDict,msg);
     err = clEnqueueReadBuffer(clDict->commands, clDict->buffers[source], CL_TRUE,
                               0,
                               size, dest, 0, NULL, NULL );
@@ -708,8 +723,8 @@ void readBuffer(CLDict *clDict, void * dest, size_t size, enum BUFFER source,
     strcat(msg,name);
     strcat(msg,"!\n");
     handleCLErr(err, clDict,msg);
-    err = clFinish(clDict->commands);
-    handleCLErr(err, clDict,"clFinish error!\n");
+    /*err = clFinish(clDict->commands);*/
+    /*handleCLErr(err, clDict,"clFinish error!\n");*/
 }
 
 /*
@@ -721,26 +736,23 @@ void writeBuffer(CLDict *clDict, void * source, size_t size,
 {
     cl_int err;
     char msg[120];
+
+    strcpy(msg,"Prewrite finish error: ");
+    strcat(msg,name);
+    strcat(msg,"!\n");
+    finishCommands(clDict,msg);
     err = clEnqueueWriteBuffer(clDict->commands, clDict->buffers[dest], CL_TRUE,
                                0,
                                size, source, 0, NULL, NULL );
+
     strcpy(msg,"Failed to write buffer: ");
     strcat(msg,name);
     strcat(msg,"!\n");
     handleCLErr(err, clDict,msg);
-    err = clFinish(clDict->commands);
-    handleCLErr(err, clDict,"clFinish error!\n");
+    /*err = clFinish(clDict->commands);*/
+    /*handleCLErr(err, clDict,"clFinish error!\n");*/
 }
 
-void finishCommands(CLDict *clDict, char * name){
-    cl_int err;
-    char fmsg[120];
-    err = clFinish(clDict->commands);
-    strcpy(fmsg,"clFinish error: ");
-    strcat(fmsg,name);
-    strcat(fmsg,"!\n");
-    handleCLErr(err, clDict,fmsg);
-}
 
 void runKernel(CLDict *clDict, enum KERNEL kernel, int numdims, size_t *dims,
                char *name)
@@ -754,7 +766,7 @@ void runKernel(CLDict *clDict, enum KERNEL kernel, int numdims, size_t *dims,
     strcat(msg,"!\n");
     handleCLErr(err, clDict,msg);
 
-    finishCommands(clDict,name);
+    /*finishCommands(clDict,name);*/
 }
 
 

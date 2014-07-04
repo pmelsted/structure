@@ -458,8 +458,6 @@ int main (int argc, char *argv[])
             UpdatePCL (clDict,P,LogP, Epsilon, Fst, NumAlleles, Geno, Z, lambda,
                        Individual,
                        randomArr);
-            readBuffer(clDict,P,sizeof(double) * PSIZE,PCL,"P");
-            readBuffer(clDict,LogP,sizeof(double) * PSIZE,LOGPCL,"LogP");
         }  else {
             readBuffer(clDict,randomArr,
                     sizeof(double) * NUMLOCI*MAXALLELES*MAXPOPS*MAXRANDOM,RANDCL,
@@ -476,7 +474,6 @@ int main (int argc, char *argv[])
         } else {
             UpdateQCL (clDict,Geno, PreGeno, Q, P, Z, Alpha, rep, Individual, UsePopProbs,
                      Recessive, LocPrior,randomArr);
-            readBuffer(clDict,Q,sizeof(double) * QSIZE,QCL,"Q");
         }
 
         if (LOCPRIOR && UPDATELOCPRIOR) {
@@ -510,7 +507,7 @@ int main (int argc, char *argv[])
             if (USEWORKINGCL) {
                 UpdateZCL (clDict,Z,  Q, P, Geno,randomArr);
                 /* Not needed */
-                readBuffer(clDict,Z,sizeof(int)*ZSIZE,ZCL,"Z");
+                /*readBuffer(clDict,Z,sizeof(int)*ZSIZE,ZCL,"Z");*/
             } else {
                 readBuffer(clDict,randomArr,
                         sizeof(double) * NUMINDS*NUMLOCI*LINES,RANDCL,
@@ -523,6 +520,7 @@ int main (int argc, char *argv[])
         if (LOCPRIOR && NOADMIX==0) {
             UpdateAlphaLocPrior(Q, Alpha, LocPrior, Individual);
         } else if (INFERALPHA) {
+            readBuffer(clDict,Q,sizeof(double) * QSIZE,QCL,"Q");
             UpdateAlpha (Q, Alpha, Individual, rep);
             writeBuffer(clDict,Alpha,sizeof(double) *MAXPOPS,ALPHACL,"Alpha");
         }
@@ -538,6 +536,8 @@ int main (int argc, char *argv[])
 
 
         if (FREQSCORR) {
+            readBuffer(clDict,P,sizeof(double) * PSIZE,PCL,"P");
+            readBuffer(clDict,LogP,sizeof(double) * PSIZE,LOGPCL,"LogP");
             UpdateEpsilon(P,LogP,Epsilon,Fst,NumAlleles,lambda[0]);
             writeBuffer(clDict,Epsilon,sizeof(double) * NUMLOCI*MAXALLELES,EPSILONCL,
                         "EPSILON");
@@ -547,6 +547,8 @@ int main (int argc, char *argv[])
 
         /*====book-keeping stuff======================*/
         if (rep + 1 > BURNIN) {
+            /* already in infer lambda */
+            /*readBuffer(clDict,Q,sizeof(double) * QSIZE,QCL,"Q");*/
             DataCollection (Geno, PreGeno, Q, QSum, Z, Z1,  P, PSum,
                             Fst, FstSum, NumAlleles,
                             AncestDist, Alpha, sumAlpha, sumR, varR, &like,
