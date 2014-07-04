@@ -159,6 +159,7 @@ void initRandGens(CLDict *clDict){
     global[0] = NUMRANDGENS;
     setKernelArgNULL(clDict,InitRandGenKernel,sizeof(int),&seed,1);
     runKernel(clDict,InitRandGenKernel,1,global,"InitRandGen");
+    finishCommands(clDict,"init rand gens");
 }
 
 
