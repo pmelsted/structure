@@ -4,14 +4,16 @@
 
 #define RANDSPERSTREAM 2147483648
 
-mwc64x_state_t getRandGen(__global uint *randGens, int randGen){
-    mwc64x_state_t rng;
+mwc64x_state_t getRandGen(__global uint *randGens, int id){
+    /*mwc64x_state_t rng = { randGens[id*2] };*/
+
+    /*mwc64x_state_t rng;
     int offset = randGen*2;
-    uint x = randGens[offset];
-    uint c = randGens[offset+1];
-    rng.x = x;
-    rng.c = c;
-    return rng;
+    rng.x = randGens[id*2];
+    rng.c = randGens[id*2+1];*/
+
+    /* C trickery */
+    return  (mwc64x_state_t) { randGens[id*2] };
 }
 void saveRandGen(__global uint *randGens, int randGen,mwc64x_state_t rng){
     uint x = rng.x;
@@ -27,10 +29,7 @@ double uintToUnit(uint rndint){
 }
 
 
-__kernel void InitRandGens(
-        __global uint *randGens,
-        const int baseOffset
-        )
+__kernel void InitRandGens( __global uint *randGens, const int baseOffset)
 {
     int pos = get_global_id(0);
     mwc64x_state_t rng;
@@ -68,13 +67,11 @@ typedef struct RndDiscState {
     mwc64x_state_t rng;
 } RndDiscState;
 
-void initRndDiscState(RndDiscState *state,
-                      __global uint * randGens,
-                      int offset)
+void initRndDiscState(RndDiscState *state, __global uint * randGens, int id)
 {
     state->randGens = randGens;
-    state->randGenId = offset;
-    state->rng = getRandGen(randGens,offset);
+    state->randGenId = id;
+    state->rng = getRandGen(randGens,id);
 }
 
 double rndDisc(RndDiscState * state)
