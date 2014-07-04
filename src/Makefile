@@ -17,7 +17,7 @@ target: structure
 #valgrind: clean
 #valgrind: target
 
-prof: CFLAGS += -pg
+#prof: CFLAGS += -pg
 prof: CC = gcc
 prof: target
 
@@ -119,7 +119,7 @@ bigtest: structure
 	/usr/bin/time --verbose ./structure -m bigdata/mainparams
 
 callgrind: prof structure
-	valgrind --tool=callgrind ./structure -m testdata/mainparams -i testdata/testdata1.str -o testdata1.out
+	CUDA_CACHE_DISABLE=0 valgrind --tool=callgrind ./structure -m testdata/mainparams -i testdata/testdata1.str -o testdata1.out
 
 cleanTest:
 	rm -f testdata1.out_f
