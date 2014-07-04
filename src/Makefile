@@ -112,6 +112,8 @@ clean:
 
 test: structure
 	/usr/bin/time --verbose ./structure -m testdata/mainparams
+wcachetest: structure
+	CUDA_CACHE_DISABLE=0 /usr/bin/time --verbose ./structure -m testdata/mainparams
 
 bigtest: structure
 	/usr/bin/time --verbose ./structure -m bigdata/mainparams
