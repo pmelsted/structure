@@ -34,6 +34,59 @@ void GetNumLociPop (int *NumLociPop, int *Z, int ind)
     }
 }
 
+double mapLogDiffsFunc(double *Q,double *TestQ,
+                       double *P,int *Geno, int ind, int loc){
+    int allele, line, pop;
+    double termP;
+    double termM;
+    double logterm = 0.0;
+
+    for (line = 0; line < LINES; line++) {
+        allele = Geno[GenPos (ind, line, loc)];
+        if (allele != MISSING) {
+            termP = 0.0;
+            termM = 0.0;
+            for (pop = 0; pop < MAXPOPS; pop++) {
+                termP += TestQ[QPos(ind,pop)] * P[PPos (loc, pop, allele)];
+                termM += Q[QPos(ind,pop)] * P[PPos (loc, pop, allele)];
+            }
+            logterm += log(termP) - log(termM);
+        }
+    }
+    return logterm;
+}
+
+double verifyReduction(double *Q,double *TestQ,
+                       double *P,int *Geno, double * logdiffs){
+
+    double * cpulogdiffs;
+    int ind, loc;
+    double logdiff;
+    double diff;
+    double ret = 0.0;
+    cpulogdiffs = calloc(NUMINDS,sizeof(double));
+
+    for(ind = 0; ind < NUMINDS; ind++){
+        logdiff = 0.0;
+        for(loc = 0; loc < NUMLOCI; loc++){
+            logdiff += mapLogDiffsFunc(Q,TestQ,P,Geno,ind,loc);
+        }
+        cpulogdiffs[ind] = logdiff;
+    }
+
+    for(ind = 0; ind < NUMINDS; ind++){
+        diff = fabs(logdiffs[ind] -cpulogdiffs[ind]);
+        if ( diff > 10e-6){
+            printf("Reduction error: ind: %d diff: is %f!\n",ind,diff);
+            printf("cl %.10f, cpu %.10f\n",logdiffs[ind],cpulogdiffs[ind]);
+            ret = diff;
+        }
+    }
+
+    return ret;
+
+}
+
 /*----------------------------------------*/
 /*Melissa updated 7/12/07 to incorporate locprior*/
 void UpdateQMetroCL (CLDict *clDict,int *Geno, int *PreGeno, double *Q, double *P,
@@ -46,12 +99,14 @@ void UpdateQMetroCL (CLDict *clDict,int *Geno, int *PreGeno, double *Q, double *
     /*int ind;*/
     /*int numhits = 0;*/
 
-    /*double *TestQ;*/
-    /*double *logdiffs;*/
+    double *TestQ;
+    double *logdiffs;
     /*double *logterms;*/
 
     /*RndDiscState randState[1];*/
     size_t global[2];
+    cl_int err;
+    size_t local[2];
 
     /*
      * Removed:
@@ -59,10 +114,10 @@ void UpdateQMetroCL (CLDict *clDict,int *Geno, int *PreGeno, double *Q, double *
      *   LOCPRIOR
      *
      */
-
+    double verif;
     /*logterms = calloc(NUMINDS*NUMLOCI,sizeof(double));*/
-    /*TestQ = calloc (NUMINDS*MAXPOPS, sizeof (double));*/
-    /*logdiffs = calloc(NUMINDS,sizeof(double));*/
+    TestQ = calloc (NUMINDS*MAXPOPS, sizeof (double));
+    logdiffs = calloc(NUMINDS,sizeof(double));
 
 
     /*initRndDiscState(randState,randomArr,NUMINDS + NUMINDS*MAXRANDOM);*/
@@ -73,7 +128,7 @@ void UpdateQMetroCL (CLDict *clDict,int *Geno, int *PreGeno, double *Q, double *
     global[0] = NUMINDS;
     runKernel(clDict,RDirichletSampleKernel,1,global,"Dirichlet");
 
-    /*readBuffer(clDict,TestQ,sizeof(double) *QSIZE,TESTQCL,"TestQ");*/
+    readBuffer(clDict,TestQ,sizeof(double) *QSIZE,TESTQCL,"TestQ");
 
     /*for (ind = 0; ind < NUMINDS; ind++) {*/
         /*RDirichletDisc(Alpha, MAXPOPS, TestQ,ind*MAXPOPS,randState);*/
@@ -84,9 +139,25 @@ void UpdateQMetroCL (CLDict *clDict,int *Geno, int *PreGeno, double *Q, double *
     /* ======== Calculate likelihood ====== */
     global[0] = NUMLOCI;
     global[1] = NUMINDS;
+    local[0] = 5;
+    local[1] = 1;
+
+    err = clEnqueueNDRangeKernel(clDict->commands, clDict->kernels[mapReduceLogDiffsKernel],
+                                 2, NULL, global, local, 0, NULL, NULL);
+    handleCLErr(err, clDict,"heyhey");
 
     runKernel(clDict,mapReduceLogDiffsKernel,2,global,"reduceLogDiffs");
-    /*readBuffer(clDict,logdiffs,sizeof(double) * NUMINDS,LOGDIFFSCL,"Logdiffs");*/
+
+    readBuffer(clDict,logdiffs,sizeof(double) * NUMINDS,LOGDIFFSCL,"Logdiffs");
+    readBuffer(clDict,Q,sizeof(double) *QSIZE,QCL,"Q");
+    readBuffer(clDict,P,sizeof(double) *PSIZE,PCL,"P");
+    readBuffer(clDict,Geno,sizeof(int) *GENOSIZE,GENOCL,"Geno");
+    verif  = verifyReduction(Q,TestQ,P,Geno,logdiffs);
+
+    if (verif > 10e-6){
+        handleCLErr(1,clDict,"red err");
+    }
+
     /*CalcLogdiffsCL(clDict,Geno,TestQ,Q,P,logdiffs);*/
 
     /* ========= Acceptance test ========= */

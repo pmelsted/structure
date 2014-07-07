@@ -113,27 +113,34 @@ __kernel void mapReduceLogDiffs(__global double *Q,
                                 __global double *logdiffs,
                                 __local  double *scratch)
 {
-        //TODO: Take advantage of local memory, use local_ids, etc.
-    int loc = get_group_id(0);
-    int ind = get_group_id(1);
+    //TODO: Take advantage of local memory, use local_ids, etc.
+    int loc = get_global_id(0);
+    int ind = get_global_id(1);
     double logdiff = 0.0;
     while( loc < NUMLOCI){
         double elem = mapLogDiffsFunc(Q,TestQ,P,Geno,ind,loc);
         logdiff += elem;
-        loc += get_num_groups(0);
+        loc += get_global_size(0);
     }
 
-    int localLoc = get_group_id(0);
+    int localLoc = get_local_id(0);
     scratch[localLoc] = logdiff;
     barrier(CLK_LOCAL_MEM_FENCE);
-    for(int offset = get_num_groups(0) /2; offset > 0; offset >>= 1){
+    int devs = get_local_size(0);
+    for(int offset = get_local_size(0) /2; offset > 0; offset >>= 1){
         if(localLoc < offset){
             scratch[localLoc] += scratch[localLoc + offset];
         }
         barrier(CLK_LOCAL_MEM_FENCE);
+        //Handle if were not working on a multiple of 2
+        if ((devs-1)/2 == offset){
+            scratch[0] += scratch[devs-1];
+            barrier(CLK_LOCAL_MEM_FENCE);
+        }
     }
     if(localLoc == 0){
         logdiffs[ind] = scratch[0];
+        /*logdiffs[ind] = get_local_size(0);*/
     }
 }
 

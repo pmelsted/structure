@@ -38,12 +38,13 @@ FlikeFreqs (double f, double *Epsilon, double *LogP, int *NumAlleles, int pop)
 
     sum = NUMLOCI*mylgamma(frac);
     for (loc=0; loc<NUMLOCI; loc++) {
-        for (allele=0; allele < NumAlleles[loc]; allele++) {
-            sum += frac*Epsilon[EpsPos (loc, allele)]*LogP[PPos(loc,pop,allele)];
-            sum -= mylgamma( frac*Epsilon[EpsPos (loc, allele)]);
-        }
         if (NumAlleles[loc]==0) {
             sum -=mylgamma(frac); /* should not be counting sites with all missing data */
+        } else {
+            for (allele=0; allele < NumAlleles[loc]; allele++) {
+                sum += frac*Epsilon[EpsPos (loc, allele)]*LogP[PPos(loc,pop,allele)];
+                sum -= mylgamma( frac*Epsilon[EpsPos (loc, allele)]);
+            }
         }
     }
     return sum;
