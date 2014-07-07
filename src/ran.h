@@ -26,5 +26,5 @@ extern void RDirichletDisc(const double * a, const int k, double * b, int offset
                            RndDiscState *randState);
 extern double LogRGammaDisc(double n, double lambda, RndDiscState *randState);
 extern void LogRDirichletDisc (const double *a, const int k, double *b,
-                               double *c, RndDiscState *randState);
+                                RndDiscState *randState);
 

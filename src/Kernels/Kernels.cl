@@ -14,4 +14,5 @@
 #include "Kernels/UpdateZ.cl"
 #include "Kernels/UpdateP.cl"
 #include "Kernels/UpdateQ.cl"
+#include "Kernels/UpdateFst.cl"
 

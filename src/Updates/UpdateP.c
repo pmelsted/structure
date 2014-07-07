@@ -103,7 +103,7 @@ void GetNumFromPops (int *NumAFromPops, int *Geno, int *Z, int *NumAlleles,
  * O(NUMLOCI*(MAXPOPS* (max_loc NumAlleles[loc]) + NUMINDS*LINES)) =>
  * O(NUMLOCI*(MAXPOPS*MAXALLELES + NUMINDS*LINES))
  */
-void UpdateP (double *P, double *LogP, double *Epsilon, double *Fst,
+void UpdateP (double *P,  double *Epsilon, double *Fst,
               int *NumAlleles, int *Geno, int *Z, double *lambda, struct IND *Individual,
               double * randomArr)
 /*Simulate new allele frequencies from Dirichlet distribution */
@@ -171,7 +171,6 @@ void UpdateP (double *P, double *LogP, double *Epsilon, double *Fst,
             /*O(NumAlleles[loc]) */
             LogRDirichletDisc (Parameters, NumAlleles[loc],
                                P + PPos (loc, pop, 0),
-                               LogP +PPos(loc,pop,0),
                                randState);
 
             /*need to worry about underflow in UpdateEpsilon due to
@@ -200,7 +199,7 @@ void UpdateP (double *P, double *LogP, double *Epsilon, double *Fst,
 }
 
 
-void UpdatePCL (CLDict *clDict,double *P, double *LogP, double *Epsilon,
+void UpdatePCL (CLDict *clDict,double *P,  double *Epsilon,
                 double *Fst,
                 int *NumAlleles, int *Geno, int *Z, double *lambda, struct IND *Individual,
                 double * randomArr)

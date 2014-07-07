@@ -112,29 +112,23 @@ void compareZCLandZ(CLDict *clDict,int *OrigZ, double *Q, double *P,int *Geno,
 }
 
 
-void comparePCLandP(CLDict *clDict,double *OrigP, double *OrigLogP,
+void comparePCLandP(CLDict *clDict,double *OrigP,
                     double *Epsilon, double *Fst, int *NumAlleles, int *Geno, int *Z,
                     double *lambda, struct IND *Individual, double *randomArr)
 {
 
     double *OldP;
     double *P;
-    double *OldLogP;
-    double *LogP;
     int ret;
 
     OldP = calloc(PSIZE,sizeof(double));
     P = calloc(PSIZE,sizeof(double));
     memcpy(P,OrigP,PSIZE*sizeof(double));
-    OldLogP = calloc(PSIZE,sizeof(double));
-    LogP = calloc(PSIZE,sizeof(double));
-    memcpy(LogP,OrigLogP,PSIZE*sizeof(double));
 
-    UpdateP (P,LogP, Epsilon, Fst, NumAlleles, Geno, Z, lambda, Individual,
+    UpdateP (P, Epsilon, Fst, NumAlleles, Geno, Z, lambda, Individual,
              randomArr);
-    memcpy(OldLogP,LogP,PSIZE*sizeof(double));
     memcpy(OldP,P,PSIZE*sizeof(double));
-    UpdatePCL (clDict,P,LogP, Epsilon, Fst, NumAlleles, Geno, Z, lambda,
+    UpdatePCL (clDict,P,Epsilon, Fst, NumAlleles, Geno, Z, lambda,
                Individual,
                randomArr);
     ret = compareDoubleArrs(P,OldP,PSIZE,"P and old P");
@@ -142,15 +136,8 @@ void comparePCLandP(CLDict *clDict,double *OrigP, double *OrigLogP,
         ReleaseCLDict(clDict);
         exit(EXIT_FAILURE);
     }
-    ret = compareDoubleArrs(LogP,OldLogP,PSIZE,"LogP and old LogP");
-    if (ret == EXIT_FAILURE) {
-        ReleaseCLDict(clDict);
-        exit(EXIT_FAILURE);
-    }
     free(OldP);
-    free(OldLogP);
     free(P);
-    free(LogP);
 }
 
 void initRandGens(CLDict *clDict){
@@ -191,7 +178,6 @@ int main (int argc, char *argv[])
     int *Z1;
     double *Q;                    /*NUMINDSxMAXPOPS:  Q=ancestry of individuals */
     double *P;                    /*NUMLOCIxMAXPOPSxMAXALLELES: P=population allele freqs */
-    double *LogP;                 /*NUMLOCIxMAXPOPSxMAXALLELES: log of P, used to prevent underflow */
     double *Epsilon;              /*NUMLOCIxMAXALLELES: Dirichlet parameter for allele
                                   frequencies. This is either LAMBDA (if uncorrelated), or
                                   ancestral allele freqs if they are correlated */
@@ -309,7 +295,6 @@ int main (int argc, char *argv[])
     Z1 = calloc (NUMINDS * LINES * NUMLOCI, sizeof (int));
     Q = calloc (NUMINDS * MAXPOPS, sizeof (double));
     P = calloc (NUMLOCI * MAXPOPS * MAXALLELES, sizeof (double));
-    LogP = calloc(NUMLOCI * MAXPOPS * MAXALLELES, sizeof(double));
     R = calloc (NUMINDS, sizeof (double));
     sumR = calloc (NUMINDS, sizeof (double));
     varR = calloc (NUMINDS, sizeof (double));
@@ -363,7 +348,7 @@ int main (int argc, char *argv[])
 
     if ((Translation == NULL) || (NumAlleles == NULL) || (Z == NULL)
             || (Z1 == NULL) || (Q == NULL) ||
-            (P == NULL) || (LogP==NULL) || (R == NULL) || (sumR == NULL) || (varR == NULL)
+            (P == NULL) || (R == NULL) || (sumR == NULL) || (varR == NULL)
             || (Epsilon == NULL) ||
             (Fst == NULL) || (NumLociPop == NULL) ||
             (PSum == NULL) || (QSum == NULL) ||  (FstSum == NULL) ||
@@ -376,7 +361,7 @@ int main (int argc, char *argv[])
         printf ("Error in assigning memory (not enough space?)\n");
         FreeAll(Mapdistance, Phase, Phasemodel, lambda, sumlambda, Markername, Geno,
                 PreGeno, Recessive,
-                Individual, Translation, NumAlleles, Z, Z1, Q, P, LogP, R, sumR, varR, Epsilon,
+                Individual, Translation, NumAlleles, Z, Z1, Q, P,  R, sumR, varR, Epsilon,
                 SumEpsilon,
                 Fst, FstSum, NumLociPop, PSum, QSum,  AncestDist, UsePopProbs, LocPrior,
                 sumLocPrior, Alpha, sumAlpha, sumIndLikes, indLikesNorm, clDict);
@@ -409,7 +394,6 @@ int main (int argc, char *argv[])
 
     /* init buffers on GPU */
     writeBuffer(clDict,P,sizeof(double) * PSIZE,PCL,"P");
-    writeBuffer(clDict,LogP,sizeof(double) * PSIZE,LOGPCL,"LogP");
     writeBuffer(clDict,Z,sizeof(int)*ZSIZE,ZCL,"Z");
     writeBuffer(clDict,NumAlleles,sizeof(int) * NUMLOCI,NUMALLELESCL,"NumAlleles");
     if(!RECESSIVEALLELES){
@@ -452,18 +436,18 @@ int main (int argc, char *argv[])
             readBuffer(clDict,randomArr,
                     sizeof(double) * NUMLOCI*MAXALLELES*MAXPOPS*MAXRANDOM,RANDCL,
                     "randomArr");
-            comparePCLandP(clDict,P,LogP, Epsilon, Fst, NumAlleles, Geno, Z,
+            comparePCLandP(clDict,P,Epsilon, Fst, NumAlleles, Geno, Z,
                            lambda, Individual, randomArr);
         }
         if (USEWORKINGCL) {
-            UpdatePCL (clDict,P,LogP, Epsilon, Fst, NumAlleles, Geno, Z, lambda,
+            UpdatePCL (clDict,P, Epsilon, Fst, NumAlleles, Geno, Z, lambda,
                        Individual,
                        randomArr);
         }  else {
             readBuffer(clDict,randomArr,
                     sizeof(double) * NUMLOCI*MAXALLELES*MAXPOPS*MAXRANDOM,RANDCL,
                     "randomArr");
-            UpdateP (P,LogP, Epsilon, Fst, NumAlleles, Geno, Z, lambda, Individual,
+            UpdateP (P, Epsilon, Fst, NumAlleles, Geno, Z, lambda, Individual,
                      randomArr);
         }
 
@@ -528,9 +512,9 @@ int main (int argc, char *argv[])
 
         if (INFERLAMBDA) {
             if  (POPSPECIFICLAMBDA) {
-                UpdatePopLambda(LogP,lambda,NumAlleles);
+                UpdatePopLambda(P,lambda,NumAlleles);
             } else {
-                UpdateLambda (LogP,Epsilon,lambda, NumAlleles);
+                UpdateLambda (P,Epsilon,lambda, NumAlleles);
             }
             writeBuffer(clDict,lambda,sizeof(double) * MAXPOPS,LAMBDACL,"LAMBDA");
         }
@@ -538,11 +522,10 @@ int main (int argc, char *argv[])
 
         if (FREQSCORR) {
             readBuffer(clDict,P,sizeof(double) * PSIZE,PCL,"P");
-            readBuffer(clDict,LogP,sizeof(double) * PSIZE,LOGPCL,"LogP");
-            UpdateEpsilon(P,LogP,Epsilon,Fst,NumAlleles,lambda[0]);
+            UpdateEpsilon(P,Epsilon,Fst,NumAlleles,lambda[0]);
             writeBuffer(clDict,Epsilon,sizeof(double) * NUMLOCI*MAXALLELES,EPSILONCL,
                         "EPSILON");
-            UpdateFst (Epsilon, Fst, LogP, NumAlleles);
+            UpdateFstCL (clDict,Epsilon, Fst, P, NumAlleles);
             writeBuffer(clDict,Fst,sizeof(double) * MAXPOPS,FSTCL,"FST");
         }
 
@@ -601,7 +584,7 @@ int main (int argc, char *argv[])
     /*=====Closing everything down==============================*/
     FreeAll(Mapdistance, Phase, Phasemodel, lambda, sumlambda, Markername, Geno,
             PreGeno, Recessive,
-            Individual, Translation, NumAlleles, Z, Z1, Q, P, LogP, R, sumR, varR, Epsilon,
+            Individual, Translation, NumAlleles, Z, Z1, Q, P, R, sumR, varR, Epsilon,
             SumEpsilon,
             Fst, FstSum, NumLociPop, PSum, QSum,  AncestDist, UsePopProbs, LocPrior,
             sumLocPrior, Alpha, sumAlpha, sumIndLikes, indLikesNorm, clDict);

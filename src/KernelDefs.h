@@ -9,8 +9,6 @@ enum KERNEL {
     UpdateZKernel,
     GetNumFromPopsKernel,
     UpdatePKernel,
-    /*mapLogDiffsKernel,*/
-    /*reduceLogDiffsKernel,*/
     mapReduceLogDiffsKernel,
     RDirichletSampleKernel,
     MetroAcceptTestKernel,
@@ -25,7 +23,6 @@ enum KERNEL {
 enum BUFFER {
     QCL,
     PCL,
-    LOGPCL,
     ZCL,
     GENOCL,
     PREGENOCL,
@@ -37,6 +34,7 @@ enum BUFFER {
     NUMLOCIPOPSCL,
     EPSILONCL,
     FSTCL,
+    NORMSCL,
     /*LOGTERMSCL,*/
     RANDGENSCL,
     LOGDIFFSCL,

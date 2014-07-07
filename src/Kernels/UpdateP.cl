@@ -38,7 +38,6 @@ __kernel void GetNumFromPops (
 
 __kernel void UpdateP (
     __global double* P
-    , __global double* LogP
     , __global int* NumAlleles
     , __global int* NumAFromPops
     , __global uint* randGens
@@ -78,7 +77,6 @@ __kernel void UpdateP (
         /*O(NumAlleles[loc]) */
         LogRDirichletDisc (Parameters, numalleles,
                            P + PPos (loc, pop, 0),
-                           LogP +PPos(loc,pop,0),
                            randState);
         saveRndDiscState(randState);
     }

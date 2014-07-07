@@ -5,7 +5,7 @@
 #include "../mymath.h"
 #include "../structure.h"
 
-void UpdatePopLambda (double *LogP, double *lambda, int *NumAlleles)
+void UpdatePopLambda (double *P, double *lambda, int *NumAlleles)
 /*updates a lambda for each population*/
 {
     double new;
@@ -30,7 +30,7 @@ void UpdatePopLambda (double *LogP, double *lambda, int *NumAlleles)
 
                     sumlogp = 0.0;
                     for (allele=0; allele<NumAlleles[loc]; allele++) {
-                        sumlogp += LogP[PPos(loc,pop,allele)];
+                        sumlogp += log(P[PPos(loc,pop,allele)]);
                     }
                     sum += (new - lambda[pop])*sumlogp;
                     /*printf("%1.3f\n",sum);*/
@@ -46,7 +46,7 @@ void UpdatePopLambda (double *LogP, double *lambda, int *NumAlleles)
 
 
 /*--------------------------------------------*/
-void UpdateLambda (double *LogP,double *Epsilon, double *lambda,
+void UpdateLambda (double *P,double *Epsilon, double *lambda,
                    int *NumAlleles)
 /*
  * updates single value of lambda.  If FREQSCORR is turned on, this is based on the
@@ -84,7 +84,7 @@ void UpdateLambda (double *LogP,double *Epsilon, double *lambda,
                         if (FREQSCORR) {
                             sumlogp += log(Epsilon[EpsPos(loc,allele)]);
                         } else {
-                            sumlogp += LogP[PPos(loc,pop,allele)];
+                            sumlogp += log(P[PPos(loc,pop,allele)]);
                         }
                     }
                 }

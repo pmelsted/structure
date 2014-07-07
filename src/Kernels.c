@@ -202,7 +202,6 @@ void handleCLErr(cl_int err,CLDict *clDict, char * message)
 void setKernelArg(CLDict *clDict, enum KERNEL kernel, enum BUFFER buffer,int argnum){
     cl_int err;
     err = 0;
-    /*=========================== Update Z =================*/
     err  = clSetKernelArg(clDict->kernels[kernel], argnum, sizeof(cl_mem),
                           &(clDict->buffers[buffer]));
     handleCLErr(err, clDict,"Failed to set arg!");
@@ -246,35 +245,21 @@ void setKernelArgs(CLDict *clDict)
 
     /*=========================== Update P =================*/
     setKernelArg(clDict,UpdatePKernel,PCL,0);
-    setKernelArg(clDict,UpdatePKernel,LOGPCL,1);
-    setKernelArg(clDict,UpdatePKernel,NUMALLELESCL,2);
-    setKernelArg(clDict,UpdatePKernel,NUMAFROMPOPSCL,3);
-    setKernelArg(clDict,UpdatePKernel,RANDGENSCL,4);
-    setKernelArg(clDict,UpdatePKernel,ERRORCL,5);
+    setKernelArg(clDict,UpdatePKernel,NUMALLELESCL,1);
+    setKernelArg(clDict,UpdatePKernel,NUMAFROMPOPSCL,2);
+    setKernelArg(clDict,UpdatePKernel,RANDGENSCL,3);
+    setKernelArg(clDict,UpdatePKernel,ERRORCL,4);
 
 
     if (FREQSCORR) {
-        setKernelArg(clDict,UpdatePKernel,EPSILONCL,6);
-        setKernelArg(clDict,UpdatePKernel,FSTCL,7);
+        setKernelArg(clDict,UpdatePKernel,EPSILONCL,5);
+        setKernelArg(clDict,UpdatePKernel,FSTCL,6);
     } else {
-        setKernelArg(clDict,UpdatePKernel,LAMBDACL,6);
+        setKernelArg(clDict,UpdatePKernel,LAMBDACL,5);
     }
     /*=====================================================*/
 
 
-    /*===== map log diffs *==== */
-
-    /*setKernelArg(clDict,mapLogDiffsKernel,LOGTERMSCL,0);*/
-    /*setKernelArg(clDict,mapLogDiffsKernel,QCL,1);*/
-    /*setKernelArg(clDict,mapLogDiffsKernel,TESTQCL,2);*/
-    /*setKernelArg(clDict,mapLogDiffsKernel,PCL,3);*/
-    /*setKernelArg(clDict,mapLogDiffsKernel,GENOCL,4);*/
-    /*setKernelArg(clDict,mapLogDiffsKernel,ERRORCL,5);*/
-
-    /*=====  reduce log diffs *==== */
-    /*setKernelArg(clDict,reduceLogDiffsKernel,LOGTERMSCL,0);*/
-    /*setKernelArg(clDict,reduceLogDiffsKernel,LOGDIFFSCL,1);*/
-    /*setKernelArgNULL(clDict,reduceLogDiffsKernel,sizeof(double)*NUMLOCI,NULL,2);*/
 
     /*=====  mapreduce log diffs *==== */
     setKernelArg(clDict,mapReduceLogDiffsKernel,QCL,0);
@@ -284,7 +269,6 @@ void setKernelArgs(CLDict *clDict)
     setKernelArg(clDict,mapReduceLogDiffsKernel,LOGDIFFSCL,4);
     setKernelArg(clDict,mapReduceLogDiffsKernel,REDUCERESULTSCL,5);
     setKernelArgNULL(clDict,mapReduceLogDiffsKernel,sizeof(double)*NUMLOCI,NULL,6);
-    /*setKernelArgNULL(clDict,mapReduceLogDiffsKernel,sizeof(double)*NUMLOCI,NULL,5);*/
 
     /* RDirichlet sample */
     setKernelArg(clDict,RDirichletSampleKernel,ALPHACL,0);
@@ -315,6 +299,7 @@ void setKernelArgs(CLDict *clDict)
 
     /*Init rand gens */
     setKernelArg(clDict,InitRandGenKernel,RANDGENSCL,0);
+
 
 }
 
@@ -513,10 +498,10 @@ void createCLBuffers(CLDict *clDict)
 {
     createCLBuffer(clDict,QCL,sizeof(double)*QSIZE,CL_MEM_READ_WRITE);
     createCLBuffer(clDict,PCL,sizeof(double)*PSIZE,CL_MEM_READ_WRITE);
-    createCLBuffer(clDict,LOGPCL,sizeof(double)*PSIZE,CL_MEM_READ_WRITE);
 
     if (FREQSCORR) {
         createCLBuffer(clDict,FSTCL,sizeof(double)*MAXPOPS,CL_MEM_READ_WRITE);
+        createCLBuffer(clDict,NORMSCL,sizeof(double)*MAXPOPS,CL_MEM_READ_WRITE);
         createCLBuffer(clDict,EPSILONCL,sizeof(double)*NUMLOCI*MAXALLELES,CL_MEM_READ_WRITE);
     } else {
         createCLBuffer(clDict,LAMBDACL,sizeof(double)*MAXPOPS,CL_MEM_READ_WRITE);

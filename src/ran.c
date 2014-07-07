@@ -1245,15 +1245,14 @@ double LogRGammaDisc(double n, double lambda, RndDiscState *randState)
 
 /*O(k)*/
 void
-LogRDirichletDisc (const double *a, const int k, double *b,double *c,
+LogRDirichletDisc (const double *a, const int k, double *b,
                    RndDiscState *randState)
 {
     int i;
     double sum = 0.0;
     double sum2;
     for (i = 0; i < k; i++) {
-        c[i] = LogRGammaDisc (a[i], 1,randState);
-        b[i]=exp(c[i]);
+        b[i] = RGammaDisc (a[i], 1,randState);
         sum += b[i];
     }
 
@@ -1263,12 +1262,10 @@ LogRDirichletDisc (const double *a, const int k, double *b,double *c,
     if(sum<UNDERFLO) {
         for(i=0; i<k; i++) {
             b[i] = 1.0/(double)(k);
-            c[i] = log(b[i]);
         }
     } else {
         sum2=log(sum);
         for (i = 0; i < k; i++) {
-            c[i]-=sum2;
             b[i]/=sum;
         }
     }

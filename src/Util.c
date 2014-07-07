@@ -110,7 +110,6 @@ void FreeAll(double *Mapdistance, double *Phase, int *Phasemodel,
              char *Markername, int *Geno, int* PreGeno, int* Recessive,
              struct IND *Individual,
              int *Translation, int *NumAlleles, int *Z, int *Z1, double *Q, double *P,
-             double *LogP,
              double *R, double *sumR, double *varR, double *Epsilon, double *SumEpsilon,
              double *Fst,
              double *FstSum, int *NumLociPop, double *PSum, double *QSum,
@@ -152,7 +151,6 @@ void FreeAll(double *Mapdistance, double *Phase, int *Phasemodel,
     free (Q);
     free (P);
 
-    free (LogP);
     free (R);
     free (sumR);
     free (varR);

@@ -4,6 +4,7 @@
 #include "../ran.h"
 #include "../mymath.h"
 #include "../structure.h"
+#include "../Kernels.h"
 
 /*============================================*/
 double
@@ -19,7 +20,7 @@ FPriorDiff (double newf, double oldf)
 
 /*-----------------------------------------*/
 double
-FlikeFreqs (double f, double *Epsilon, double *LogP, int *NumAlleles, int pop)
+FlikeFreqs (double f, double *Epsilon, double *P, int *NumAlleles, int pop)
 {
     /*
      * returns the log probability of the allele frequencies (for a particular pop)
@@ -42,7 +43,7 @@ FlikeFreqs (double f, double *Epsilon, double *LogP, int *NumAlleles, int pop)
             sum -=mylgamma(frac); /* should not be counting sites with all missing data */
         } else {
             for (allele=0; allele < NumAlleles[loc]; allele++) {
-                sum += frac*Epsilon[EpsPos (loc, allele)]*LogP[PPos(loc,pop,allele)];
+                sum += frac*Epsilon[EpsPos (loc, allele)]* log(P[PPos(loc,pop,allele)]);
                 sum -= mylgamma( frac*Epsilon[EpsPos (loc, allele)]);
             }
         }
@@ -53,8 +54,7 @@ FlikeFreqs (double f, double *Epsilon, double *LogP, int *NumAlleles, int pop)
 
 /*-----------------------------------------*/
 void
-UpdateFst (double *Epsilon, double *Fst,
-           double *LogP, int *NumAlleles)
+UpdateFstCL (CLDict *clDict,double *Epsilon, double *Fst, double *P, int *NumAlleles)
 /*update the correlation factor, Fst, for each population*/
 {
 
@@ -64,6 +64,8 @@ UpdateFst (double *Epsilon, double *Fst,
     double threshold;
     int pop1,pop2;
     int numpops1, numpops2;
+    /*size_t global[2];*/
+    double *newfs;
 
     /*------Update f ()----See notebook, 5/14/99-----------*/
 
@@ -78,10 +80,19 @@ UpdateFst (double *Epsilon, double *Fst,
         numpops1 = MAXPOPS;
     }
 
+    newfs = calloc(numpops1,sizeof(double));
+    for (pop1 = 0; pop1 < numpops1; pop1++) {
+        oldf = Fst[pop1];
+        newf = RNormal (oldf, FPRIORSD);
+        newfs[pop1] = newf;
+    }
+
+    writeBuffer(clDict,newfs,sizeof(double) * numpops1,NORMSCL,"Normals");
+    /*runKernel(clDict,rNormalsKernel,1,global,"rNormals");*/
     for (pop1 = 0; pop1 < numpops1; pop1++) {
         /*generate proposal f */
         oldf = Fst[pop1];
-        newf = RNormal (oldf, FPRIORSD);
+        newf = newfs[pop1];
 
         /*reject if propopal < 0 or greater than 1 */
         if (newf > 0.0 && newf<1.0) {
@@ -95,8 +106,8 @@ UpdateFst (double *Epsilon, double *Fst,
                 numpops2 = pop1+1;
             }
             for (pop2 = pop1; pop2 < numpops2; pop2++) {
-                logprobdiff += FlikeFreqs (newf, Epsilon, LogP, NumAlleles, pop2);
-                logprobdiff -= FlikeFreqs (oldf, Epsilon, LogP, NumAlleles, pop2);
+                logprobdiff += FlikeFreqs (newf, Epsilon, P, NumAlleles, pop2);
+                logprobdiff -= FlikeFreqs (oldf, Epsilon, P, NumAlleles, pop2);
             }
 
             /*decide whether to accept, and then update*/

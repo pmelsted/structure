@@ -7,7 +7,7 @@
 
 
 /*------------------------------------------*/
-void IndependenceUpdateEpsilon(double *P,double *LogP, double *Epsilon,
+void IndependenceUpdateEpsilon(double *P,double *Epsilon,
                                double *Fst,int *NumAlleles, double Lambda)
 /*this is the alternative update to the one below, proposed by Graham */
 {
@@ -55,7 +55,7 @@ void IndependenceUpdateEpsilon(double *P,double *LogP, double *Epsilon,
                         mylgamma (frac * trialepsilon[allele]);
                     Sum +=
                         frac * (trialepsilon[allele] - Epsilon[EpsPos (loc, allele)])
-                        * LogP[PPos (loc,pop,allele)];
+                        * log(P[PPos (loc,pop,allele)]);
                 }
             }
 
@@ -70,7 +70,7 @@ void IndependenceUpdateEpsilon(double *P,double *LogP, double *Epsilon,
     free (parameters);
 }
 
-void NonIndependenceUpdateEpsilon(double *P,double *LogP, double *Epsilon,
+void NonIndependenceUpdateEpsilon(double *P, double *Epsilon,
                                double *Fst,int *NumAlleles, double lambda){
 
     int loc,pop,allele1,allele2;
@@ -103,8 +103,8 @@ void NonIndependenceUpdateEpsilon(double *P,double *LogP, double *Epsilon,
                     sum -= mylgamma(frac*(Epsilon[EpsPos (loc, allele1)]+difference));
                     sum -= mylgamma(frac*(Epsilon[EpsPos (loc, allele2)]-difference));
 
-                    sum += frac*difference*LogP[PPos (loc, pop, allele1)];
-                    sum -= frac*difference*LogP[PPos (loc, pop, allele2)];
+                    sum += frac*difference*log(P[PPos (loc, pop, allele1)]);
+                    sum -= frac*difference*log(P[PPos (loc, pop, allele2)]);
                 }
 
                 if (lambda != 1.0) {              /*compute prior ratio*/
@@ -142,7 +142,7 @@ void NonIndependenceUpdateEpsilon(double *P,double *LogP, double *Epsilon,
 
 /*------------------------------------------*/
 void
-UpdateEpsilon(double *P,double *LogP, double *Epsilon, double *Fst,
+UpdateEpsilon(double *P,double *Epsilon, double *Fst,
               int *NumAlleles, double lambda)
 /*
  * update the ancestral allele freq vector Epsilon.  This is done
@@ -156,8 +156,8 @@ UpdateEpsilon(double *P,double *LogP, double *Epsilon, double *Fst,
       properties, especially for small lambda. The independence update uses a
       Dirichlet prior independent of current epsilon while the update below uses a small normal jump */
     if (rnd()<0.5) {
-        IndependenceUpdateEpsilon(P,LogP, Epsilon, Fst,NumAlleles, lambda);
+        IndependenceUpdateEpsilon(P,Epsilon, Fst,NumAlleles, lambda);
     } else {
-        NonIndependenceUpdateEpsilon(P,LogP, Epsilon, Fst,NumAlleles, lambda);
+        NonIndependenceUpdateEpsilon(P,Epsilon, Fst,NumAlleles, lambda);
     }
 }

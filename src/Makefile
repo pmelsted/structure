@@ -111,7 +111,7 @@ clean:
 	@rm -f *.o structure
 
 test: structure
-	/usr/bin/time --verbose ./structure -m testdata/mainparams
+	CL_LOG_ERRORS=stdout /usr/bin/time --verbose ./structure -m testdata/mainparams
 wcachetest: structure
 	CUDA_CACHE_DISABLE=0 /usr/bin/time --verbose ./structure -m testdata/mainparams
 
