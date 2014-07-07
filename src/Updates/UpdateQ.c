@@ -140,7 +140,7 @@ void UpdateQMetroCL (CLDict *clDict,int *Geno, int *PreGeno, double *Q, double *
 
     runKernel(clDict,mapReduceLogDiffsKernel,2,global,"reduceLogDiffs");
 
-    /*readBuffer(clDict,logdiffs,sizeof(double) * NUMINDS,LOGDIFFSCL,"Logdiffs");
+    readBuffer(clDict,logdiffs,sizeof(double) * NUMINDS,LOGDIFFSCL,"Logdiffs");
     readBuffer(clDict,Q,sizeof(double) *QSIZE,QCL,"Q");
     readBuffer(clDict,P,sizeof(double) *PSIZE,PCL,"P");
     readBuffer(clDict,Geno,sizeof(int) *GENOSIZE,GENOCL,"Geno");
@@ -148,7 +148,7 @@ void UpdateQMetroCL (CLDict *clDict,int *Geno, int *PreGeno, double *Q, double *
 
     if (verif > 10e-6){
         handleCLErr(1,clDict,"red err");
-    }*/
+    }
 
     /*CalcLogdiffsCL(clDict,Geno,TestQ,Q,P,logdiffs);*/
 

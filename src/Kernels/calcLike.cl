@@ -133,8 +133,8 @@ __kernel void mapReduceLogDiffs(__global double *Q,
         }
         barrier(CLK_LOCAL_MEM_FENCE);
         //Handle if were not working on a multiple of 2
-        if ((devs-1)/2 == offset){
-            scratch[0] += scratch[devs-1];
+        if ((devs-1)/2 == offset && localLoc == (devs-1)){
+            scratch[0] += scratch[localLoc];
             barrier(CLK_LOCAL_MEM_FENCE);
         }
     }
