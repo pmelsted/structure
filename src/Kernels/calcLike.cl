@@ -140,7 +140,6 @@ __kernel void mapReduceLogDiffs(__global double *Q,
     }
     if(localLoc == 0){
         logdiffs[ind] = scratch[0];
-        /*logdiffs[ind] = get_local_size(0);*/
     }
 }
 

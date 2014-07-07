@@ -105,8 +105,6 @@ void UpdateQMetroCL (CLDict *clDict,int *Geno, int *PreGeno, double *Q, double *
 
     /*RndDiscState randState[1];*/
     size_t global[2];
-    cl_int err;
-    size_t local[2];
 
     /*
      * Removed:
@@ -139,16 +137,10 @@ void UpdateQMetroCL (CLDict *clDict,int *Geno, int *PreGeno, double *Q, double *
     /* ======== Calculate likelihood ====== */
     global[0] = NUMLOCI;
     global[1] = NUMINDS;
-    local[0] = 5;
-    local[1] = 1;
-
-    err = clEnqueueNDRangeKernel(clDict->commands, clDict->kernels[mapReduceLogDiffsKernel],
-                                 2, NULL, global, local, 0, NULL, NULL);
-    handleCLErr(err, clDict,"heyhey");
 
     runKernel(clDict,mapReduceLogDiffsKernel,2,global,"reduceLogDiffs");
 
-    readBuffer(clDict,logdiffs,sizeof(double) * NUMINDS,LOGDIFFSCL,"Logdiffs");
+    /*readBuffer(clDict,logdiffs,sizeof(double) * NUMINDS,LOGDIFFSCL,"Logdiffs");
     readBuffer(clDict,Q,sizeof(double) *QSIZE,QCL,"Q");
     readBuffer(clDict,P,sizeof(double) *PSIZE,PCL,"P");
     readBuffer(clDict,Geno,sizeof(int) *GENOSIZE,GENOCL,"Geno");
@@ -156,7 +148,7 @@ void UpdateQMetroCL (CLDict *clDict,int *Geno, int *PreGeno, double *Q, double *
 
     if (verif > 10e-6){
         handleCLErr(1,clDict,"red err");
-    }
+    }*/
 
     /*CalcLogdiffsCL(clDict,Geno,TestQ,Q,P,logdiffs);*/
 
