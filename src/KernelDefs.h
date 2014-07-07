@@ -2,6 +2,8 @@
 #define KernelDefs
 #include <CL/cl.h>
 #include "Kernels/KernelErrors.h"
+/*TODO: Determine this number, used for reductions */
+#define MAXGROUPS 31
 
 enum KERNEL {
     UpdateZKernel,
@@ -38,6 +40,7 @@ enum BUFFER {
     /*LOGTERMSCL,*/
     RANDGENSCL,
     LOGDIFFSCL,
+    REDUCERESULTSCL,
     TESTQCL,
     ALPHACL,
     RANDCL, /* buffer for random numbers */

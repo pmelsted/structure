@@ -51,33 +51,6 @@ __kernel void reduce(__global double *g_idata, __global double *g_odata, unsigne
 }
 
 
-__kernel void reduceLogDiffs(__global double *logterms,
-                             __global double *logdiffs,
-                             __local  double *scratch,
-                             const int ind)
-{
-    int loc = get_group_id(0);
-    double logdiff = 0.0;
-    while( loc < NUMLOCI){
-        double elem = logterms[ind*NUMLOCI+loc];
-        logdiff += elem;
-        loc += get_num_groups(0);
-    }
-
-    int localLoc = get_group_id(0);
-    scratch[localLoc] = logdiff;
-    barrier(CLK_LOCAL_MEM_FENCE);
-    for(int offset = get_num_groups(0) /2; offset > 0; offset >>= 1){
-        if(localLoc < offset){
-            scratch[localLoc] += scratch[localLoc + offset];
-        }
-        barrier(CLK_LOCAL_MEM_FENCE);
-    }
-    if(localLoc == 0){
-        logdiffs[ind] = scratch[0];
-    }
-}
-
 
 double mapLogDiffsFunc(__global double *Q, __global double *TestQ,
                        __global double *P, __global int *Geno,
@@ -87,21 +60,23 @@ double mapLogDiffsFunc(__global double *Q, __global double *TestQ,
     double termP;
     double termM;
     double logterm = 0.0;
-
-    for (line = 0; line < LINES; line++) {
-        allele = Geno[GenPos (ind, line, loc)];
-        if (allele != MISSING) {
-            termP = 0.0;
-            termM = 0.0;
-            for (pop = 0; pop < MAXPOPS; pop++) {
-                termP += TestQ[QPos(ind,pop)] * P[PPos (loc, pop, allele)];
-                termM += Q[QPos(ind,pop)] * P[PPos (loc, pop, allele)];
+    if (ind < NUMINDS && loc < NUMLOCI){
+        for (line = 0; line < LINES; line++) {
+            allele = Geno[GenPos (ind, line, loc)];
+            if (allele != MISSING) {
+                termP = 0.0;
+                termM = 0.0;
+                for (pop = 0; pop < MAXPOPS; pop++) {
+                    termP += TestQ[QPos(ind,pop)] * P[PPos (loc, pop, allele)];
+                    termM += Q[QPos(ind,pop)] * P[PPos (loc, pop, allele)];
+                }
+                //logterms[ind*NUMLOCI + loc] += log(termP) - log(termM);
+                logterm += log(termP) - log(termM);
             }
-            //logterms[ind*NUMLOCI + loc] += log(termP) - log(termM);
-            logterm += log(termP) - log(termM);
         }
+        return logterm;
     }
-    return logterm;
+    return 0.0;
 }
 
 
@@ -111,18 +86,22 @@ __kernel void mapReduceLogDiffs(__global double *Q,
                                 __global double *P,
                                 __global int *Geno,
                                 __global double *logdiffs,
+                                __global double *results,
                                 __local  double *scratch)
 {
-    //TODO: Take advantage of local memory, use local_ids, etc.
     int loc = get_global_id(0);
     int ind = get_global_id(1);
+    int numgroups = get_num_groups(0);
+    /* idempotent */
     double logdiff = 0.0;
+    /* Map and partial reduce */
     while( loc < NUMLOCI){
         double elem = mapLogDiffsFunc(Q,TestQ,P,Geno,ind,loc);
         logdiff += elem;
         loc += get_global_size(0);
     }
 
+    /* reduce locally */
     int localLoc = get_local_id(0);
     scratch[localLoc] = logdiff;
     barrier(CLK_LOCAL_MEM_FENCE);
@@ -131,31 +110,26 @@ __kernel void mapReduceLogDiffs(__global double *Q,
         if(localLoc < offset){
             scratch[localLoc] += scratch[localLoc + offset];
         }
-        barrier(CLK_LOCAL_MEM_FENCE);
         //Handle if were not working on a multiple of 2
-        if ((devs-1)/2 == offset && localLoc == (devs-1)){
-            scratch[0] += scratch[localLoc];
-            barrier(CLK_LOCAL_MEM_FENCE);
+        if (localLoc == 0 && (devs-1)/2 == offset){
+            scratch[localLoc] += scratch[devs-1];
+        }
+        barrier(CLK_LOCAL_MEM_FENCE);
+    }
+
+    /* save result */
+    int gid = get_group_id(0);
+    if(localLoc == 0){
+        results[ind*numgroups +gid] = scratch[0];
+    }
+
+    /* reduce over the groups into final result */
+    barrier(CLK_GLOBAL_MEM_FENCE);
+    if(gid==0){
+        logdiffs[ind] = 0;
+        for(int id =0; id < numgroups; id ++){
+            logdiffs[ind] += results[ind*numgroups + id];
         }
     }
-    if(localLoc == 0){
-        logdiffs[ind] = scratch[0];
-    }
 }
-
-
-__kernel void mapLogDiffs(__global double *logterms, __global double *Q,
-                          __global double *TestQ, __global double *P,
-                          __global int *Geno, __global int *error)
-{
-
-    int ind = get_global_id(0);
-    int loc = get_global_id(1);
-
-    logterms[ind*NUMLOCI + loc] = mapLogDiffsFunc(Q,TestQ,P,Geno,ind,loc);
-
-}
-
-
-
 

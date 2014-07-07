@@ -282,7 +282,8 @@ void setKernelArgs(CLDict *clDict)
     setKernelArg(clDict,mapReduceLogDiffsKernel,PCL,2);
     setKernelArg(clDict,mapReduceLogDiffsKernel,GENOCL,3);
     setKernelArg(clDict,mapReduceLogDiffsKernel,LOGDIFFSCL,4);
-    setKernelArgNULL(clDict,mapReduceLogDiffsKernel,sizeof(double)*NUMLOCI,NULL,5);
+    setKernelArg(clDict,mapReduceLogDiffsKernel,REDUCERESULTSCL,5);
+    setKernelArgNULL(clDict,mapReduceLogDiffsKernel,sizeof(double)*NUMLOCI,NULL,6);
     /*setKernelArgNULL(clDict,mapReduceLogDiffsKernel,sizeof(double)*NUMLOCI,NULL,5);*/
 
     /* RDirichlet sample */
@@ -332,6 +333,7 @@ void getLocals(CLDict *clDict)
     getLocal(clDict,UpdateZKernel);
     getLocal(clDict,GetNumFromPopsKernel);
     getLocal(clDict,UpdatePKernel);
+    getLocal(clDict,mapReduceLogDiffsKernel);
 
 }
 
@@ -540,6 +542,7 @@ void createCLBuffers(CLDict *clDict)
     createCLBuffer(clDict,NUMLOCIPOPSCL,sizeof(int)*NUMINDS*MAXPOPS,CL_MEM_READ_WRITE);
 
     createCLBuffer(clDict,LOGDIFFSCL,sizeof(double)*NUMINDS,CL_MEM_READ_WRITE);
+    createCLBuffer(clDict,REDUCERESULTSCL,sizeof(double)*MAXGROUPS*NUMINDS,CL_MEM_READ_WRITE);
 
     /*createCLBuffer(clDict,LOGTERMSCL,sizeof(double)*NUMINDS*NUMLOCI,CL_MEM_READ_WRITE);*/
     createCLBuffer(clDict,ALPHACL,sizeof(double)*MAXPOPS,CL_MEM_READ_WRITE);
