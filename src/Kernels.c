@@ -301,14 +301,14 @@ void setKernelArgs(CLDict *clDict)
     setKernelArg(clDict,InitRandGenKernel,RANDGENSCL,0);
 
     /* update fst */
-    setKernelArg(clDict,UpdateFstManyKernel,EPSILONCL,0);
-    setKernelArg(clDict,UpdateFstManyKernel,FSTCL,1);
-    setKernelArg(clDict,UpdateFstManyKernel,PCL,2);
-    setKernelArg(clDict,UpdateFstManyKernel,NUMALLELESCL,3);
-    setKernelArg(clDict,UpdateFstManyKernel,NORMSCL,4);
-    setKernelArg(clDict,UpdateFstManyKernel,RANDGENSCL,5);
-    setKernelArg(clDict,UpdateFstManyKernel,REDUCERESULTSCL,6);
-    setKernelArgNULL(clDict,UpdateFstManyKernel,sizeof(double)*NUMLOCI,NULL,7);
+    setKernelArg(clDict,UpdateFstKernel,EPSILONCL,0);
+    setKernelArg(clDict,UpdateFstKernel,FSTCL,1);
+    setKernelArg(clDict,UpdateFstKernel,PCL,2);
+    setKernelArg(clDict,UpdateFstKernel,NUMALLELESCL,3);
+    setKernelArg(clDict,UpdateFstKernel,NORMSCL,4);
+    setKernelArg(clDict,UpdateFstKernel,RANDGENSCL,5);
+    setKernelArg(clDict,UpdateFstKernel,REDUCERESULTSCL,6);
+    setKernelArgNULL(clDict,UpdateFstKernel,sizeof(double)*NUMLOCI,NULL,7);
 
 
 }
@@ -429,7 +429,7 @@ int CompileKernels(CLDict *clDict,  char *options)
     /*cl_int ret;*/
 
 
-    char *KERNELNAMES[NumberOfKernels] = {"UpdateZ","GetNumFromPops","UpdateP","mapReduceLogDiffs","Dirichlet", "MetroAcceptTest","GetNumLociPops","UpdQDirichlet","FillArrayWRandom","InitRandGens","UpdateFstMany"};
+    char *KERNELNAMES[NumberOfKernels] = {"UpdateZ","GetNumFromPops","UpdateP","mapReduceLogDiffs","Dirichlet", "MetroAcceptTest","GetNumLociPops","UpdQDirichlet","FillArrayWRandom","InitRandGens","UpdateFst"};
 
     /* Load the source code containing the kernels*/
     fp = fopen("Kernels/Kernels.cl", "r");
@@ -638,12 +638,14 @@ int InitCLDict(CLDict *clDictToInit)
                      -D NUMINDS=%d -D MAXRANDOM=%d  -D USEPOPINFO=%d    \
                      -D LOCPRIOR=%d  -D NOTAMBIGUOUS=%d  -D NUMLOCATIONS=%d    \
                      -D PFROMPOPFLAGONLY=%d -D FREQSCORR=%d -D blockSize=64\
-                     -D DEBUGCOMPARE=%d -D FPRIORMEAN=%f -D FPRIORSD=%f "
+                     -D DEBUGCOMPARE=%d -D FPRIORMEAN=%f -D FPRIORSD=%f \
+                     -D ONEFST=%d "
             , UNASSIGNED, MAXPOPS, MISSING
             , MAXALLELES, NUMLOCI, LINES
             , NUMINDS, MAXRANDOM, USEPOPINFO
             , LOCPRIOR, NOTAMBIGUOUS, NUMLOCATIONS
-            , PFROMPOPFLAGONLY,FREQSCORR,DEBUGCOMPARE,FPRIORMEAN,FPRIORSD);
+            , PFROMPOPFLAGONLY,FREQSCORR,DEBUGCOMPARE,
+            FPRIORMEAN,FPRIORSD,ONEFST);
 
     printf("%s\n",options);
     compileret = CompileKernels(clDictToInit,options);
@@ -726,6 +728,30 @@ void readBuffer(CLDict *clDict, void * dest, size_t size, enum BUFFER source,
     /*handleCLErr(err, clDict,"clFinish error!\n");*/
 }
 
+void readBuffers(CLDict *clDict, void * dest[], size_t size[], enum BUFFER source[],
+                char *name[], int numbufferstoread)
+{
+    cl_int err;
+    int buff;
+    char msg[120];
+    /* apparently a blocking enqueue already does this */
+    /*strcpy(msg,"Preread finish error: ");*/
+    /*strcat(msg,name);*/
+    /*strcat(msg,"!\n");*/
+    /*finishCommands(clDict,msg);*/
+    for(buff =0; buff < numbufferstoread; buff++){
+        err = clEnqueueReadBuffer(clDict->commands, clDict->buffers[source[buff]], CL_FALSE,
+                                  0,
+                                  size[buff], dest[buff], 0, NULL, NULL );
+        strcpy(msg,"Failed to read buffer: ");
+        strcat(msg,name[buff]);
+        strcat(msg,"!\n");
+        handleCLErr(err, clDict,msg);
+    }
+    err = clFinish(clDict->commands);
+    handleCLErr(err, clDict,"clFinish error!\n");
+}
+
 /*
  * Writes the array source to the buffer dest on the GPU
  */
@@ -746,10 +772,10 @@ void writeBuffer(CLDict *clDict, void * source, size_t size,
                                0,
                                size, source, 0, NULL, NULL );
 
-    /*strcpy(msg,"Failed to write buffer: ");
+    strcpy(msg,"Failed to write buffer: ");
     strcat(msg,name);
     strcat(msg,"!\n");
-    handleCLErr(err, clDict,msg);*/
+    handleCLErr(err, clDict,msg);
     /*err = clFinish(clDict->commands);*/
     /*handleCLErr(err, clDict,"clFinish error!\n");*/
 }

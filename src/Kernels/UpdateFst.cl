@@ -25,14 +25,16 @@ double FlikeFreqsDiffMap (double newfrac,double oldfrac,
         for (allele=0; allele < NumAlleles[loc]; allele++) {
             eps = Epsilon[EpsPos (loc, allele)];
             logp = log(P[PPos(loc,pop,allele)]);
-            sum += (newfrac-oldfrac)*eps*logp - (lgamma( newfrac*eps) - lgamma( oldfrac*eps));
+            sum += newfrac*eps*logp;
+            sum -= oldfrac*eps*logp;
+            sum -= lgamma( newfrac*eps) - lgamma( oldfrac*eps);
         }
         return sum;
     }
 }
 
 
-__kernel void UpdateFstMany(
+__kernel void UpdateFst(
             __global double *Epsilon,
             __global double *Fst,
             __global double *P,
@@ -50,11 +52,19 @@ __kernel void UpdateFstMany(
     double newfrac = (1.0-newf)/newf;
     double oldfrac = (1.0-oldf)/oldf;
     double sum = 0.0;
+    int redpop;
+    int numredpops;
+    numredpops = pop +1;
+    if (ONEFST) numredpops = MAXPOPS;
+
     if (newf > 0.0 && newf < 1.0){
         /* idempotent */
         /* Map and partial reduce */
         while( loc < NUMLOCI){
-            double elem = FlikeFreqsDiffMap(newfrac,oldfrac,Epsilon,P,NumAlleles,loc,pop);
+            double elem = 0.0;
+            for(redpop = pop; redpop < numredpops; redpop++){
+                elem += FlikeFreqsDiffMap(newfrac,oldfrac,Epsilon,P,NumAlleles,loc,redpop);
+            }
             sum += elem;
             loc += get_global_size(0);
         }
@@ -83,13 +93,19 @@ __kernel void UpdateFstMany(
         if(gid==0){
             RndDiscState randState[1];
             initRndDiscState(randState,randGens,pop);
-            double pdiff = FPriorDiff (newf, oldf);
-            double logprobdiff = NUMLOCI*(lgamma(newfrac) - lgamma(oldfrac)) + pdiff;
+            int multiple = 1;
+            if (ONEFST) multiple = MAXPOPS;
+            double logprobdiff = FPriorDiff (newf, oldf);
+            logprobdiff += multiple*NUMLOCI*lgamma(newfrac);
+            logprobdiff -= multiple*NUMLOCI*lgamma(oldfrac);
             for(int id =0; id < numgroups; id ++){
                 logprobdiff += results[pop*numgroups + id];
             }
             if (logprobdiff >= 0.0 || rndDisc(randState) < exp(logprobdiff)) {   /*accept new f */
-                Fst[pop] = newf;
+                for(redpop = pop; redpop < numredpops; redpop++){
+                    Fst[redpop] = newf;
+                }
+                /*Fst[pop] = newf;*/
             }
             saveRndDiscState(randState);
         }

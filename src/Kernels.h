@@ -14,6 +14,8 @@ extern void copyToLocal( double * globalArr, double *localArr,
 extern int dimLoc(int * dims, int * dimMaxs, int numDims);
 extern void readBuffer(CLDict *clDict, void * dest, size_t size,
                        enum BUFFER buffer, char *name);
+extern void readBuffers(CLDict *clDict, void * dest[], size_t size[], enum BUFFER source[],
+                char *name[], int numbufferstoread);
 extern void writeBuffer(CLDict *clDict, void * source, size_t size,
                         enum BUFFER buffer, char *name);
 extern void runKernel(CLDict *clDict, enum KERNEL kernel, int numdims,

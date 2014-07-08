@@ -503,10 +503,15 @@ int main (int argc, char *argv[])
             /*      printf("done updatez alpha[2]=%e\n", Alpha[2]); */
         }
 
+        void *dests[3] = {Fst,P,Q};
+        enum BUFFER buffers[3] = {FSTCL,PCL,QCL};
+        size_t sizes[3] = {sizeof(double) * MAXPOPS,sizeof(double)*PSIZE,sizeof(double) * QSIZE};
+        char * names[3] = {"FST","P","Q"};
+        readBuffers(clDict,dests,sizes,buffers,names,3);
+
         if (LOCPRIOR && NOADMIX==0) {
             UpdateAlphaLocPrior(Q, Alpha, LocPrior, Individual);
         } else if (INFERALPHA) {
-            readBuffer(clDict,Q,sizeof(double) * QSIZE,QCL,"Q");
             UpdateAlpha (Q, Alpha, Individual, rep);
             writeBuffer(clDict,Alpha,sizeof(double) *MAXPOPS,ALPHACL,"Alpha");
         }
@@ -522,17 +527,19 @@ int main (int argc, char *argv[])
 
 
         if (FREQSCORR) {
-            readBuffer(clDict,P,sizeof(double) * PSIZE,PCL,"P");
-            readBuffer(clDict,Fst,sizeof(double) * MAXPOPS,FSTCL,"FST");
             UpdateEpsilon(P,Epsilon,Fst,NumAlleles,lambda[0]);
             writeBuffer(clDict,Epsilon,sizeof(double) * NUMLOCI*MAXALLELES,EPSILONCL,
                         "EPSILON");
+            /* needed for RNormals */
+            /*TODO: Generate gauss randoms on GPU to avoid this read.*/
+            /*readBuffer(clDict,Fst,sizeof(double) * MAXPOPS,FSTCL,"FST");*/
             UpdateFstCL (clDict,Epsilon, Fst, P, NumAlleles);
         }
 
+
         /*====book-keeping stuff======================*/
         if (rep + 1 > BURNIN) {
-            /* already in infer lambda */
+            /* already in infer alpha */
             /*readBuffer(clDict,Q,sizeof(double) * QSIZE,QCL,"Q");*/
             DataCollection (Geno, PreGeno, Q, QSum, Z, Z1,  P, PSum,
                             Fst, FstSum, NumAlleles,

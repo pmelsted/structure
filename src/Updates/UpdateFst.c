@@ -104,10 +104,8 @@ UpdateFstCL (CLDict *clDict,double *Epsilon, double *Fst, double *P, int *NumAll
 {
 
     double newf,oldf;
-    double logprobdiff;
     int pop;
     int numpops1;
-    /*size_t global[2];*/
     double *newfs;
     size_t global[2];
 
@@ -124,42 +122,22 @@ UpdateFstCL (CLDict *clDict,double *Epsilon, double *Fst, double *P, int *NumAll
         numpops1 = MAXPOPS;
     }
 
-    newfs = calloc(numpops1,sizeof(double));
+    newfs = calloc(MAXPOPS,sizeof(double));
     for (pop = 0; pop < numpops1; pop++) {
         oldf = Fst[pop];
         newf = RNormal (oldf, FPRIORSD);
         newfs[pop] = newf;
     }
 
-    writeBuffer(clDict,newfs,sizeof(double) * numpops1,NORMSCL,"Normals");
-    /*runKernel(clDict,rNormalsKernel,1,global,"rNormals");*/
+    writeBuffer(clDict,newfs,sizeof(double) * MAXPOPS,NORMSCL,"Normals");
+
     global[0] = NUMLOCI;
     if (ONEFST){
         global[1] = 1;
-        /*generate proposal f */
-        oldf = Fst[0];
-        newf = newfs[0];
-
-        /*reject if propopal < 0 or greater than 1 */
-        if (newf > 0.0 && newf<1.0) {
-            /*compute prior ratio */
-            logprobdiff = FPriorDiff (newf, oldf);
-
-            /*compute log likelihood diff */
-            for (pop = 0; pop < MAXPOPS; pop++) {
-                logprobdiff += FlikeFreqsDiff (newf, oldf, Epsilon, P, NumAlleles, pop);
-                /*logprobdiff -= FlikeFreqs (oldf, Epsilon, P, NumAlleles, pop);*/
-            }
-            if (logprobdiff >= 0.0 || rnd() < exp(logprobdiff)) {   /*accept new f */
-                for (pop = 0; pop < MAXPOPS; pop++) {
-                    Fst[pop] = newf;
-                }
-            }
-        }
     } else {
         global[1] = MAXPOPS;
-        runKernel(clDict,UpdateFstManyKernel,2,global,"UpdateFstMany");
     }
+    runKernel(clDict,UpdateFstKernel,2,global,"UpdateFst");
 
     free(newfs);
 }
