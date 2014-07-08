@@ -628,7 +628,7 @@ int InitCLDict(CLDict *clDictToInit)
                      -D NUMINDS=%d -D MAXRANDOM=%d  -D USEPOPINFO=%d    \
                      -D LOCPRIOR=%d  -D NOTAMBIGUOUS=%d  -D NUMLOCATIONS=%d    \
                      -D PFROMPOPFLAGONLY=%d -D FREQSCORR=%d -D blockSize=64\
-                     -D DEBUGCOMPARE=%d "
+                     -D DEBUGCOMPARE=%d -D FPRIORMEAN=%f -D FPRIORSD=%f "
             , UNASSIGNED, MAXPOPS, MISSING
             , MAXALLELES, NUMLOCI, LINES
             , NUMINDS, MAXRANDOM, USEPOPINFO

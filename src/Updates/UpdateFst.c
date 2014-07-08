@@ -51,6 +51,50 @@ FlikeFreqs (double f, double *Epsilon, double *P, int *NumAlleles, int pop)
     return sum;
 }
 
+double FlikeFreqsDiffMap (double newfrac,double oldfrac, double *Epsilon, double *P, int *NumAlleles, int loc,int pop){
+    int allele;
+    double eps,logp;
+    double sum;
+
+    if (NumAlleles[loc]==0) {
+        return -(mylgamma(newfrac) - mylgamma(oldfrac)); /* should not be counting sites with all missing data */
+    } else {
+        sum = 0.0;
+        for (allele=0; allele < NumAlleles[loc]; allele++) {
+            eps = Epsilon[EpsPos (loc, allele)];
+            logp = log(P[PPos(loc,pop,allele)]);
+            sum += (newfrac-oldfrac)*eps*logp - mylgamma( newfrac*eps) - mylgamma( oldfrac*eps);
+        }
+        return sum;
+    }
+}
+
+/*-----------------------------------------*/
+double
+FlikeFreqsDiff (double newf,double oldf, double *Epsilon, double *P, int *NumAlleles, int pop)
+{
+    /*
+     * returns the log probability of the allele frequencies (for a particular pop)
+     * given the prior and the z (number of each allele in each population).
+     * Here f is the value of Fst for that locus
+     */
+
+    /*
+     * If numalleles=1 this seems to be ok
+     * here passes Epsilon into mylgamma. Does this cause problems if epsilon very small?
+     */
+    int loc;
+    double newfrac = (1.0-newf)/newf;
+    double oldfrac = (1.0-oldf)/oldf;
+    double sum = NUMLOCI*(mylgamma(newfrac) - mylgamma(oldfrac));
+
+    for (loc=0; loc<NUMLOCI; loc++) {
+        sum += FlikeFreqsDiffMap(newfrac,oldfrac,Epsilon,P,NumAlleles,loc,pop);
+    }
+    return sum;
+}
+
+
 
 /*-----------------------------------------*/
 void
@@ -60,12 +104,12 @@ UpdateFstCL (CLDict *clDict,double *Epsilon, double *Fst, double *P, int *NumAll
 
     double newf,oldf;
     double logprobdiff;
-    double unifrv;
-    double threshold;
-    int pop1,pop2;
-    int numpops1, numpops2;
+    int pop;
+    int numpops1;
     /*size_t global[2];*/
     double *newfs;
+    size_t global[2];
+    double pdiff;
 
     /*------Update f ()----See notebook, 5/14/99-----------*/
 
@@ -81,18 +125,20 @@ UpdateFstCL (CLDict *clDict,double *Epsilon, double *Fst, double *P, int *NumAll
     }
 
     newfs = calloc(numpops1,sizeof(double));
-    for (pop1 = 0; pop1 < numpops1; pop1++) {
-        oldf = Fst[pop1];
+    for (pop = 0; pop < numpops1; pop++) {
+        oldf = Fst[pop];
         newf = RNormal (oldf, FPRIORSD);
-        newfs[pop1] = newf;
+        newfs[pop] = newf;
     }
 
     writeBuffer(clDict,newfs,sizeof(double) * numpops1,NORMSCL,"Normals");
     /*runKernel(clDict,rNormalsKernel,1,global,"rNormals");*/
-    for (pop1 = 0; pop1 < numpops1; pop1++) {
+    global[0] = NUMLOCI;
+    if (ONEFST){
+        global[1] = 1;
         /*generate proposal f */
-        oldf = Fst[pop1];
-        newf = newfs[pop1];
+        oldf = Fst[0];
+        newf = newfs[0];
 
         /*reject if propopal < 0 or greater than 1 */
         if (newf > 0.0 && newf<1.0) {
@@ -100,31 +146,37 @@ UpdateFstCL (CLDict *clDict,double *Epsilon, double *Fst, double *P, int *NumAll
             logprobdiff = FPriorDiff (newf, oldf);
 
             /*compute log likelihood diff */
-            if (ONEFST) {
-                numpops2 = MAXPOPS;
-            } else {
-                numpops2 = pop1+1;
+            for (pop = 0; pop < MAXPOPS; pop++) {
+                logprobdiff += FlikeFreqsDiff (newf, oldf, Epsilon, P, NumAlleles, pop);
+                /*logprobdiff -= FlikeFreqs (oldf, Epsilon, P, NumAlleles, pop);*/
             }
-            for (pop2 = pop1; pop2 < numpops2; pop2++) {
-                logprobdiff += FlikeFreqs (newf, Epsilon, P, NumAlleles, pop2);
-                logprobdiff -= FlikeFreqs (oldf, Epsilon, P, NumAlleles, pop2);
-            }
-
-            /*decide whether to accept, and then update*/
-
-            if (logprobdiff >= 0.0) {   /*accept new f */
-                for (pop2 = pop1; pop2 < numpops2; pop2++) {
-                    Fst[pop2] = newf;
-                }
-            } else {                 /*accept new parameter with prob p */
-                threshold = exp (logprobdiff);
-                unifrv = rnd ();
-                if (unifrv < threshold) {
-                    for (pop2 = pop1; pop2 < numpops2; pop2++) {
-                        Fst[pop2] = newf;
-                    }
+            if (logprobdiff >= 0.0 || rnd() < exp(logprobdiff)) {   /*accept new f */
+                for (pop = 0; pop < MAXPOPS; pop++) {
+                    Fst[pop] = newf;
                 }
             }
         }
+    } else {
+        global[1] = MAXPOPS;
+        for (pop = 0; pop < MAXPOPS; pop++) {
+            /*generate proposal f */
+            oldf = Fst[pop];
+            newf = newfs[pop];
+
+            /*reject if propopal < 0 or greater than 1 */
+            if (newf > 0.0 && newf<1.0) {
+                pdiff = FPriorDiff (newf, oldf);
+                /*compute prior ratio */
+                /*compute log likelihood diff */
+                logprobdiff = FlikeFreqsDiff (newf, oldf, Epsilon, P, NumAlleles, pop);
+
+                if (logprobdiff >= -pdiff || rnd() < exp(logprobdiff+pdiff)) {   /*accept new f */
+                    Fst[pop] = newf;
+                }
+            }
+        }
+
     }
+
+    free(newfs);
 }

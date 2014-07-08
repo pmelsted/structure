@@ -421,6 +421,7 @@ int main (int argc, char *argv[])
     /*printf("%d\n",COMPUTEPROB);*/
     /*printf("%d\n",POPALPHAS);*/
     /*printf("%d\n",UNIFPRIORALPHA);*/
+    /*printf("%d\n",MAXALLELES);*/
     /*handleCLErr(1,clDict,"heyhey");*/
 
     /*Initialize Q */
