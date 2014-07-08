@@ -63,7 +63,7 @@ double FlikeFreqsDiffMap (double newfrac,double oldfrac, double *Epsilon, double
         for (allele=0; allele < NumAlleles[loc]; allele++) {
             eps = Epsilon[EpsPos (loc, allele)];
             logp = log(P[PPos(loc,pop,allele)]);
-            sum += (newfrac-oldfrac)*eps*logp - mylgamma( newfrac*eps) - mylgamma( oldfrac*eps);
+            sum += (newfrac-oldfrac)*eps*logp - (mylgamma( newfrac*eps) - mylgamma( oldfrac*eps));
         }
         return sum;
     }
@@ -86,12 +86,13 @@ FlikeFreqsDiff (double newf,double oldf, double *Epsilon, double *P, int *NumAll
     int loc;
     double newfrac = (1.0-newf)/newf;
     double oldfrac = (1.0-oldf)/oldf;
-    double sum = NUMLOCI*(mylgamma(newfrac) - mylgamma(oldfrac));
+    double sum = 0.0;
+    double init = NUMLOCI*(mylgamma(newfrac) - mylgamma(oldfrac));
 
     for (loc=0; loc<NUMLOCI; loc++) {
         sum += FlikeFreqsDiffMap(newfrac,oldfrac,Epsilon,P,NumAlleles,loc,pop);
     }
-    return sum;
+    return sum+init;
 }
 
 
@@ -109,7 +110,6 @@ UpdateFstCL (CLDict *clDict,double *Epsilon, double *Fst, double *P, int *NumAll
     /*size_t global[2];*/
     double *newfs;
     size_t global[2];
-    double pdiff;
 
     /*------Update f ()----See notebook, 5/14/99-----------*/
 
@@ -158,24 +158,7 @@ UpdateFstCL (CLDict *clDict,double *Epsilon, double *Fst, double *P, int *NumAll
         }
     } else {
         global[1] = MAXPOPS;
-        for (pop = 0; pop < MAXPOPS; pop++) {
-            /*generate proposal f */
-            oldf = Fst[pop];
-            newf = newfs[pop];
-
-            /*reject if propopal < 0 or greater than 1 */
-            if (newf > 0.0 && newf<1.0) {
-                pdiff = FPriorDiff (newf, oldf);
-                /*compute prior ratio */
-                /*compute log likelihood diff */
-                logprobdiff = FlikeFreqsDiff (newf, oldf, Epsilon, P, NumAlleles, pop);
-
-                if (logprobdiff >= -pdiff || rnd() < exp(logprobdiff+pdiff)) {   /*accept new f */
-                    Fst[pop] = newf;
-                }
-            }
-        }
-
+        runKernel(clDict,UpdateFstManyKernel,2,global,"UpdateFstMany");
     }
 
     free(newfs);

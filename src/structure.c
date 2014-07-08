@@ -523,11 +523,11 @@ int main (int argc, char *argv[])
 
         if (FREQSCORR) {
             readBuffer(clDict,P,sizeof(double) * PSIZE,PCL,"P");
+            readBuffer(clDict,Fst,sizeof(double) * MAXPOPS,FSTCL,"FST");
             UpdateEpsilon(P,Epsilon,Fst,NumAlleles,lambda[0]);
             writeBuffer(clDict,Epsilon,sizeof(double) * NUMLOCI*MAXALLELES,EPSILONCL,
                         "EPSILON");
             UpdateFstCL (clDict,Epsilon, Fst, P, NumAlleles);
-            writeBuffer(clDict,Fst,sizeof(double) * MAXPOPS,FSTCL,"FST");
         }
 
         /*====book-keeping stuff======================*/

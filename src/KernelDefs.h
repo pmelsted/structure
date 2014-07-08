@@ -16,6 +16,7 @@ enum KERNEL {
     UpdQDirichletKernel,
     FillArrayWRandomKernel,
     InitRandGenKernel,
+    UpdateFstManyKernel,
     NumberOfKernels
 };
 
