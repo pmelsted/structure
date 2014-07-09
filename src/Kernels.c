@@ -532,9 +532,9 @@ void createCLBuffers(CLDict *clDict)
     }
     createCLBuffer(clDict,NUMALLELESCL,sizeof(int)*NUMLOCI,CL_MEM_READ_WRITE);
 
-    if (PFROMPOPFLAGONLY || USEPOPINFO) {
-        createCLBuffer(clDict,POPFLAGCL,sizeof(int)*NUMINDS,CL_MEM_READ_WRITE);
-    }
+    /*if (PFROMPOPFLAGONLY || USEPOPINFO) {*/
+    /*}*/
+    createCLBuffer(clDict,POPFLAGCL,sizeof(int)*NUMINDS,CL_MEM_READ_WRITE);
 
     createCLBuffer(clDict,NUMAFROMPOPSCL,sizeof(int)*NUMLOCI*MAXPOPS*MAXALLELES,CL_MEM_READ_WRITE);
 

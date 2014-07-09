@@ -17,8 +17,6 @@ __kernel void UpdateAlpha(
        __local double *scratch,
        const int POPFLAGINDS)
 {
-}
-/*{
     int ind = get_global_id(0);
     int pop = get_global_id(1);
     int numgroups = get_num_groups(0);
@@ -49,7 +47,7 @@ __kernel void UpdateAlpha(
             }
         }
 
-        [> reduce locally <]
+        /* reduce locally */
         int localId = get_local_id(0);
         scratch[localId] = sum;
         barrier(CLK_LOCAL_MEM_FENCE);
@@ -74,11 +72,6 @@ __kernel void UpdateAlpha(
         if(gid==0){
             RndDiscState randState[1];
             initRndDiscState(randState,randGens,pop);
-            [>int multiple = 1;<]
-            [>if (ONEFST) multiple = MAXPOPS;<]
-            [>double logprobdiff = FPriorDiff (newf, oldf);<]
-            [>logprobdiff += multiple*NUMLOCI*lgamma(newfrac);<]
-            [>logprobdiff -= multiple*NUMLOCI*lgamma(oldfrac);<]
             double logprobdiff = 0.0;
             double logterm = 0.0;
             if (!(UNIFPRIORALPHA)) logprobdiff = AlphaPriorDiff (newalpha, oldalpha);
@@ -104,7 +97,7 @@ __kernel void UpdateAlpha(
             lpsum += (lgamma (sumalphas) - multiple * lgamma ( newalpha)) * POPFLAGINDS;
             logprobdiff += lpsum;
 
-            if (rndDisc(randState) < exp(logprobdiff)) {   [>accept new f <]
+            if (rndDisc(randState) < exp(logprobdiff)) {   /*accept new f */
                 for(redpop = pop; redpop < numredpops; redpop++){
                     Alpha[redpop] = newalpha;
                 }
@@ -112,4 +105,4 @@ __kernel void UpdateAlpha(
             saveRndDiscState(randState);
         }
     }
-}*/
+}

@@ -96,34 +96,18 @@ double LogProbQTerm (double *Q, struct IND *Individual, int pop,int numredpops)
       See notes 5/13/99 */
     int ind, redpop;
     /*this is the number of individuals without pop. info */
-    int numinds = 0;
     double logterm = 0.0;
 
 
     for (ind = 0; ind < NUMINDS; ind++) {
         if (!((USEPOPINFO) && (Individual[ind].PopFlag))) {
             /* ie don't use individuals for whom prior pop info is used */
-            numinds++;
             for (redpop = pop; redpop < numredpops; redpop++) {
                 logterm += log(Q[QPos (ind, redpop)]);
             }
         }
     }
     return logterm;
-}
-
-/*-----------------------------------------*/
-int pflaginds (struct IND *Individual)
-{
-    int ind;
-    int numinds = 0;
-    for (ind = 0; ind < NUMINDS; ind++) {
-        if (!((USEPOPINFO) && (Individual[ind].PopFlag))) {
-            /* ie don't use individuals for whom prior pop info is used */
-            numinds++;
-        }
-    }
-    return numinds;
 }
 
 

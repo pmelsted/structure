@@ -1,4 +1,5 @@
 /*=======================================================
+        createCLBuffer(clDict,POPFLAGCL,sizeof(int)*NUMINDS,CL_MEM_READ_WRITE);
 
   STRUCTURE.C
 
@@ -203,7 +204,7 @@ int main (int argc, char *argv[])
     double sumlikes;              /*sum of likelihood values */
     double sumsqlikes;            /*sum of squared likelihoods */
 
-    double *popflags; /*The populationflags of individuals*/
+    int *popflags; /*The populationflags of individuals*/
     unsigned int *randGens;
 
 
