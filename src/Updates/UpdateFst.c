@@ -103,10 +103,6 @@ UpdateFstCL (CLDict *clDict,double *Epsilon, double *Fst, double *P, int *NumAll
 /*update the correlation factor, Fst, for each population*/
 {
 
-    double newf,oldf;
-    int pop;
-    int numpops1;
-    double *newfs;
     size_t global[2];
 
     /*------Update f ()----See notebook, 5/14/99-----------*/
@@ -116,20 +112,13 @@ UpdateFstCL (CLDict *clDict,double *Epsilon, double *Fst, double *P, int *NumAll
       is a single F, in which case we sum the likelihood ratio across populations.*/
 
     /*control the outer loop*/
-    if (ONEFST) {
-        numpops1 = 1;
+    if (ONEFST){
+        global[0] = 1;
     } else {
-        numpops1 = MAXPOPS;
+        global[0] = MAXPOPS;
     }
 
-    newfs = calloc(MAXPOPS,sizeof(double));
-    for (pop = 0; pop < numpops1; pop++) {
-        oldf = Fst[pop];
-        newf = RNormal (oldf, FPRIORSD);
-        newfs[pop] = newf;
-    }
-
-    writeBuffer(clDict,newfs,sizeof(double) * MAXPOPS,NORMSCL,"Normals");
+    runKernel(clDict,FstNormals,1,global,"FstNormals");
 
     global[0] = NUMLOCI;
     if (ONEFST){
@@ -137,7 +126,7 @@ UpdateFstCL (CLDict *clDict,double *Epsilon, double *Fst, double *P, int *NumAll
     } else {
         global[1] = MAXPOPS;
     }
+
     runKernel(clDict,UpdateFstKernel,2,global,"UpdateFst");
 
-    free(newfs);
 }

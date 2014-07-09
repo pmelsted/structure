@@ -310,6 +310,11 @@ void setKernelArgs(CLDict *clDict)
     setKernelArg(clDict,UpdateFstKernel,REDUCERESULTSCL,6);
     setKernelArgNULL(clDict,UpdateFstKernel,sizeof(double)*NUMLOCI,NULL,7);
 
+    /* fst gpu normals */
+    setKernelArg(clDict,FstNormals,FSTCL,0);
+    setKernelArg(clDict,FstNormals,NORMSCL,1);
+    setKernelArg(clDict,FstNormals,RANDGENSCL,2);
+
 
 }
 
@@ -429,7 +434,7 @@ int CompileKernels(CLDict *clDict,  char *options)
     /*cl_int ret;*/
 
 
-    char *KERNELNAMES[NumberOfKernels] = {"UpdateZ","GetNumFromPops","UpdateP","mapReduceLogDiffs","Dirichlet", "MetroAcceptTest","GetNumLociPops","UpdQDirichlet","FillArrayWRandom","InitRandGens","UpdateFst"};
+    char *KERNELNAMES[NumberOfKernels] = {"UpdateZ","GetNumFromPops","UpdateP","mapReduceLogDiffs","Dirichlet", "MetroAcceptTest","GetNumLociPops","UpdQDirichlet","FillArrayWRandom","InitRandGens","UpdateFst","FstNormals"};
 
     /* Load the source code containing the kernels*/
     fp = fopen("Kernels/Kernels.cl", "r");

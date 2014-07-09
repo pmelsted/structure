@@ -34,6 +34,7 @@ double FlikeFreqsDiffMap (double newfrac,double oldfrac,
 }
 
 
+
 __kernel void UpdateFst(
             __global double *Epsilon,
             __global double *Fst,
@@ -54,10 +55,10 @@ __kernel void UpdateFst(
     double sum = 0.0;
     int redpop;
     int numredpops;
-    numredpops = pop +1;
-    if (ONEFST) numredpops = MAXPOPS;
 
     if (newf > 0.0 && newf < 1.0){
+        numredpops = pop +1;
+        if (ONEFST) numredpops = MAXPOPS;
         /* idempotent */
         /* Map and partial reduce */
         while( loc < NUMLOCI){
@@ -105,11 +106,25 @@ __kernel void UpdateFst(
                 for(redpop = pop; redpop < numredpops; redpop++){
                     Fst[redpop] = newf;
                 }
-                /*Fst[pop] = newf;*/
             }
             saveRndDiscState(randState);
         }
     }
 
+}
 
+__kernel void FstNormals(
+        __global double *Fst,
+        __global double *norms,
+        __global uint *randGens)
+{
+    int pop = get_global_id(0);
+    if(pop < MAXPOPS){
+        RndDiscState randState[1];
+        initRndDiscState(randState,randGens,pop);
+        double2 rnorms = BoxMuller(randState);
+        double oldf = Fst[pop];
+        norms[pop] = rnorms.x*FPRIORSD + oldf;
+        saveRndDiscState(randState);
+    }
 }

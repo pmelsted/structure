@@ -17,6 +17,7 @@ enum KERNEL {
     FillArrayWRandomKernel,
     InitRandGenKernel,
     UpdateFstKernel,
+    FstNormals,
     NumberOfKernels
 };
 

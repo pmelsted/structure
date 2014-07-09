@@ -3,6 +3,7 @@
 #define MAXRANDVAL 4294967296
 
 #define RANDSPERSTREAM 2147483648
+#define PI 3.14159265359
 
 mwc64x_state_t getRandGen(__global uint *randGens, int id){
     /*mwc64x_state_t rng = { randGens[id*2] };*/
@@ -79,6 +80,24 @@ double rndDisc(RndDiscState * state)
     double val = uintToUnit(MWC64X_NextUint(&(state->rng)));
     return val;
 }
+
+double2 BoxMuller(RndDiscState *state)
+{
+  double u0=rndDisc(state), u1=rndDisc(state);
+  double r=sqrt(-2*log(u0));
+  double theta=2*PI*u1;
+  return (double2) (r*sin(theta),r*cos(theta));
+}
+
+float2 BoxMullerF(RndDiscState *state)
+{
+  float u0=rndDisc(state), u1=rndDisc(state);
+  float r=sqrt(-2*log(u0));
+  float theta=2*PI*u1;
+  return (float2) (r*sin(theta),r*cos(theta));
+}
+
+
 
 void saveRndDiscState(RndDiscState *state){
     saveRandGen(state->randGens,state->randGenId,state->rng);
