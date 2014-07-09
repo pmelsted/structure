@@ -44,4 +44,19 @@ __kernel void FillArrayWRandom(
     }
 }
 
-
+__kernel void PopNormals(
+        __global double *Prev,
+        __global double *norms,
+        __global uint *randGens,
+        const double SD)
+{
+    int pop = get_global_id(0);
+    if(pop < MAXPOPS){
+        RndDiscState randState[1];
+        initRndDiscState(randState,randGens,pop);
+        double2 rnorms = BoxMuller(randState);
+        double oldf = Prev[pop];
+        norms[pop] = rnorms.x*SD + oldf;
+        saveRndDiscState(randState);
+    }
+}

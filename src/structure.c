@@ -144,7 +144,7 @@ void initRandGens(CLDict *clDict){
     size_t global[1];
     int seed = rand();
     global[0] = NUMRANDGENS;
-    setKernelArgNULL(clDict,InitRandGenKernel,sizeof(int),&seed,1);
+    setKernelArgExplicit(clDict,InitRandGenKernel,sizeof(int),&seed,1);
     runKernel(clDict,InitRandGenKernel,1,global,"InitRandGen");
     finishCommands(clDict,"init rand gens");
 }
@@ -228,6 +228,10 @@ int main (int argc, char *argv[])
     /*Dict to that keeps track of CL info */
     CLDict *clDict = NULL;
     double * randomArr; /* array of random numbers */
+    enum BUFFER buffers[3] = {FSTCL,PCL,QCL};
+    char * names[3] = {"FST","P","Q"};
+    size_t sizes[3];
+    void *dests[3];
 
     clDict = malloc(sizeof (*clDict));
     /*=====Code for getting started=============================*/
@@ -503,20 +507,20 @@ int main (int argc, char *argv[])
             /*      printf("done updatez alpha[2]=%e\n", Alpha[2]); */
         }
 
-        void *dests[3] = {Fst,P,Q};
-        enum BUFFER buffers[3] = {FSTCL,PCL,QCL};
-        size_t sizes[3] = {sizeof(double) * MAXPOPS,sizeof(double)*PSIZE,sizeof(double) * QSIZE};
-        char * names[3] = {"FST","P","Q"};
+        dests[0] = Fst; sizes[0] = sizeof(double) * MAXPOPS;
+        dests[1] = P; sizes[1] = sizeof(double) * PSIZE;
+        dests[2] = Q; sizes[2] = sizeof(double) * QSIZE;
         readBuffers(clDict,dests,sizes,buffers,names,3);
 
         if (LOCPRIOR && NOADMIX==0) {
             UpdateAlphaLocPrior(Q, Alpha, LocPrior, Individual);
         } else if (INFERALPHA) {
-            UpdateAlpha (Q, Alpha, Individual, rep);
+            UpdateAlphaCL (clDict,Q, Alpha, Individual, rep);
             writeBuffer(clDict,Alpha,sizeof(double) *MAXPOPS,ALPHACL,"Alpha");
         }
 
         if (INFERLAMBDA) {
+            readBuffer(clDict,P,sizeof(double) * PSIZE,PCL,"P");
             if  (POPSPECIFICLAMBDA) {
                 UpdatePopLambda(P,lambda,NumAlleles);
             } else {
@@ -530,9 +534,6 @@ int main (int argc, char *argv[])
             UpdateEpsilon(P,Epsilon,Fst,NumAlleles,lambda[0]);
             writeBuffer(clDict,Epsilon,sizeof(double) * NUMLOCI*MAXALLELES,EPSILONCL,
                         "EPSILON");
-            /* needed for RNormals */
-            /*TODO: Generate gauss randoms on GPU to avoid this read.*/
-            /*readBuffer(clDict,Fst,sizeof(double) * MAXPOPS,FSTCL,"FST");*/
             UpdateFstCL (clDict,Epsilon, Fst, P, NumAlleles);
         }
 

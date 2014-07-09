@@ -209,7 +209,7 @@ void setKernelArg(CLDict *clDict, enum KERNEL kernel, enum BUFFER buffer,int arg
 }
 
 
-void setKernelArgNULL(CLDict *clDict, enum KERNEL kernel,size_t size, void *arg, int argnum){
+void setKernelArgExplicit(CLDict *clDict, enum KERNEL kernel,size_t size, void *arg, int argnum){
     cl_int err;
     err = 0;
     err  = clSetKernelArg(clDict->kernels[kernel], argnum, size, arg);
@@ -268,7 +268,7 @@ void setKernelArgs(CLDict *clDict)
     setKernelArg(clDict,mapReduceLogDiffsKernel,GENOCL,3);
     setKernelArg(clDict,mapReduceLogDiffsKernel,LOGDIFFSCL,4);
     setKernelArg(clDict,mapReduceLogDiffsKernel,REDUCERESULTSCL,5);
-    setKernelArgNULL(clDict,mapReduceLogDiffsKernel,sizeof(double)*NUMLOCI,NULL,6);
+    setKernelArgExplicit(clDict,mapReduceLogDiffsKernel,sizeof(double)*NUMLOCI,NULL,6);
 
     /* RDirichlet sample */
     setKernelArg(clDict,RDirichletSampleKernel,ALPHACL,0);
@@ -308,12 +308,11 @@ void setKernelArgs(CLDict *clDict)
     setKernelArg(clDict,UpdateFstKernel,NORMSCL,4);
     setKernelArg(clDict,UpdateFstKernel,RANDGENSCL,5);
     setKernelArg(clDict,UpdateFstKernel,REDUCERESULTSCL,6);
-    setKernelArgNULL(clDict,UpdateFstKernel,sizeof(double)*NUMLOCI,NULL,7);
+    setKernelArgExplicit(clDict,UpdateFstKernel,sizeof(double)*NUMLOCI,NULL,7);
 
-    /* fst gpu normals */
-    setKernelArg(clDict,FstNormals,FSTCL,0);
-    setKernelArg(clDict,FstNormals,NORMSCL,1);
-    setKernelArg(clDict,FstNormals,RANDGENSCL,2);
+    /* gpu normals */
+    setKernelArg(clDict,PopNormals,NORMSCL,1);
+    setKernelArg(clDict,PopNormals,RANDGENSCL,2);
 
 
 }
@@ -434,7 +433,7 @@ int CompileKernels(CLDict *clDict,  char *options)
     /*cl_int ret;*/
 
 
-    char *KERNELNAMES[NumberOfKernels] = {"UpdateZ","GetNumFromPops","UpdateP","mapReduceLogDiffs","Dirichlet", "MetroAcceptTest","GetNumLociPops","UpdQDirichlet","FillArrayWRandom","InitRandGens","UpdateFst","FstNormals"};
+    char *KERNELNAMES[NumberOfKernels] = {"UpdateZ","GetNumFromPops","UpdateP","mapReduceLogDiffs","Dirichlet", "MetroAcceptTest","GetNumLociPops","UpdQDirichlet","FillArrayWRandom","InitRandGens","UpdateFst","PopNormals","UpdateAlpha"};
 
     /* Load the source code containing the kernels*/
     fp = fopen("Kernels/Kernels.cl", "r");
@@ -639,18 +638,24 @@ int InitCLDict(CLDict *clDictToInit)
 
 
     sprintf(options,"-Werror -D UNASSIGNED=%d  -D MAXPOPS=%d -D MISSING=%d \
-                     -D MAXALLELES=%d -D NUMLOCI=%d  -D LINES=%d    \
-                     -D NUMINDS=%d -D MAXRANDOM=%d  -D USEPOPINFO=%d    \
-                     -D LOCPRIOR=%d  -D NOTAMBIGUOUS=%d  -D NUMLOCATIONS=%d    \
-                     -D PFROMPOPFLAGONLY=%d -D FREQSCORR=%d -D blockSize=64\
-                     -D DEBUGCOMPARE=%d -D FPRIORMEAN=%f -D FPRIORSD=%f \
-                     -D ONEFST=%d "
+            -D MAXALLELES=%d -D NUMLOCI=%d  -D LINES=%d    \
+            -D NUMINDS=%d -D MAXRANDOM=%d  -D USEPOPINFO=%d    \
+            -D LOCPRIOR=%d  -D NOTAMBIGUOUS=%d  -D NUMLOCATIONS=%d    \
+            -D PFROMPOPFLAGONLY=%d -D FREQSCORR=%d -D blockSize=64\
+            -D DEBUGCOMPARE=%d -D FPRIORMEAN=%f -D FPRIORSD=%f "
             , UNASSIGNED, MAXPOPS, MISSING
             , MAXALLELES, NUMLOCI, LINES
             , NUMINDS, MAXRANDOM, USEPOPINFO
             , LOCPRIOR, NOTAMBIGUOUS, NUMLOCATIONS
             , PFROMPOPFLAGONLY,FREQSCORR,DEBUGCOMPARE,
-            FPRIORMEAN,FPRIORSD,ONEFST);
+            FPRIORMEAN,FPRIORSD);
+
+    sprintf(options + strlen(options), "-D ONEFST=%d -D ALPHAPROPSD=%f \
+        -D ALPHAMAX=%f \
+        -D UNIFPRIORALPHA=%d -D POPALPHAS=%d -D ALPHAPRIORA=%f \
+        -D ALPHAPRIORB=%f ",
+        ONEFST,ALPHAPROPSD, ALPHAMAX, UNIFPRIORALPHA, POPALPHAS,
+        ALPHAPRIORA, ALPHAPRIORB);
 
     printf("%s\n",options);
     compileret = CompileKernels(clDictToInit,options);

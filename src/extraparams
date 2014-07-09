@@ -20,7 +20,7 @@ PROGRAM OPTIONS
 #define ONEFST      0 // (B) assume same value of Fst for all subpopulations.
 
 #define INFERALPHA  1 // (B) Infer ALPHA (the admixture parameter)
-#define POPALPHAS   0 // (B) Individual alpha for each population
+#define POPALPHAS   1 // (B) Individual alpha for each population
 #define ALPHA     1.0 // (d) Dirichlet parameter for degree of admixture 
                              (this is the initial value if INFERALPHA==1).
 

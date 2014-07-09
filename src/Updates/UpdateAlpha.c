@@ -4,6 +4,7 @@
 #include "../ran.h"
 #include "../mymath.h"
 #include "../structure.h"
+#include "../Kernels.h"
 
 
 
@@ -17,57 +18,78 @@ double AlphaPriorDiff (double newalpha, double oldalpha)
 }
 
 /*-----------------------------------------*/
-double LogProbQ (double *Q, double onealpha, struct IND *Individual)
+double LogProbQ (double *Q, double alpha, struct IND *Individual,double alphasum, int pop,int numredpops)
 {
     /*return log prob of q given alpha [for single alpha in all populations].
       See notes 5/13/99 */
     double sum;
-    double runningtotal;
-    int ind, pop;
-    int numinds =
-        0;              /*this is the number of individuals without pop. info */
-    double sqrtunder = sqrt (UNDERFLO);
+    int ind, redpop;
+    /*this is the number of individuals without pop. info */
+    int numinds = 0;
+    double logterm;
+    int multiple = numredpops - pop;
 
     sum = 0.0;
-
-    runningtotal = 1.0;
+    logterm = 0.0;
+    /*redpop = 0;*/
     for (ind = 0; ind < NUMINDS; ind++) {
         if (!((USEPOPINFO) && (Individual[ind].PopFlag))) {
             /* ie don't use individuals for whom prior pop info is used */
             numinds++;
-            for (pop = 0; pop < MAXPOPS; pop++) {
-                /*being more careful with underflow caused by very small values of Q */
-                if (Q[QPos (ind, pop)] >
-                        sqrtunder) {             /*0-values lead to underflow */
-                    runningtotal *= Q[QPos (ind, pop)];
-                } else {
-                    runningtotal *= sqrtunder;
-                }
-
-                if (runningtotal <
-                        sqrtunder)  {  /*this is to avoid having to take logs all the time */
-                    if (runningtotal == 0.0) {
-                        printf ("*");
-                    }
-                    sum += (onealpha - 1.0) * log (runningtotal);
-                    runningtotal = 1.0;
-                }
+            for (redpop = pop; redpop < numredpops; redpop++) {
+                logterm += log(Q[QPos (ind, redpop)]);
             }
         }
     }
 
-    sum += (onealpha - 1.0) * log (runningtotal);
-    sum += (mylgamma (MAXPOPS * onealpha) - MAXPOPS * mylgamma (
-                onealpha)) * numinds;
+    sum += (alpha - 1.0) * logterm;
+    sum += (mylgamma (alphasum) - multiple * mylgamma ( alpha)) * numinds;
 
-    /*printf("%1.2e ",sum);
-      printf("%d ",numinds); */
+    return (sum);
+}
+
+/*-----------------------------------------*/
+double LogProbQDiff (double *Q, double oldalpha, double newalpha, struct IND *Individual,double alphasum, int pop,int numredpops)
+{
+    /*return log prob of q given alpha [for single alpha in all populations].
+      See notes 5/13/99 */
+    double sum;
+    int ind, redpop;
+    /*this is the number of individuals without pop. info */
+    int numinds = 0;
+    double logterm = 0.0;
+    int multiple = numredpops - pop;
+
+    sum = 0.0;
+
+    for (ind = 0; ind < NUMINDS; ind++) {
+        if (!((USEPOPINFO) && (Individual[ind].PopFlag))) {
+            /* ie don't use individuals for whom prior pop info is used */
+            numinds++;
+            for (redpop = pop; redpop < numredpops; redpop++) {
+                logterm += log(Q[QPos (ind, redpop)]);
+            }
+        }
+    }
+
+    sum -= (oldalpha - 1.0) * logterm;
+    sum -= (mylgamma (alphasum) - multiple * mylgamma ( oldalpha)) * numinds;
+
+    alphasum += newalpha - oldalpha;
+
+    if (!(POPALPHAS)){
+        alphasum = MAXPOPS*newalpha;
+    }
+
+    sum += (newalpha - 1.0) * logterm;
+    sum += (mylgamma (alphasum) - multiple * mylgamma ( newalpha)) * numinds;
+
     return (sum);
 }
 
 
 /*-----------------------------------------*/
-double LogProbQonepop (double *Q, double popalpha, double sumalphas,
+double LogProbQonepop (double *Q, double alpha, double alphasum,
                        struct IND *Individual,int pop)
 {
     /*
@@ -78,13 +100,13 @@ double LogProbQonepop (double *Q, double popalpha, double sumalphas,
      */
 
     double sum;
-    double runningtotal;
     int ind;
-    int numinds =
-        0;              /*this is the number of individuals without pop. info */
-    double sqrtunder = sqrt (UNDERFLO);
+    /*this is the number of individuals without pop. info */
+    int numinds = 0;
+    double logterm;
+
     sum = 0.0;
-    runningtotal = 1.0;
+    logterm = 0.0;
     for (ind = 0; ind < NUMINDS; ind++) {
         if (!((USEPOPINFO) && (Individual[ind].PopFlag))) {
             /* ie don't use individuals for whom prior pop info is used */
@@ -92,26 +114,12 @@ double LogProbQonepop (double *Q, double popalpha, double sumalphas,
             numinds++;
             /*being more careful with underflow caused by very small values of Q */
             /*0-values lead to underflow */
-
-            if (Q[QPos (ind, pop)] > sqrtunder) {
-                runningtotal *= Q[QPos (ind, pop)];
-            } else {
-                runningtotal *= sqrtunder;
-            }
-
-            if (runningtotal <
-                    sqrtunder) {    /*this is to avoid having to take logs all the time */
-                if (runningtotal == 0.0) {
-                    printf ("*");
-                }
-                sum += (popalpha - 1.0) * log (runningtotal);
-                runningtotal = 1.0;
-            }
+            logterm += log(Q[QPos (ind, pop)]);
         }
     }
 
-    sum += (popalpha - 1.0) * log (runningtotal);
-    sum += (mylgamma (sumalphas) - mylgamma (popalpha)) * numinds;
+    sum += (alpha - 1.0) * logterm;
+    sum += (mylgamma (alphasum) - mylgamma (alpha)) * numinds;
     return (sum);
 }
 
@@ -186,8 +194,8 @@ void UpdateAlpha (double *Q, double *Alpha, struct IND *Individual, int rep)
                     sumalphas += newalpha - Alpha[pop];
                     logprobdiff += LogProbQonepop (Q, newalpha, sumalphas, Individual,pop);
                 } else  {  /*same alpha for all populations*/
-                    logprobdiff += LogProbQ (Q, newalpha, Individual);
-                    logprobdiff -= LogProbQ (Q, Alpha[pop], Individual);
+                    logprobdiff += LogProbQ (Q, newalpha, Individual,MAXPOPS*newalpha,pop,numalphas);
+                    logprobdiff -= LogProbQ (Q, Alpha[pop], Individual,MAXPOPS*Alpha[pop],pop,numalphas);
                 }
 
                 /*accept new alpha with min of 1 and exp(logprobdiff) */
@@ -257,6 +265,75 @@ void UpdateAlphaLocPrior(double *Q, double *Alpha, double *LocPrior,
                 lprobQ = new_lprobQ;
             } else {
                 Alpha[pos+pop] = oldalpha;
+            }
+        }
+    }
+}
+
+void UpdateAlphaCL (CLDict *clDict,double *Q, double *Alpha, struct IND *Individual, int rep)
+{
+    /*
+     * Produce new *Alpha using metropolis step.  There are two cases
+     * here: either there is the same alpha for all populations, or we do a
+     * separate Metropolis update for the alpha for each population.
+     */
+
+    double newalpha;
+    /*  double logoldprob;
+     *  double lognewprob; */
+    double unifrv;
+    double threshold;
+    double logprobdiff = 0;
+    double sumalphas;
+    int pop, numalphas,i;
+    int numredpops;
+    int redpop;
+    size_t global[2];
+    double origalphasum;
+    double oldalpha;
+
+    if (!((NOADMIX) && ((rep >= ADMBURNIN) || (rep > BURNIN)))) {
+        /*don't update alpha in these cases*/
+        if (POPALPHAS) {
+            numredpops = 1;
+            numalphas = MAXPOPS;
+        } else {
+            numredpops = MAXPOPS;
+            numalphas = 1;
+        }
+
+        origalphasum = 0.0;
+        for (i=0; i<MAXPOPS; i++)  {
+            origalphasum += Alpha[i];
+        }
+
+        global[0] = numalphas;
+        setKernelArg(clDict,PopNormals,ALPHACL,0);
+        setKernelArgExplicit(clDict,PopNormals,sizeof(double),&ALPHAPROPSD,3);
+
+        global[0] = NUMINDS;
+        global[1] = numalphas;
+
+        for (pop = 0; pop < numalphas; pop++) {
+            if (POPALPHAS){ numredpops = pop+1;}
+
+            oldalpha = Alpha[pop];
+            newalpha = RNormal (oldalpha, ALPHAPROPSD); /*generate proposal alpha */
+
+            /*reject immed. if out of range*/
+            if ((newalpha > 0) && ((newalpha < ALPHAMAX) || (!(UNIFPRIORALPHA)) ) ) {
+                if (!(UNIFPRIORALPHA)) {
+                    logprobdiff = AlphaPriorDiff (newalpha, Alpha[pop]);
+                }
+                /*compute probabilities */
+                sumalphas = origalphasum;  /*need to send in sum of alphas*/
+
+                logprobdiff += LogProbQDiff (Q,oldalpha, newalpha, Individual,sumalphas,pop,numredpops);
+                if (rnd() < exp (logprobdiff)) {
+                    for (redpop = pop; redpop < numredpops; redpop++) {
+                        Alpha[redpop] = newalpha;
+                    }
+                }
             }
         }
     }

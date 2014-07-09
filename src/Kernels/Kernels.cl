@@ -15,4 +15,5 @@
 #include "Kernels/UpdateP.cl"
 #include "Kernels/UpdateQ.cl"
 #include "Kernels/UpdateFst.cl"
+#include "Kernels/UpdateAlpha.cl"
 

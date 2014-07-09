@@ -86,6 +86,8 @@ __kernel void UpdateFst(
         }
 
         int gid = get_group_id(0);
+        //TODO: Handle if numgroups are more than MAXGROUPS
+        //Possibly by reducing with global barrier.
         if(localLoc == 0){
             results[pop*numgroups +gid] = scratch[0];
         }
@@ -113,18 +115,3 @@ __kernel void UpdateFst(
 
 }
 
-__kernel void FstNormals(
-        __global double *Fst,
-        __global double *norms,
-        __global uint *randGens)
-{
-    int pop = get_global_id(0);
-    if(pop < MAXPOPS){
-        RndDiscState randState[1];
-        initRndDiscState(randState,randGens,pop);
-        double2 rnorms = BoxMuller(randState);
-        double oldf = Fst[pop];
-        norms[pop] = rnorms.x*FPRIORSD + oldf;
-        saveRndDiscState(randState);
-    }
-}

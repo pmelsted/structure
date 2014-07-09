@@ -104,6 +104,7 @@ UpdateFstCL (CLDict *clDict,double *Epsilon, double *Fst, double *P, int *NumAll
 {
 
     size_t global[2];
+    int numfst;
 
     /*------Update f ()----See notebook, 5/14/99-----------*/
 
@@ -112,21 +113,18 @@ UpdateFstCL (CLDict *clDict,double *Epsilon, double *Fst, double *P, int *NumAll
       is a single F, in which case we sum the likelihood ratio across populations.*/
 
     /*control the outer loop*/
+    numfst = MAXPOPS;
     if (ONEFST){
-        global[0] = 1;
-    } else {
-        global[0] = MAXPOPS;
+        numfst = 1;
     }
 
-    runKernel(clDict,FstNormals,1,global,"FstNormals");
+    global[0] = numfst;
+    setKernelArg(clDict,PopNormals,FSTCL,0);
+    setKernelArgExplicit(clDict,PopNormals,sizeof(double),&FPRIORSD,3);
+    runKernel(clDict,PopNormals,1,global,"PopNormals");
 
     global[0] = NUMLOCI;
-    if (ONEFST){
-        global[1] = 1;
-    } else {
-        global[1] = MAXPOPS;
-    }
-
+    global[1] = numfst;
     runKernel(clDict,UpdateFstKernel,2,global,"UpdateFst");
 
 }
