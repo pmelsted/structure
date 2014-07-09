@@ -230,10 +230,10 @@ int main (int argc, char *argv[])
     CLDict *clDict = NULL;
     double * randomArr; /* array of random numbers */
     int POPFLAGINDS = 0;
-    enum BUFFER buffers[3] = {FSTCL,PCL,QCL};
-    char * names[3] = {"FST","P","Q"};
-    size_t sizes[3];
-    void *dests[3];
+    enum BUFFER buffers[4] = {FSTCL,PCL,QCL,ALPHACL};
+    char * names[4] = {"FST","P","Q","ALPHA"};
+    size_t sizes[4];
+    void *dests[4];
 
     clDict = malloc(sizeof (*clDict));
     /*=====Code for getting started=============================*/
@@ -517,16 +517,11 @@ int main (int argc, char *argv[])
             /*      printf("done updatez alpha[2]=%e\n", Alpha[2]); */
         }
 
-        dests[0] = Fst; sizes[0] = sizeof(double) * MAXPOPS;
-        dests[1] = P; sizes[1] = sizeof(double) * PSIZE;
-        dests[2] = Q; sizes[2] = sizeof(double) * QSIZE;
-        readBuffers(clDict,dests,sizes,buffers,names,3);
 
         if (LOCPRIOR && NOADMIX==0) {
             UpdateAlphaLocPrior(Q, Alpha, LocPrior, Individual);
         } else if (INFERALPHA) {
             UpdateAlphaCL (clDict,Q, Alpha, Individual, rep,POPFLAGINDS);
-            readBuffer(clDict,Alpha,sizeof(double) *MAXPOPS,ALPHACL,"Alpha");
         }
 
         if (INFERLAMBDA) {
@@ -539,6 +534,11 @@ int main (int argc, char *argv[])
             writeBuffer(clDict,lambda,sizeof(double) * MAXPOPS,LAMBDACL,"LAMBDA");
         }
 
+        dests[0] = Fst; sizes[0] = sizeof(double) * MAXPOPS;
+        dests[1] = P; sizes[1] = sizeof(double) * PSIZE;
+        dests[2] = Q; sizes[2] = sizeof(double) * QSIZE;
+        dests[3] = Alpha; sizes[3] = sizeof(double) * MAXPOPS;
+        readBuffers(clDict,dests,sizes,buffers,names,4);
 
         if (FREQSCORR) {
             UpdateEpsilon(P,Epsilon,Fst,NumAlleles,lambda[0]);
