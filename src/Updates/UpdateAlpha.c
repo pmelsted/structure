@@ -96,14 +96,14 @@ double LogProbQTerm (double *Q, struct IND *Individual, int pop,int numredpops)
       See notes 5/13/99 */
     int ind, redpop;
     /*this is the number of individuals without pop. info */
-    double logterm = 0.0;
+    double logterm = 1.0;
 
 
     for (ind = 0; ind < NUMINDS; ind++) {
         if (!((USEPOPINFO) && (Individual[ind].PopFlag))) {
             /* ie don't use individuals for whom prior pop info is used */
             for (redpop = pop; redpop < numredpops; redpop++) {
-                logterm += log(Q[QPos (ind, redpop)]);
+                logterm *= Q[QPos (ind, redpop)];
             }
         }
     }
@@ -313,7 +313,6 @@ void UpdateAlphaCL (CLDict *clDict,double *Q, double *Alpha, struct IND *Individ
     double sumalphas;
     double sum;
     int multiple;
-    int numinds;
 
     if (!((NOADMIX) && ((rep >= ADMBURNIN) || (rep > BURNIN)))) {
         /*don't update alpha in these cases*/
@@ -337,28 +336,26 @@ void UpdateAlphaCL (CLDict *clDict,double *Q, double *Alpha, struct IND *Individ
 
         global[0] = NUMINDS;
         global[1] = numalphas;
-        numinds = POPFLAGINDS;
-        
-
+        /*runKernel(clDict,UpdateAlphaKernel,2,global,"Update Alpha kernel");*/
         for (pop = 0; pop < numalphas; pop++) {
             if (POPALPHAS){ numredpops = pop+1;}
 
             oldalpha = Alpha[pop];
-            newalpha = RNormal (oldalpha, ALPHAPROPSD); /*generate proposal alpha */
+            newalpha = RNormal (oldalpha, ALPHAPROPSD);
             /*reject immed. if out of range*/
             if ((newalpha > 0) && ((newalpha < ALPHAMAX) || (!(UNIFPRIORALPHA)) ) ) {
                 if (!(UNIFPRIORALPHA)) {
                     logprobdiff = AlphaPriorDiff (newalpha, Alpha[pop]);
                 }
                 multiple = numredpops - pop;
-                logterm = LogProbQTerm(Q,Individual,pop,numredpops);
+                logterm = log(LogProbQTerm(Q,Individual,pop,numredpops));
 
                 sum = 0.0;
                 sum -= (oldalpha - 1.0) * logterm;
                 sum += (newalpha - 1.0) * logterm;
 
                 sumalphas = alphasum;
-                sum -= (mylgamma (sumalphas) - multiple * mylgamma ( oldalpha)) * numinds;
+                sum -= (mylgamma (sumalphas) - multiple * mylgamma ( oldalpha)) * POPFLAGINDS;
 
                 if (POPALPHAS){
                     sumalphas += newalpha - oldalpha;
@@ -366,10 +363,9 @@ void UpdateAlphaCL (CLDict *clDict,double *Q, double *Alpha, struct IND *Individ
                     sumalphas = MAXPOPS*newalpha;
                 }
 
-                sum += (mylgamma (sumalphas) - multiple * mylgamma ( newalpha)) * numinds;
+                sum += (mylgamma (sumalphas) - multiple * mylgamma ( newalpha)) * POPFLAGINDS;
                 logprobdiff += sum;
-                /*compute probabilities */
-                /*logprobdiff += LogProbQDiff (Q,oldalpha, newalpha, Individual,alphasum,pop,numredpops);*/
+                /*c ompute probabilities */
                 if (rnd() < exp (logprobdiff)) {
                     for (redpop = pop; redpop < numredpops; redpop++) {
                         Alpha[redpop] = newalpha;
@@ -377,5 +373,6 @@ void UpdateAlphaCL (CLDict *clDict,double *Q, double *Alpha, struct IND *Individ
                 }
             }
         }
+        writeBuffer(clDict,Alpha,sizeof(double) * MAXPOPS,ALPHACL,"Alpha");
     }
 }

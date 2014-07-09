@@ -414,11 +414,11 @@ int main (int argc, char *argv[])
         }
     }
 
-    /*setKernelArgExplicit(clDict,UpdateAlphaKernel,sizeof(int),&POPFLAGINDS,7);*/
+    setKernelArgExplicit(clDict,UpdateAlphaKernel,sizeof(int),&POPFLAGINDS,7);
 
-    /*if (PFROMPOPFLAGONLY || USEPOPINFO){*/
     writeBuffer(clDict,popflags,sizeof(int)*NUMINDS,POPFLAGCL,"popflags");
-    /*}*/
+
+    writeBuffer(clDict,Alpha,sizeof(double) *MAXPOPS,ALPHACL,"Alpha");
 
 
     if (FREQSCORR) {
@@ -526,7 +526,7 @@ int main (int argc, char *argv[])
             UpdateAlphaLocPrior(Q, Alpha, LocPrior, Individual);
         } else if (INFERALPHA) {
             UpdateAlphaCL (clDict,Q, Alpha, Individual, rep,POPFLAGINDS);
-            writeBuffer(clDict,Alpha,sizeof(double) *MAXPOPS,ALPHACL,"Alpha");
+            readBuffer(clDict,Alpha,sizeof(double) *MAXPOPS,ALPHACL,"Alpha");
         }
 
         if (INFERLAMBDA) {

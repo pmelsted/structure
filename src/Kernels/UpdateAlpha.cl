@@ -19,8 +19,6 @@ __kernel void UpdateAlpha(
 {
     int ind = get_global_id(0);
     int pop = get_global_id(1);
-    int numgroups = get_num_groups(0);
-    int gid = get_group_id(0);
 
     int redpop;
     int numredpops = MAXPOPS;
@@ -29,20 +27,17 @@ __kernel void UpdateAlpha(
     double oldalpha = Alpha[pop];
     double alphasum =0.0;
 
-    double sum = 0.0;
-
+    /* note: reduction is via *, to avoid instability */
+    double sum = 1.0;
     if ((newalpha > 0) && ((newalpha < ALPHAMAX) || (!(UNIFPRIORALPHA)) ) ) {
-        for (int i=0; i<MAXPOPS; i++)  {
-            alphasum += Alpha[i];
-        }
-        if (POPALPHAS) numredpops = pop +1;
+        if (POPALPHAS){ numredpops = pop +1; }
         while( ind < NUMINDS){
             if (!((USEPOPINFO) && (popflags[ind]))) {
-                double elem = 0.0;
+                double elem = 1.0;
                 for(redpop = pop; redpop < numredpops; redpop++){
-                    elem += log(Q[QPos (ind, redpop)]);
+                    elem *= Q[QPos (ind, redpop)];
                 }
-                sum += elem;
+                sum *= elem;
                 ind += get_global_size(0);
             }
         }
@@ -54,15 +49,21 @@ __kernel void UpdateAlpha(
         int devs = get_local_size(0);
         for(int offset = get_local_size(0) /2; offset > 0; offset >>= 1){
             if(localId < offset){
-                scratch[localId] += scratch[localId + offset];
+                scratch[localId] *= scratch[localId + offset];
             }
             //Handle if were not working on a multiple of 2
             if (localId == 0 && (devs-1)/2 == offset){
-                scratch[localId] += scratch[devs-1];
+                scratch[localId] *= scratch[devs-1];
             }
+            devs >>= 1;
             barrier(CLK_LOCAL_MEM_FENCE);
         }
+
+        int numgroups = get_num_groups(0);
+        int gid = get_group_id(0);
+
         if(localId == 0){
+            /*results[pop*numgroups +gid] = scratch[0];*/
             results[pop*numgroups +gid] = scratch[0];
         }
         //TODO: Handle if numgroups are more than MAXGROUPS
@@ -72,12 +73,15 @@ __kernel void UpdateAlpha(
         if(gid==0){
             RndDiscState randState[1];
             initRndDiscState(randState,randGens,pop);
+            for (int i=0; i<MAXPOPS; i++)  {
+                alphasum += Alpha[i];
+            }
             double logprobdiff = 0.0;
             double logterm = 0.0;
             if (!(UNIFPRIORALPHA)) logprobdiff = AlphaPriorDiff (newalpha, oldalpha);
 
             for(int id =0; id < numgroups; id ++){
-                logterm += results[pop*numgroups + id];
+                logterm += log(results[pop*numgroups + id]);
             }
 
             int multiple = numredpops - pop;
@@ -86,7 +90,7 @@ __kernel void UpdateAlpha(
             lpsum += (newalpha - 1.0) * logterm;
 
             double sumalphas = alphasum;
-            lpsum -= (lgamma (sumalphas) - multiple * lgamma ( oldalpha)) * POPFLAGINDS;
+            lpsum -= (lgamma (alphasum) - multiple * lgamma ( oldalpha)) * POPFLAGINDS;
 
             if (POPALPHAS){
                 sumalphas += newalpha - oldalpha;

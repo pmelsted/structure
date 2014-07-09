@@ -314,6 +314,16 @@ void setKernelArgs(CLDict *clDict)
     setKernelArg(clDict,PopNormals,NORMSCL,1);
     setKernelArg(clDict,PopNormals,RANDGENSCL,2);
 
+    /* update fst */
+    setKernelArg(clDict,UpdateAlphaKernel,QCL,0);
+    setKernelArg(clDict,UpdateAlphaKernel,ALPHACL,1);
+    setKernelArg(clDict,UpdateAlphaKernel,POPFLAGCL,2);
+    setKernelArg(clDict,UpdateAlphaKernel,NORMSCL,3);
+    setKernelArg(clDict,UpdateAlphaKernel,REDUCERESULTSCL,4);
+    setKernelArg(clDict,UpdateAlphaKernel,RANDGENSCL,5);
+    setKernelArgExplicit(clDict,UpdateAlphaKernel,sizeof(double)*NUMINDS,NULL,6);
+    /* Arg 7 set when calculated in structure.c */
+
 
 }
 
