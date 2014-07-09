@@ -121,7 +121,7 @@ UpdateFstCL (CLDict *clDict,double *Epsilon, double *Fst, double *P, int *NumAll
     global[0] = numfst;
     setKernelArg(clDict,PopNormals,FSTCL,0);
     setKernelArgExplicit(clDict,PopNormals,sizeof(double),&FPRIORSD,3);
-    runKernel(clDict,PopNormals,1,global,"PopNormals");
+    runKernel(clDict,PopNormals,1,global,"PopNormals Fst");
 
     global[0] = NUMLOCI;
     global[1] = numfst;

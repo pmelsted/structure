@@ -228,6 +228,7 @@ int main (int argc, char *argv[])
     /*Dict to that keeps track of CL info */
     CLDict *clDict = NULL;
     double * randomArr; /* array of random numbers */
+    int POPFLAGINDS = 0;
     enum BUFFER buffers[3] = {FSTCL,PCL,QCL};
     char * names[3] = {"FST","P","Q"};
     size_t sizes[3];
@@ -403,14 +404,22 @@ int main (int argc, char *argv[])
     if(!RECESSIVEALLELES){
         writeBuffer(clDict,Geno,sizeof(int)*GENOSIZE,GENOCL,"Geno");
     }
-    if (PFROMPOPFLAGONLY || USEPOPINFO){
-        popflags = calloc(NUMINDS,sizeof(int));
-        for(ind = 0; ind < NUMINDS;ind++){
-            popflags[ind] = Individual[ind].PopFlag;
-        }
-        writeBuffer(clDict,popflags,sizeof(int)*NUMINDS,POPFLAGCL,"popflags");
 
+    popflags = calloc(NUMINDS,sizeof(int));
+    for(ind = 0; ind < NUMINDS;ind++){
+        popflags[ind] = Individual[ind].PopFlag;
+        if (!((USEPOPINFO) && (Individual[ind].PopFlag))) {
+            POPFLAGINDS++;
+        }
     }
+
+    /*setKernelArgExplicit(clDict,UpdateAlphaKernel,sizeof(int),&POPFLAGINDS,7);*/
+
+    /*if (PFROMPOPFLAGONLY || USEPOPINFO){*/
+    writeBuffer(clDict,popflags,sizeof(int)*NUMINDS,POPFLAGCL,"popflags");
+    /*}*/
+
+
     if (FREQSCORR) {
         writeBuffer(clDict,Fst,sizeof(double) * MAXPOPS,FSTCL,"FST");
         writeBuffer(clDict,Epsilon,sizeof(double) * NUMLOCI*MAXALLELES,EPSILONCL,
@@ -515,7 +524,7 @@ int main (int argc, char *argv[])
         if (LOCPRIOR && NOADMIX==0) {
             UpdateAlphaLocPrior(Q, Alpha, LocPrior, Individual);
         } else if (INFERALPHA) {
-            UpdateAlphaCL (clDict,Q, Alpha, Individual, rep);
+            UpdateAlphaCL (clDict,Q, Alpha, Individual, rep,POPFLAGINDS);
             writeBuffer(clDict,Alpha,sizeof(double) *MAXPOPS,ALPHACL,"Alpha");
         }
 
