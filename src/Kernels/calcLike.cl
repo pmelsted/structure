@@ -59,8 +59,9 @@ double mapLogDiffsFunc(__global double *Q, __global double *TestQ,
     int allele, line, pop;
     double termP;
     double termM;
-    double logterm = 0.0;
     if (ind < NUMINDS && loc < NUMLOCI){
+        double runningtotalP = 1.0, runningtotalM = 1.0;
+        double logtermP = 0.0, logtermM = 0.0;
         for (line = 0; line < LINES; line++) {
             allele = Geno[GenPos (ind, line, loc)];
             if (allele != MISSING) {
@@ -70,11 +71,37 @@ double mapLogDiffsFunc(__global double *Q, __global double *TestQ,
                     termP += TestQ[QPos(ind,pop)] * P[PPos (loc, pop, allele)];
                     termM += Q[QPos(ind,pop)] * P[PPos (loc, pop, allele)];
                 }
-                //logterms[ind*NUMLOCI + loc] += log(termP) - log(termM);
-                logterm += log(termP) - log(termM);
+
+                //TODO: Evaluate underflow safe vs nonsafe
+                // safe version, should not underflow
+                /*if (termP > SQUNDERFLO) {
+                    runningtotalP *= termP;
+                } else {
+                    runningtotalP *= SQUNDERFLO;
+                }
+                if (runningtotalP < SQUNDERFLO){
+                    logtermP += log(runningtotalP);
+                    runningtotalP = 1.0;
+                }
+
+                if (termM > SQUNDERFLO) {
+                    runningtotalM *= termM;
+                } else {
+                    runningtotalM *= SQUNDERFLO;
+                }
+                if (runningtotalM < SQUNDERFLO){
+                    logtermM += log(runningtotalM);
+                    runningtotalM = 1.0;
+                }*/
+                //Might underflow?
+                logtermP += log(termP);
+                logtermM += log(termM);
             }
         }
-        return logterm;
+        logtermP += log(runningtotalP);
+        logtermM += log(runningtotalM);
+
+        return logtermP - logtermM;
     }
     return 0.0;
 }

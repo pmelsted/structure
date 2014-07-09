@@ -9,6 +9,9 @@
 #define NumAFromPopPos(pop,allele) ((pop)*(MAXALLELES)+(allele))    /* NumAFromPop */
 #define EpsPos(loc,allele) ((loc)*(MAXALLELES)+(allele))    /* Epsilon */
 
+#define UNDERFLO 10e-100
+#define SQUNDERFLO 10e-50
+
 #include "Kernels/util.cl"
 #include "Kernels/KernelErrors.h"
 #include "Kernels/UpdateZ.cl"

@@ -144,11 +144,11 @@ void UpdateQMetroCL (CLDict *clDict,int *Geno, int *PreGeno, double *Q, double *
     readBuffer(clDict,Q,sizeof(double) *QSIZE,QCL,"Q");
     readBuffer(clDict,P,sizeof(double) *PSIZE,PCL,"P");
     readBuffer(clDict,Geno,sizeof(int) *GENOSIZE,GENOCL,"Geno");
-    verif  = verifyReduction(Q,TestQ,P,Geno,logdiffs);
+    /*verif  = verifyReduction(Q,TestQ,P,Geno,logdiffs);*/
 
-    if (verif > 10e-6){
-        handleCLErr(1,clDict,"red err");
-    }
+    /*if (verif > 10e-6){*/
+        /*handleCLErr(1,clDict,"red err");*/
+    /*}*/
 
     /*CalcLogdiffsCL(clDict,Geno,TestQ,Q,P,logdiffs);*/
 
