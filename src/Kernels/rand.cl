@@ -8,19 +8,22 @@ __kernel void Dirichlet(
     int ind = get_global_id(0);
     RndDiscState randState[1];
 
-    initRndDiscState(randState,randGens,ind);
-    double GammaSample[MAXPOPS];
+    while (ind < NUMINDS){
+        initRndDiscState(randState,randGens,ind);
+        double GammaSample[MAXPOPS];
 
-    int i = 0;
-    double sum = 0.0;
-    for(i = 0; i < MAXPOPS; i++){
-        GammaSample[i] = RGammaDisc(Parameters[i],1,randState);
-        sum += GammaSample[i];
+        int i = 0;
+        double sum = 0.0;
+        for(i = 0; i < MAXPOPS; i++){
+            GammaSample[i] = RGammaDisc(Parameters[i],1,randState);
+            sum += GammaSample[i];
+        }
+        for(i = 0; i < MAXPOPS; i++){
+            TestQ[i+ind*MAXPOPS] = GammaSample[i]/sum;
+        }
+        saveRndDiscState(randState);
+        ind += get_global_size(0);
     }
-    for(i = 0; i < MAXPOPS; i++){
-        TestQ[i+ind*MAXPOPS] = GammaSample[i]/sum;
-    }
-    saveRndDiscState(randState);
 }
 
 
@@ -51,12 +54,13 @@ __kernel void PopNormals(
         const double SD)
 {
     int pop = get_global_id(0);
-    if(pop < MAXPOPS){
+    while(pop < MAXPOPS){
         RndDiscState randState[1];
         initRndDiscState(randState,randGens,pop);
         double2 rnorms = BoxMuller(randState);
         double oldf = Prev[pop];
         norms[pop] = rnorms.x*SD + oldf;
         saveRndDiscState(randState);
+        pop += get_global_size(0);
     }
 }

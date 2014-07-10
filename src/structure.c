@@ -44,7 +44,7 @@
 CLDict *clDict = NULL;
 
 static void catch_function(int signo){
-    handleCLErr(signo,clDict,"Signal caught!\n");
+    handleCLErr(signo,clDict,"Signal caught, exiting!\n");
     exit(EXIT_FAILURE);
 }
 
@@ -239,11 +239,11 @@ int main (int argc, char *argv[])
     /*CLDict *clDict = NULL;*/
     double * randomArr; /* array of random numbers */
     int POPFLAGINDS = 0;
-    enum BUFFER buffers[4] = {FSTCL,PCL,QCL,ALPHACL};
-    double invsqrtnuminds = 1.0/sqrt(NUMINDS);
-    char * names[4] = {"FST","P","Q","ALPHA"};
-    size_t sizes[4];
-    void *dests[4];
+    double invsqrtnuminds;
+    enum BUFFER buffers[5];
+    char         *names[5];
+    size_t        sizes[5];
+    void         *dests[5];
 
     if (signal(SIGINT, catch_function) == SIG_ERR) {
         fputs("An error occurred while setting a signal handler.\n", stderr);
@@ -434,6 +434,7 @@ int main (int argc, char *argv[])
     setKernelArgExplicit(clDict,UpdateAlphaKernel,sizeof(int),&POPFLAGINDS,7);
 
     printf("Setting invsqrtnuminds arg\n");
+    invsqrtnuminds = 1.0/sqrt(NUMINDS);
     setKernelArgExplicit(clDict,NonIndUpdateEpsilonKernel,sizeof(double),&invsqrtnuminds,6);
 
     writeBuffer(clDict,popflags,sizeof(int)*NUMINDS,POPFLAGCL,"popflags");
@@ -552,19 +553,26 @@ int main (int argc, char *argv[])
             writeBuffer(clDict,lambda,sizeof(double) * MAXPOPS,LAMBDACL,"LAMBDA");
         }
 
-        dests[0] = Fst; sizes[0] = sizeof(double) * MAXPOPS;
-        dests[1] = P; sizes[1] = sizeof(double) * PSIZE;
-        dests[2] = Q; sizes[2] = sizeof(double) * QSIZE;
-        dests[3] = Alpha; sizes[3] = sizeof(double) * MAXPOPS;
-        readBuffers(clDict,dests,sizes,buffers,names,4);
-
         if (FREQSCORR) {
             /*UpdateEpsilon(P,Epsilon,Fst,NumAlleles,lambda[0]);*/
             UpdateEpsilonCL(clDict,P,Epsilon,Fst,NumAlleles,lambda[0]);
-            writeBuffer(clDict,Epsilon,sizeof(double) * NUMLOCI*MAXALLELES,EPSILONCL,
-                        "EPSILON");
             UpdateFstCL (clDict,Epsilon, Fst, P, NumAlleles);
         }
+        /*if(rep > 1){*/
+            buffers[0]= FSTCL;
+            names[0] = "FST"; dests[0] = Fst; sizes[0] = sizeof(double) * MAXPOPS;
+
+            buffers[1] = PCL;
+            names[1] = "P"; dests[1] = P; sizes[1] = sizeof(double) * PSIZE;
+            buffers[2] = QCL;
+            names[2] = "Q"; dests[2] = Q; sizes[2] = sizeof(double) * QSIZE;
+
+            buffers[3] = ALPHACL; names[3] = "ALPHA"; dests[3] = Alpha;
+            sizes[3] = sizeof(double) * MAXPOPS;
+            buffers[4] = EPSILONCL; names[4] = "EPSILON";dests[4] = Epsilon;
+            sizes[4] = sizeof(double)*NUMLOCI*MAXALLELES;
+            readBuffers(clDict,dests,sizes,buffers,names,4);
+        /*}*/
 
 
         /*====book-keeping stuff======================*/

@@ -586,11 +586,11 @@ int InitCLDict(CLDict *clDictToInit)
     cl_context context;
     cl_device_id device_id;
     cl_command_queue commands;
-    int DEVICETYPE;
     int err;
     int compileret;
     char options[1024];
-    DEVICETYPE =  USEGPU ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU;
+    int numalphas = POPALPHAS ? MAXPOPS : 1;
+    int DEVICETYPE =  USEGPU ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU;
 
     ret = clGetPlatformIDs(1, &platform_id, &ret_num_platforms);
     err = clGetDeviceIDs(platform_id, DEVICETYPE, 1, &device_id, &ret_num_devices);
@@ -667,14 +667,15 @@ int InitCLDict(CLDict *clDictToInit)
             , LOCPRIOR, NOTAMBIGUOUS, NUMLOCATIONS
             , PFROMPOPFLAGONLY,FREQSCORR,DEBUGCOMPARE,
             FPRIORMEAN,FPRIORSD);
-
+    
     sprintf(options + strlen(options), "-D ONEFST=%d -D ALPHAPROPSD=%f \
         -D ALPHAMAX=%f \
         -D UNIFPRIORALPHA=%d -D POPALPHAS=%d -D ALPHAPRIORA=%f \
-        -D ALPHAPRIORB=%f ",
+        -D ALPHAPRIORB=%f -D NUMALPHAS=%d ",
         ONEFST,ALPHAPROPSD, ALPHAMAX, UNIFPRIORALPHA, POPALPHAS,
-        ALPHAPRIORA, ALPHAPRIORB);
+        ALPHAPRIORA, ALPHAPRIORB, numalphas);
 
+    printf("COMPILING KERNELS WITH:\n");
     printf("%s\n",options);
     compileret = CompileKernels(clDictToInit,options);
 

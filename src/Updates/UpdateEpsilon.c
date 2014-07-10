@@ -49,10 +49,8 @@ void IndependenceUpdateEpsilon(double *P,double *Epsilon,
             for (pop = 0; pop < MAXPOPS; pop++) {
                 frac = (1.0 - Fst[pop]) / Fst[pop];
                 for (allele = 0; allele < NumAlleles[loc]; allele++) {
-                    Sum +=
-                        mylgamma (frac * Epsilon[EpsPos (loc, allele)]);
-                    Sum -=
-                        mylgamma (frac * trialepsilon[allele]);
+                    Sum += mylgamma (frac * Epsilon[EpsPos (loc, allele)]);
+                    Sum -= mylgamma (frac * trialepsilon[allele]);
                     Sum +=
                         frac * (trialepsilon[allele] - Epsilon[EpsPos (loc, allele)])
                         * log(P[PPos (loc,pop,allele)]);
@@ -172,16 +170,19 @@ void NonIndependenceUpdateEpsilonCL(CLDict *clDict,double *P, double *Epsilon,
                                double *Fst,int *NumAlleles, double lambda){
 
     size_t global[1];
-    int loc,pop,allele1,allele2;
+    /*int loc,pop,allele1,allele2;
     double difference,invsqrtnuminds;
     double sum;
     double frac;
+    int changed = 0;
+    double *gpueps;*/
     /*this sets the range from which the proposal is drawn*/
+
+    global[0] = NUMLOCI;
+    runKernel(clDict,NonIndUpdateEpsilonKernel,1,global,"Non Ind UpdateEpsilon kernel");
+
+    /*gpueps = calloc(MAXALLELES*NUMLOCI,sizeof(double));
     invsqrtnuminds=pow((double)NUMINDS,-0.5);
-
-    /*global[0] = NUMLOCI;*/
-    /*runKernel(clDict,NonIndUpdateEpsilonKernel,1,global,"Non Ind UpdateEpsilon kernel");*/
-
     for (loc=0; loc<NUMLOCI; loc++) {
         if (NumAlleles[loc]>1) {
             allele1=RandomInteger(0,NumAlleles[loc]-1);
@@ -192,12 +193,12 @@ void NonIndependenceUpdateEpsilonCL(CLDict *clDict,double *P, double *Epsilon,
 
             difference=RandomReal(0,invsqrtnuminds);
 
-            /*check that the proposals are in range*/
+            [>check that the proposals are in range<]
             if ((Epsilon[EpsPos(loc,allele1)]+difference<1.0) &&
                     (Epsilon[EpsPos(loc,allele2)]-difference>0.0)) {
 
                 sum=0.0;
-                for (pop=0; pop<MAXPOPS; pop++) { /*compute likelihood ratio*/
+                for (pop=0; pop<MAXPOPS; pop++) { [>compute likelihood ratio<]
                     frac = (1.0-Fst[pop])/Fst[pop];
 
                     sum += mylgamma(frac*Epsilon[EpsPos (loc, allele1)]);
@@ -209,14 +210,14 @@ void NonIndependenceUpdateEpsilonCL(CLDict *clDict,double *P, double *Epsilon,
                     sum -= frac*difference*log(P[PPos (loc, pop, allele2)]);
                 }
 
-                if (lambda != 1.0) {              /*compute prior ratio*/
-                    /*TEMP: log added by JKP 6/30/03 as I think this was previously
-                      an error.  Now doing testing */
+                if (lambda != 1.0) {              [>compute prior ratio<]
+                    [>TEMP: log added by JKP 6/30/03 as I think this was previously
+                      an error.  Now doing testing <]
                     printf("lol");
                     sum += log(pow( (Epsilon[EpsPos (loc, allele1)] + difference)* (Epsilon[EpsPos (loc, allele2)] - difference)/ (Epsilon[EpsPos (loc, allele1)])/ (Epsilon[EpsPos (loc, allele2)]), (double) lambda-1.0));
                 }
 
-                /*if (loc==3)
+                [>if (loc==3)
                   {
                   printf("%1.3f->%1.3f   %1.3f->%1.3f     ",Epsilon[EpsPos(loc,0)],
                   Epsilon[EpsPos(loc,0)]
@@ -228,7 +229,7 @@ void NonIndependenceUpdateEpsilonCL(CLDict *clDict,double *P, double *Epsilon,
                   P[PPos (loc, 0, 0)],
                   P[PPos (loc, 1, 0)],
                   exp(sum));
-                  }*/
+                  }<]
 
 
                 if (rnd() < exp(sum)) {
@@ -238,7 +239,31 @@ void NonIndependenceUpdateEpsilonCL(CLDict *clDict,double *P, double *Epsilon,
             }
         }
     }
-
+    readBuffer(clDict,gpueps,sizeof(double)*NUMLOCI*MAXALLELES,EPSILONCL,"Esilon");
+    for(loc = 0; loc < NUMLOCI; loc++){
+        for(allele1 = 0; allele1 < MAXALLELES; allele1++){
+            if (fabs(Epsilon[EpsPos(loc,allele1)]-gpueps[EpsPos(loc,allele1)]) > 10e-6){
+                [>printf("DIFFERENCE!,%d,%d\n",loc,allele1);<]
+                changed = 1;
+            }
+        }
+    }
+    if (changed){
+        printf("CPU\n");
+        for(loc = 0; loc < NUMLOCI; loc++){
+            for(allele1 = 0; allele1 < NumAlleles[loc]; allele1++){
+                printf("%f, ", Epsilon[EpsPos(loc,allele1)]);
+            }
+            printf("\n");
+        }
+        printf("GPU\n");
+        for(loc = 0; loc < NUMLOCI; loc++){
+            for(allele1 = 0; allele1 < NumAlleles[loc]; allele1++){
+                printf("%f, ", gpueps[EpsPos(loc,allele1)]);
+            }
+            printf("\n");
+        }
+    }*/
 }
 
 /*------------------------------------------*/
