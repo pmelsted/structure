@@ -301,18 +301,19 @@ void UpdateAlphaCL (CLDict *clDict,double *Q, double *Alpha, struct IND *Individ
      * separate Metropolis update for the alpha for each population.
      */
 
-    double newalpha;
-    double logprobdiff = 0;
-    int pop, numalphas,i;
+    /*double newalpha;*/
+    /*double logprobdiff = 0;*/
+    /*int pop, i;*/
+    int numalphas;
     int numredpops;
-    int redpop;
+    /*int redpop;*/
     size_t global[2];
-    double alphasum;
-    double oldalpha;
-    double logterm;
-    double sumalphas;
-    double sum;
-    int multiple;
+    /*double alphasum;*/
+    /*double oldalpha;*/
+    /*double logterm;*/
+    /*double sumalphas;*/
+    /*double sum;*/
+    /*int multiple;*/
 
     if (!((NOADMIX) && ((rep >= ADMBURNIN) || (rep > BURNIN)))) {
         /*don't update alpha in these cases*/
@@ -324,11 +325,6 @@ void UpdateAlphaCL (CLDict *clDict,double *Q, double *Alpha, struct IND *Individ
             numalphas = 1;
         }
 
-        alphasum = 0.0;
-        for (i=0; i<MAXPOPS; i++)  {
-            alphasum += Alpha[i];
-        }
-
         global[0] = numalphas;
         setKernelArg(clDict,PopNormals,ALPHACL,0);
         setKernelArgExplicit(clDict,PopNormals,sizeof(double),&ALPHAPROPSD,3);
@@ -338,7 +334,13 @@ void UpdateAlphaCL (CLDict *clDict,double *Q, double *Alpha, struct IND *Individ
         global[0] = NUMINDS/25;
         global[1] = numalphas;
         runKernel(clDict,UpdateAlphaKernel,2,global,"Update Alpha kernel");
-        /*for (pop = 0; pop < numalphas; pop++) {
+        /*
+        alphasum = 0.0;
+        for (i=0; i<MAXPOPS; i++)  {
+            alphasum += Alpha[i];
+        }
+
+        for (pop = 0; pop < numalphas; pop++) {
             if (POPALPHAS){ numredpops = pop+1;}
 
             oldalpha = Alpha[pop];

@@ -13,6 +13,7 @@
   =========================================================*/
 
 #include <stdio.h>
+#include <signal.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -38,6 +39,14 @@
 
 #include "Init.h"
 #include "Util.h"
+
+/* Declared global, for the signal handling */
+CLDict *clDict = NULL;
+
+static void catch_function(int signo){
+    handleCLErr(signo,clDict,"Signal caught!\n");
+    exit(EXIT_FAILURE);
+}
 
 void initQ(double *Q){
     int ind, pop;
@@ -227,13 +236,19 @@ int main (int argc, char *argv[])
 
     /* ======================= GPU Structure ======================== */
     /*Dict to that keeps track of CL info */
-    CLDict *clDict = NULL;
+    /*CLDict *clDict = NULL;*/
     double * randomArr; /* array of random numbers */
     int POPFLAGINDS = 0;
     enum BUFFER buffers[4] = {FSTCL,PCL,QCL,ALPHACL};
+    double invsqrtnuminds = 1.0/sqrt(NUMINDS);
     char * names[4] = {"FST","P","Q","ALPHA"};
     size_t sizes[4];
     void *dests[4];
+
+    if (signal(SIGINT, catch_function) == SIG_ERR) {
+        fputs("An error occurred while setting a signal handler.\n", stderr);
+        return EXIT_FAILURE;
+    }
 
     clDict = malloc(sizeof (*clDict));
     /*=====Code for getting started=============================*/
@@ -402,6 +417,7 @@ int main (int argc, char *argv[])
     writeBuffer(clDict,P,sizeof(double) * PSIZE,PCL,"P");
     writeBuffer(clDict,Z,sizeof(int)*ZSIZE,ZCL,"Z");
     writeBuffer(clDict,NumAlleles,sizeof(int) * NUMLOCI,NUMALLELESCL,"NumAlleles");
+    writeBuffer(clDict,lambda,sizeof(double) * MAXPOPS,LAMBDACL,"LAMBDA");
     if(!RECESSIVEALLELES){
         writeBuffer(clDict,Geno,sizeof(int)*GENOSIZE,GENOCL,"Geno");
     }
@@ -414,7 +430,11 @@ int main (int argc, char *argv[])
         }
     }
 
+    printf("Setting updatealpha arg\n");
     setKernelArgExplicit(clDict,UpdateAlphaKernel,sizeof(int),&POPFLAGINDS,7);
+
+    printf("Setting invsqrtnuminds arg\n");
+    setKernelArgExplicit(clDict,NonIndUpdateEpsilonKernel,sizeof(double),&invsqrtnuminds,6);
 
     writeBuffer(clDict,popflags,sizeof(int)*NUMINDS,POPFLAGCL,"popflags");
 
@@ -425,8 +445,6 @@ int main (int argc, char *argv[])
         writeBuffer(clDict,Fst,sizeof(double) * MAXPOPS,FSTCL,"FST");
         writeBuffer(clDict,Epsilon,sizeof(double) * NUMLOCI*MAXALLELES,EPSILONCL,
                     "EPSILON");
-    } else {
-        writeBuffer(clDict,lambda,sizeof(double) * MAXPOPS,LAMBDACL,"LAMBDA");
     }
     /*printf("%d, %d\n",INFERALPHA,INFERLAMBDA);*/
     /*printf("%d\n",USEPOPINFO);*/
@@ -541,7 +559,8 @@ int main (int argc, char *argv[])
         readBuffers(clDict,dests,sizes,buffers,names,4);
 
         if (FREQSCORR) {
-            UpdateEpsilon(P,Epsilon,Fst,NumAlleles,lambda[0]);
+            /*UpdateEpsilon(P,Epsilon,Fst,NumAlleles,lambda[0]);*/
+            UpdateEpsilonCL(clDict,P,Epsilon,Fst,NumAlleles,lambda[0]);
             writeBuffer(clDict,Epsilon,sizeof(double) * NUMLOCI*MAXALLELES,EPSILONCL,
                         "EPSILON");
             UpdateFstCL (clDict,Epsilon, Fst, P, NumAlleles);

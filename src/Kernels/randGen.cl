@@ -81,6 +81,12 @@ double rndDisc(RndDiscState * state)
     return val;
 }
 
+uint rndUInt(RndDiscState * state)
+{
+    uint val = MWC64X_NextUint(&(state->rng));
+    return val;
+}
+
 double2 BoxMuller(RndDiscState *state)
 {
   double u0=rndDisc(state), u1=rndDisc(state);

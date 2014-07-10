@@ -324,6 +324,14 @@ void setKernelArgs(CLDict *clDict)
     setKernelArgExplicit(clDict,UpdateAlphaKernel,sizeof(double)*NUMINDS,NULL,6);
     /* Arg 7 set when calculated in structure.c */
 
+    setKernelArg(clDict,NonIndUpdateEpsilonKernel,PCL,0);
+    setKernelArg(clDict,NonIndUpdateEpsilonKernel,EPSILONCL,1);
+    setKernelArg(clDict,NonIndUpdateEpsilonKernel,FSTCL,2);
+    setKernelArg(clDict,NonIndUpdateEpsilonKernel,NUMALLELESCL,3);
+    setKernelArg(clDict,NonIndUpdateEpsilonKernel,RANDGENSCL,4);
+    setKernelArg(clDict,NonIndUpdateEpsilonKernel,LAMBDACL,5);
+    /* arg 6 set in structure.c*/
+
 
 }
 
@@ -443,7 +451,7 @@ int CompileKernels(CLDict *clDict,  char *options)
     /*cl_int ret;*/
 
 
-    char *KERNELNAMES[NumberOfKernels] = {"UpdateZ","GetNumFromPops","UpdateP","mapReduceLogDiffs","Dirichlet", "MetroAcceptTest","GetNumLociPops","UpdQDirichlet","FillArrayWRandom","InitRandGens","UpdateFst","PopNormals","UpdateAlpha"};
+    char *KERNELNAMES[NumberOfKernels] = {"UpdateZ","GetNumFromPops","UpdateP","mapReduceLogDiffs","Dirichlet", "MetroAcceptTest","GetNumLociPops","UpdQDirichlet","FillArrayWRandom","InitRandGens","UpdateFst","PopNormals","UpdateAlpha","NonIndUpdateEpsilon"};
 
     /* Load the source code containing the kernels*/
     fp = fopen("Kernels/Kernels.cl", "r");
@@ -527,9 +535,9 @@ void createCLBuffers(CLDict *clDict)
         createCLBuffer(clDict,FSTCL,sizeof(double)*MAXPOPS,CL_MEM_READ_WRITE);
         createCLBuffer(clDict,NORMSCL,sizeof(double)*MAXPOPS,CL_MEM_READ_WRITE);
         createCLBuffer(clDict,EPSILONCL,sizeof(double)*NUMLOCI*MAXALLELES,CL_MEM_READ_WRITE);
-    } else {
-        createCLBuffer(clDict,LAMBDACL,sizeof(double)*MAXPOPS,CL_MEM_READ_WRITE);
     }
+
+    createCLBuffer(clDict,LAMBDACL,sizeof(double)*MAXPOPS,CL_MEM_READ_WRITE);
 
     createCLBuffer(clDict,ZCL,sizeof(int)*ZSIZE,CL_MEM_READ_WRITE);
     createCLBuffer(clDict,GENOCL,sizeof(int)*GENOSIZE,CL_MEM_READ_WRITE);

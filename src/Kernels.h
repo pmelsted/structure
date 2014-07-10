@@ -25,5 +25,7 @@ extern void setKernelArgExplicit(CLDict *clDict, enum KERNEL kernel,size_t size,
 extern void setKernelArg(CLDict *clDict, enum KERNEL kernel, enum BUFFER buffer,int argnum);
 
 extern void finishCommands(CLDict *clDict, char * name);
+
 #endif
+
 

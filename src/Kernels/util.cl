@@ -75,6 +75,14 @@ int PickAnOptionDiscrete(int total, double sum, double Probs [],
     return option;
 }
 
+int RandomInteger(int low, int high,RndDiscState *randState)
+{
+    int range = high-low;
+    uint random = rndUInt(randState) % range;
+    return (int) random + low;
+}
+
+
 
 int AlphaPos(int loc, int pop)
 {

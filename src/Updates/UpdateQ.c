@@ -99,8 +99,8 @@ void UpdateQMetroCL (CLDict *clDict,int *Geno, int *PreGeno, double *Q, double *
     /*int ind;*/
     /*int numhits = 0;*/
 
-    double *TestQ;
-    double *logdiffs;
+    /*double *TestQ;*/
+    /*double *logdiffs;*/
     /*double *logterms;*/
 
     /*RndDiscState randState[1];*/
@@ -112,10 +112,10 @@ void UpdateQMetroCL (CLDict *clDict,int *Geno, int *PreGeno, double *Q, double *
      *   LOCPRIOR
      *
      */
-    double verif;
+    /*double verif;*/
     /*logterms = calloc(NUMINDS*NUMLOCI,sizeof(double));*/
-    TestQ = calloc (NUMINDS*MAXPOPS, sizeof (double));
-    logdiffs = calloc(NUMINDS,sizeof(double));
+    /*TestQ = calloc (NUMINDS*MAXPOPS, sizeof (double));*/
+    /*logdiffs = calloc(NUMINDS,sizeof(double));*/
 
 
     /*initRndDiscState(randState,randomArr,NUMINDS + NUMINDS*MAXRANDOM);*/
@@ -126,7 +126,7 @@ void UpdateQMetroCL (CLDict *clDict,int *Geno, int *PreGeno, double *Q, double *
     global[0] = NUMINDS;
     runKernel(clDict,RDirichletSampleKernel,1,global,"Dirichlet");
 
-    readBuffer(clDict,TestQ,sizeof(double) *QSIZE,TESTQCL,"TestQ");
+    /*readBuffer(clDict,TestQ,sizeof(double) *QSIZE,TESTQCL,"TestQ");*/
 
     /*for (ind = 0; ind < NUMINDS; ind++) {*/
         /*RDirichletDisc(Alpha, MAXPOPS, TestQ,ind*MAXPOPS,randState);*/
@@ -140,15 +140,25 @@ void UpdateQMetroCL (CLDict *clDict,int *Geno, int *PreGeno, double *Q, double *
 
     runKernel(clDict,mapReduceLogDiffsKernel,2,global,"reduceLogDiffs");
 
+    /*
+    logterms = calloc(NUMINDS*NUMLOCI,sizeof(double));
+    TestQ = calloc (NUMINDS*MAXPOPS, sizeof (double));
+    logdiffs = calloc(NUMINDS,sizeof(double));
+    readBuffer(clDict,TestQ,sizeof(double) *QSIZE,TESTQCL,"TestQ");
     readBuffer(clDict,logdiffs,sizeof(double) * NUMINDS,LOGDIFFSCL,"Logdiffs");
     readBuffer(clDict,Q,sizeof(double) *QSIZE,QCL,"Q");
     readBuffer(clDict,P,sizeof(double) *PSIZE,PCL,"P");
     readBuffer(clDict,Geno,sizeof(int) *GENOSIZE,GENOCL,"Geno");
-    /*verif  = verifyReduction(Q,TestQ,P,Geno,logdiffs);*/
 
-    /*if (verif > 10e-6){*/
-        /*handleCLErr(1,clDict,"red err");*/
-    /*}*/
+    verif  = verifyReduction(Q,TestQ,P,Geno,logdiffs);
+
+    if (verif > 10e-6){
+        handleCLErr(1,clDict,"red err");
+    }
+    free (TestQ);
+    free (logdiffs);
+    free(logterms);
+    */
 
     /*CalcLogdiffsCL(clDict,Geno,TestQ,Q,P,logdiffs);*/
 

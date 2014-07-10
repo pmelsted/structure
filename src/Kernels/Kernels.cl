@@ -19,4 +19,5 @@
 #include "Kernels/UpdateQ.cl"
 #include "Kernels/UpdateFst.cl"
 #include "Kernels/UpdateAlpha.cl"
+#include "Kernels/UpdateEpsilon.cl"
 

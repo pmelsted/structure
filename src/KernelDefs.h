@@ -19,6 +19,7 @@ enum KERNEL {
     UpdateFstKernel,
     PopNormals,
     UpdateAlphaKernel,
+    NonIndUpdateEpsilonKernel,
     NumberOfKernels
 };
 
