@@ -70,17 +70,17 @@ DataCollection (int *Geno, int *PreGeno,
         }
     }
 
-    /*if (LOCPRIOR && NOADMIX==0) {*/
-        /*for (pop=0; pop<MAXPOPS; pop++)*/
-            /*for (loc=0; loc<=NUMLOCATIONS; loc++) {*/
-                /*pos = AlphaPos(loc, pop);*/
-                /*sumAlpha[pos] += Alpha[pos];*/
-            /*}*/
-    /*} else if (!(NOADMIX) && (!(NOALPHA))) {*/
-        /*for (pop = 0; pop < MAXPOPS; pop++) {*/
-            /*sumAlpha[pop] += Alpha[pop];*/
-        /*}*/
-    /*}*/
+    if (LOCPRIOR && NOADMIX==0) {
+        for (pop=0; pop<MAXPOPS; pop++)
+            for (loc=0; loc<=NUMLOCATIONS; loc++) {
+                pos = AlphaPos(loc, pop);
+                sumAlpha[pos] += Alpha[pos];
+            }
+    } else if (!(NOADMIX) && (!(NOALPHA))) {
+        for (pop = 0; pop < MAXPOPS; pop++) {
+            sumAlpha[pop] += Alpha[pop];
+        }
+    }
 
 
     if (COMPUTEPROB) {

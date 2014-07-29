@@ -566,6 +566,11 @@ int main (int argc, char *argv[])
             /*buffers[0]= FSTCL;*/
             /*names[0] = "FST"; dests[0] = Fst; sizes[0] = sizeof(double) * MAXPOPS;*/
 
+        /*}*/
+
+
+        /*====book-keeping stuff======================*/
+        if (rep + 1 > BURNIN) {
             buffers[0] = EPSILONCL; names[0] = "EPSILON";dests[0] = Epsilon;
             sizes[0] = sizeof(double)*NUMLOCI*MAXALLELES;
             buffers[1] = PCL;
@@ -576,11 +581,6 @@ int main (int argc, char *argv[])
             /*buffers[3] = ALPHACL; names[3] = "ALPHA"; dests[3] = Alpha;*/
             /*sizes[3] = sizeof(double) * MAXPOPS;*/
             readBuffers(clDict,dests,sizes,buffers,names,3);
-        /*}*/
-
-
-        /*====book-keeping stuff======================*/
-        if (rep + 1 > BURNIN) {
             /* already in infer alpha */
             /*readBuffer(clDict,Q,sizeof(double) * QSIZE,QCL,"Q");*/
             DataCollectionCL (clDict,Geno, PreGeno, Q, QSum, Z, Z1,  P, PSum,
@@ -594,10 +594,11 @@ int main (int argc, char *argv[])
         if ((savefreq) && ((rep + 1) > BURNIN)
                 && (((rep + 1 - BURNIN) % savefreq) == 0)
                 && ((rep + 1) != NUMREPS + BURNIN)) {
+            readBuffer(clDict,Alpha, sizeof(double) * MAXPOPS,ALPHACL, "alpha");
+            readBuffer(clDict,Fst, sizeof(double) * MAXPOPS,FSTCL, "fst");
             readBuffer(clDict,sumAlpha, sizeof(double) * MAXPOPS,ALPHASUMCL, "alphasum");
             readBuffer(clDict,sumlambda, sizeof(double) * MAXPOPS,LAMBDASUMCL, "lambdasum");
             readBuffer(clDict,FstSum, sizeof(double) * MAXPOPS,FSTSUMCL, "fstsum");
-            readBuffer(clDict,Fst, sizeof(double) * MAXPOPS,FSTCL, "fst");
             OutPutResults (Geno, rep + 1, savefreq, Individual, PSum, QSum,
                            FstSum, AncestDist, UsePopProbs, sumlikes,
                            sumsqlikes, sumAlpha, sumR, varR,
@@ -631,6 +632,8 @@ int main (int argc, char *argv[])
     }
 
 
+    readBuffer(clDict,Alpha, sizeof(double) * MAXPOPS,ALPHACL, "alpha");
+    readBuffer(clDict,Fst, sizeof(double) * MAXPOPS,FSTCL, "fst");
     readBuffer(clDict,sumAlpha, sizeof(double) * MAXPOPS,ALPHASUMCL, "alphasum");
     readBuffer(clDict,sumlambda, sizeof(double) * MAXPOPS,LAMBDASUMCL, "lambdasum");
     readBuffer(clDict,FstSum, sizeof(double) * MAXPOPS,FSTSUMCL, "fstsum");
