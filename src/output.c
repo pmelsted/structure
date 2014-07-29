@@ -10,6 +10,7 @@
 #include "params.h"
 #include "mymath.h"
 #include "CalcLike.h"
+#include "Kernels.h"
 
 void UpdateSums (double *Q, double *QSum, int *Z, double *P, double *PSum,
                  double *Fst, double *FstSum, int *NumAlleles,
@@ -69,18 +70,63 @@ DataCollection (int *Geno, int *PreGeno,
         }
     }
 
-    if (LOCPRIOR && NOADMIX==0) {
-        for (pop=0; pop<MAXPOPS; pop++)
-            for (loc=0; loc<=NUMLOCATIONS; loc++) {
-                pos = AlphaPos(loc, pop);
-                sumAlpha[pos] += Alpha[pos];
-            }
-    } else if (!(NOADMIX) && (!(NOALPHA))) {
-        for (pop = 0; pop < MAXPOPS; pop++) {
-            sumAlpha[pop] += Alpha[pop];
+    /*if (LOCPRIOR && NOADMIX==0) {*/
+        /*for (pop=0; pop<MAXPOPS; pop++)*/
+            /*for (loc=0; loc<=NUMLOCATIONS; loc++) {*/
+                /*pos = AlphaPos(loc, pop);*/
+                /*sumAlpha[pos] += Alpha[pos];*/
+            /*}*/
+    /*} else if (!(NOADMIX) && (!(NOALPHA))) {*/
+        /*for (pop = 0; pop < MAXPOPS; pop++) {*/
+            /*sumAlpha[pop] += Alpha[pop];*/
+        /*}*/
+    /*}*/
+
+
+    if (COMPUTEPROB) {
+        if (LINKAGE) {
+            *like = recomblikelihood;
+        }
+
+        if (rep < BURNIN) {
+            *like = CalcLike (Geno, PreGeno, Q, P, Recessive, NULL, NULL);
+        } else {
+            *like = CalcLike (Geno, PreGeno, Q, P, Recessive,
+                              sumindlikes, indlikes_norm);
+        }
+        *sumlikes += *like;
+        *sumsqlikes += (*like) * (*like);
+    }
+    /*printf("%f %f %f\n", *like, *sumlikes, *sumsqlikes); */
+}
+
+void
+DataCollectionCL (CLDict *clDict,int *Geno, int *PreGeno,
+                double *Q, double *QSum, int *Z, int *Z1,
+                double *P, double *PSum,
+                double *Fst, double *FstSum, int *NumAlleles,
+                int *AncestDist, double *Alpha, double *sumAlpha,
+                double *sumR, double *varR, double *like,
+                double *sumlikes, double *sumsqlikes, double *R,
+                double *Epsilon, double *SumEpsilon, double recomblikelihood,
+                double *lambda, double *sumlambda, int *Recessive,
+                double *LocPrior, double *sumLocPrior, int LocPriorLen,
+                double *sumindlikes, double *indlikes_norm, int rep)
+{
+    int ind, pop, loc, pos;
+    size_t global[2]; 
+    UpdateSums (Q, QSum, Z, P, PSum, Fst, FstSum, NumAlleles, AncestDist,
+                Epsilon, SumEpsilon, lambda, sumlambda,
+                LocPrior, sumLocPrior, LocPriorLen);
+    if (LINKAGE) {
+        for (ind = 0; ind < NUMINDS; ind++) {
+            sumR[ind] += R[ind];
+            varR[ind] += R[ind] * R[ind];
         }
     }
-
+    
+    global[0] = MAXPOPS;
+    runKernel(clDict,DataCollectPopKernel,1,global,"DataCollection");
 
     if (COMPUTEPROB) {
         if (LINKAGE) {
@@ -577,9 +623,9 @@ UpdateSums (double *Q, double *QSum, int *Z, double *P, double *PSum,
     int loc, ind, pop, allele, box, i;
     /*  int line; */
 
-    for (pop=0; pop<MAXPOPS; pop++) {
-        sumlambda[pop] += lambda[pop];
-    }
+    /*for (pop=0; pop<MAXPOPS; pop++) {*/
+        /*sumlambda[pop] += lambda[pop];*/
+    /*}*/
 
     for (ind = 0; ind < NUMINDS; ind++)
         for (pop = 0; pop < MAXPOPS; pop++) {
@@ -594,9 +640,9 @@ UpdateSums (double *Q, double *QSum, int *Z, double *P, double *PSum,
             }
 
     if (FREQSCORR) {
-        for (pop = 0; pop < MAXPOPS; pop++) {
-            FstSum[pop] += Fst[pop];
-        }
+        /*for (pop = 0; pop < MAXPOPS; pop++) {*/
+            /*FstSum[pop] += Fst[pop];*/
+        /*}*/
 
         for (loc = 0; loc < NUMLOCI; loc++)
             for (allele = 0; allele < NumAlleles[loc]; allele++) {
@@ -970,9 +1016,10 @@ PrintSums (FILE * file, int rep, double sumlikes,
             for (pop = 0; pop < MAXPOPS; pop++)
                 fprintf (file, "Mean value of alpha_%d       = %1.4f\n", pop + 1,
                          (double) sumAlpha[pop] / (rep - BURNIN));
-        } else
+        } else {
             fprintf (file, "Mean value of alpha         = %1.4f\n",
                      (double) sumAlpha[0] / (rep - BURNIN));
+        }
 
         if (LOCPRIOR) {
             fprintf(file, "\nMean value of alpha_local for each location:\n");

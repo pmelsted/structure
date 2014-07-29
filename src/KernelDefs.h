@@ -20,6 +20,9 @@ enum KERNEL {
     PopNormals,
     UpdateAlphaKernel,
     NonIndUpdateEpsilonKernel,
+    DataCollectPopKernel,
+    DataCollectIndKernel,
+    DataCollectLocKernel,
     NumberOfKernels
 };
 
@@ -33,11 +36,13 @@ enum BUFFER {
     RECESSIVECL,
     NUMALLELESCL,
     LAMBDACL,
+    LAMBDASUMCL,
     POPFLAGCL,
     NUMAFROMPOPSCL,
     NUMLOCIPOPSCL,
     EPSILONCL,
     FSTCL,
+    FSTSUMCL,
     NORMSCL,
     /*LOGTERMSCL,*/
     RANDGENSCL,
@@ -45,6 +50,7 @@ enum BUFFER {
     REDUCERESULTSCL,
     TESTQCL,
     ALPHACL,
+    ALPHASUMCL,
     RANDCL, /* buffer for random numbers */
     ERRORCL, /* buffer for error codes */
     NumberOfBuffers

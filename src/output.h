@@ -10,6 +10,17 @@ DataCollection (int *Geno,int *PreGeno, double *Q, double *QSum, int *Z,
                 double *lambda, double *sumlambda, int *Recessive,
                 double *PopPrior, double *PopPriorSum, int PopPriorLen,
                 double *sumindlikes, double *indlikes_norm, int rep);
+void
+DataCollectionCL (CLDict *clDict,int *Geno,int *PreGeno, double *Q, double *QSum, int *Z,
+                int *Z1,  double *P, double *PSum,
+                double *Fst, double *FstSum, int *NumAlleles,
+                int *AncestDist, double *Alpha, double *sumAlpha,
+                double *sumR, double *varR, double *like,
+                double *sumlikes, double *sumsqlikes, double *R,
+                double *Epsilon, double *SumEpsilon, double recomblikelihood,
+                double *lambda, double *sumlambda, int *Recessive,
+                double *PopPrior, double *PopPriorSum, int PopPriorLen,
+                double *sumindlikes, double *indlikes_norm, int rep);
 
 void PrintLike (double like, int rep, int *Geno, int *PreGeno, double *Q,
                 double *P,

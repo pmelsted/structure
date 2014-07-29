@@ -441,9 +441,13 @@ int main (int argc, char *argv[])
 
     writeBuffer(clDict,Alpha,sizeof(double) *MAXPOPS,ALPHACL,"Alpha");
 
+    writeBuffer(clDict,sumAlpha, sizeof(double) * MAXPOPS,ALPHASUMCL, "alphasum");
+    writeBuffer(clDict,sumlambda, sizeof(double) * MAXPOPS,LAMBDASUMCL, "lambdasum");
+
 
     if (FREQSCORR) {
         writeBuffer(clDict,Fst,sizeof(double) * MAXPOPS,FSTCL,"FST");
+        writeBuffer(clDict,FstSum, sizeof(double) * MAXPOPS,FSTSUMCL, "fstsum");
         writeBuffer(clDict,Epsilon,sizeof(double) * NUMLOCI*MAXALLELES,EPSILONCL,
                     "EPSILON");
     }
@@ -453,8 +457,8 @@ int main (int argc, char *argv[])
     /*printf("%d\n",LINKAGE);*/
     /*printf("%d\n",COMPUTEPROB);*/
     /*printf("%d\n",POPALPHAS);*/
-    /*printf("%d\n",UNIFPRIORALPHA);*/
-    /*printf("%d\n",MAXALLELES);*/
+    /*printf("%d\n",NOADMIX);*/
+    /*printf("%d\n",LOCPRIOR);*/
     /*handleCLErr(1,clDict,"heyhey");*/
 
     /*Initialize Q */
@@ -559,19 +563,19 @@ int main (int argc, char *argv[])
             UpdateFstCL (clDict,Epsilon, Fst, P, NumAlleles);
         }
         /*if(rep > 1){*/
-            buffers[0]= FSTCL;
-            names[0] = "FST"; dests[0] = Fst; sizes[0] = sizeof(double) * MAXPOPS;
+            /*buffers[0]= FSTCL;*/
+            /*names[0] = "FST"; dests[0] = Fst; sizes[0] = sizeof(double) * MAXPOPS;*/
 
+            buffers[0] = EPSILONCL; names[0] = "EPSILON";dests[0] = Epsilon;
+            sizes[0] = sizeof(double)*NUMLOCI*MAXALLELES;
             buffers[1] = PCL;
             names[1] = "P"; dests[1] = P; sizes[1] = sizeof(double) * PSIZE;
             buffers[2] = QCL;
             names[2] = "Q"; dests[2] = Q; sizes[2] = sizeof(double) * QSIZE;
 
-            buffers[3] = ALPHACL; names[3] = "ALPHA"; dests[3] = Alpha;
-            sizes[3] = sizeof(double) * MAXPOPS;
-            buffers[4] = EPSILONCL; names[4] = "EPSILON";dests[4] = Epsilon;
-            sizes[4] = sizeof(double)*NUMLOCI*MAXALLELES;
-            readBuffers(clDict,dests,sizes,buffers,names,4);
+            /*buffers[3] = ALPHACL; names[3] = "ALPHA"; dests[3] = Alpha;*/
+            /*sizes[3] = sizeof(double) * MAXPOPS;*/
+            readBuffers(clDict,dests,sizes,buffers,names,3);
         /*}*/
 
 
@@ -579,7 +583,7 @@ int main (int argc, char *argv[])
         if (rep + 1 > BURNIN) {
             /* already in infer alpha */
             /*readBuffer(clDict,Q,sizeof(double) * QSIZE,QCL,"Q");*/
-            DataCollection (Geno, PreGeno, Q, QSum, Z, Z1,  P, PSum,
+            DataCollectionCL (clDict,Geno, PreGeno, Q, QSum, Z, Z1,  P, PSum,
                             Fst, FstSum, NumAlleles,
                             AncestDist, Alpha, sumAlpha, sumR, varR, &like,
                             &sumlikes, &sumsqlikes, R, Epsilon,SumEpsilon,recomblikelihood,
@@ -590,6 +594,10 @@ int main (int argc, char *argv[])
         if ((savefreq) && ((rep + 1) > BURNIN)
                 && (((rep + 1 - BURNIN) % savefreq) == 0)
                 && ((rep + 1) != NUMREPS + BURNIN)) {
+            readBuffer(clDict,sumAlpha, sizeof(double) * MAXPOPS,ALPHASUMCL, "alphasum");
+            readBuffer(clDict,sumlambda, sizeof(double) * MAXPOPS,LAMBDASUMCL, "lambdasum");
+            readBuffer(clDict,FstSum, sizeof(double) * MAXPOPS,FSTSUMCL, "fstsum");
+            readBuffer(clDict,Fst, sizeof(double) * MAXPOPS,FSTCL, "fst");
             OutPutResults (Geno, rep + 1, savefreq, Individual, PSum, QSum,
                            FstSum, AncestDist, UsePopProbs, sumlikes,
                            sumsqlikes, sumAlpha, sumR, varR,
@@ -605,6 +613,10 @@ int main (int argc, char *argv[])
         }
 
         if (((rep + 1) % UPDATEFREQ) == 0) {
+            readBuffer(clDict,Alpha, sizeof(double) * MAXPOPS,ALPHACL, "alpha");
+            readBuffer(clDict,Fst, sizeof(double) * MAXPOPS,FSTCL, "fst");
+            /*readBuffer(clDict,sumlambda, sizeof(double) * MAXPOPS,LAMBDASUMCL, "lambdasum");*/
+            /*readBuffer(clDict,FstSum, sizeof(double) * MAXPOPS,FSTSUMCL, "fstsum");*/
             PrintUpdate (rep + 1, Geno, PreGeno, Alpha, Fst, P, Q, like,
                          sumlikes, sumsqlikes, NumAlleles, R, lambda,Individual,
                          recomblikelihood, Recessive, LocPrior, LocPriorLen);
@@ -618,6 +630,10 @@ int main (int argc, char *argv[])
                      Recessive, LocPrior, LocPriorLen);
     }
 
+
+    readBuffer(clDict,sumAlpha, sizeof(double) * MAXPOPS,ALPHASUMCL, "alphasum");
+    readBuffer(clDict,sumlambda, sizeof(double) * MAXPOPS,LAMBDASUMCL, "lambdasum");
+    readBuffer(clDict,FstSum, sizeof(double) * MAXPOPS,FSTSUMCL, "fstsum");
     OutPutResults (Geno, rep, savefreq, Individual, PSum, QSum,
                    FstSum, AncestDist, UsePopProbs,
                    sumlikes, sumsqlikes,
@@ -626,6 +642,15 @@ int main (int argc, char *argv[])
                    lambda,sumlambda,sumLocPrior, LocPriorLen,
                    sumIndLikes, indLikesNorm,
                    argc,argv);
+    
+     /*TODO: Use ALPHASUMCL in output 
+    for(rep = 0; rep < MAXPOPS; rep++){
+        printf("%f\n",sumAlpha[rep]);
+    }
+    readBuffer(clDict,sumAlpha, sizeof(double) * MAXPOPS,ALPHASUMCL, "alphasum");
+    for(rep = 0; rep < MAXPOPS; rep++){
+        printf("%f\n",sumAlpha[rep]);
+    }*/
 
     /*=====Closing everything down==============================*/
     FreeAll(Mapdistance, Phase, Phasemodel, lambda, sumlambda, Markername, Geno,

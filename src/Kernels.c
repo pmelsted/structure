@@ -331,7 +331,14 @@ void setKernelArgs(CLDict *clDict)
     setKernelArg(clDict,NonIndUpdateEpsilonKernel,RANDGENSCL,4);
     setKernelArg(clDict,NonIndUpdateEpsilonKernel,LAMBDACL,5);
     /* arg 6 set in structure.c*/
-
+    
+    /* data collection */
+    setKernelArg(clDict,DataCollectPopKernel,ALPHACL,0);
+    setKernelArg(clDict,DataCollectPopKernel,ALPHASUMCL,1);
+    setKernelArg(clDict,DataCollectPopKernel,LAMBDACL,2);
+    setKernelArg(clDict,DataCollectPopKernel,LAMBDASUMCL,3);
+    setKernelArg(clDict,DataCollectPopKernel,FSTCL,4);
+    setKernelArg(clDict,DataCollectPopKernel,FSTSUMCL,5);
 
 }
 
@@ -451,7 +458,7 @@ int CompileKernels(CLDict *clDict,  char *options)
     /*cl_int ret;*/
 
 
-    char *KERNELNAMES[NumberOfKernels] = {"UpdateZ","GetNumFromPops","UpdateP","mapReduceLogDiffs","Dirichlet", "MetroAcceptTest","GetNumLociPops","UpdQDirichlet","FillArrayWRandom","InitRandGens","UpdateFst","PopNormals","UpdateAlpha","NonIndUpdateEpsilon"};
+    char *KERNELNAMES[NumberOfKernels] = {"UpdateZ","GetNumFromPops","UpdateP","mapReduceLogDiffs","Dirichlet", "MetroAcceptTest","GetNumLociPops","UpdQDirichlet","FillArrayWRandom","InitRandGens","UpdateFst","PopNormals","UpdateAlpha","NonIndUpdateEpsilon","DataCollectPop","DataCollectInd","DataCollectLoc"};
 
     /* Load the source code containing the kernels*/
     fp = fopen("Kernels/Kernels.cl", "r");
@@ -533,11 +540,13 @@ void createCLBuffers(CLDict *clDict)
 
     if (FREQSCORR) {
         createCLBuffer(clDict,FSTCL,sizeof(double)*MAXPOPS,CL_MEM_READ_WRITE);
+        createCLBuffer(clDict,FSTSUMCL,sizeof(double)*MAXPOPS,CL_MEM_WRITE_ONLY);
         createCLBuffer(clDict,NORMSCL,sizeof(double)*MAXPOPS,CL_MEM_READ_WRITE);
         createCLBuffer(clDict,EPSILONCL,sizeof(double)*NUMLOCI*MAXALLELES,CL_MEM_READ_WRITE);
     }
 
     createCLBuffer(clDict,LAMBDACL,sizeof(double)*MAXPOPS,CL_MEM_READ_WRITE);
+    createCLBuffer(clDict,LAMBDASUMCL,sizeof(double)*MAXPOPS,CL_MEM_WRITE_ONLY);
 
     createCLBuffer(clDict,ZCL,sizeof(int)*ZSIZE,CL_MEM_READ_WRITE);
     createCLBuffer(clDict,GENOCL,sizeof(int)*GENOSIZE,CL_MEM_READ_WRITE);
@@ -563,6 +572,8 @@ void createCLBuffers(CLDict *clDict)
 
     /*createCLBuffer(clDict,LOGTERMSCL,sizeof(double)*NUMINDS*NUMLOCI,CL_MEM_READ_WRITE);*/
     createCLBuffer(clDict,ALPHACL,sizeof(double)*MAXPOPS,CL_MEM_READ_WRITE);
+    createCLBuffer(clDict,ALPHASUMCL,sizeof(double)*MAXPOPS,CL_MEM_WRITE_ONLY);
+
     createCLBuffer(clDict,TESTQCL,sizeof(double)*QSIZE,CL_MEM_READ_WRITE);
     createCLBuffer(clDict,RANDCL,sizeof(double)*RANDSIZE,CL_MEM_READ_WRITE);
     createCLBuffer(clDict,RANDGENSCL,sizeof(unsigned int)*NUMRANDGENS*2,CL_MEM_READ_WRITE);
@@ -660,13 +671,14 @@ int InitCLDict(CLDict *clDictToInit)
             -D NUMINDS=%d -D MAXRANDOM=%d  -D USEPOPINFO=%d    \
             -D LOCPRIOR=%d  -D NOTAMBIGUOUS=%d  -D NUMLOCATIONS=%d    \
             -D PFROMPOPFLAGONLY=%d -D FREQSCORR=%d -D blockSize=64\
-            -D DEBUGCOMPARE=%d -D FPRIORMEAN=%f -D FPRIORSD=%f "
+            -D DEBUGCOMPARE=%d -D FPRIORMEAN=%f -D FPRIORSD=%f -D NOADMIX=%d \
+            -D NOALPHA=%d "
             , UNASSIGNED, MAXPOPS, MISSING
             , MAXALLELES, NUMLOCI, LINES
             , NUMINDS, MAXRANDOM, USEPOPINFO
             , LOCPRIOR, NOTAMBIGUOUS, NUMLOCATIONS
             , PFROMPOPFLAGONLY,FREQSCORR,DEBUGCOMPARE,
-            FPRIORMEAN,FPRIORSD);
+            FPRIORMEAN,FPRIORSD, NOADMIX,NOALPHA);
     
     sprintf(options + strlen(options), "-D ONEFST=%d -D ALPHAPROPSD=%f \
         -D ALPHAMAX=%f \

@@ -20,4 +20,4 @@
 #include "Kernels/UpdateFst.cl"
 #include "Kernels/UpdateAlpha.cl"
 #include "Kernels/UpdateEpsilon.cl"
-
+#include "Kernels/DataCollect.cl"
