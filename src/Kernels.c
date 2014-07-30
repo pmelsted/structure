@@ -340,6 +340,16 @@ void setKernelArgs(CLDict *clDict)
     setKernelArg(clDict,DataCollectPopKernel,FSTCL,4);
     setKernelArg(clDict,DataCollectPopKernel,FSTSUMCL,5);
 
+    setKernelArg(clDict,DataCollectIndKernel,QCL,0);
+    setKernelArg(clDict,DataCollectIndKernel,QSUMCL,1);
+    setKernelArg(clDict,DataCollectIndKernel,ANCESTDISTCL,2);
+
+    setKernelArg(clDict,DataCollectLocKernel,NUMALLELESCL,0);
+    setKernelArg(clDict,DataCollectLocKernel,PCL,1);
+    setKernelArg(clDict,DataCollectLocKernel,PSUMCL,2);
+    setKernelArg(clDict,DataCollectLocKernel,EPSILONCL,3);
+    setKernelArg(clDict,DataCollectLocKernel,EPSILONSUMCL,4);
+
 }
 
 void getLocal(CLDict *clDict,enum KERNEL kernel){
@@ -536,13 +546,16 @@ void createCLBuffer(CLDict *clDict, enum BUFFER buffer, size_t size, cl_mem_flag
 void createCLBuffers(CLDict *clDict)
 {
     createCLBuffer(clDict,QCL,sizeof(double)*QSIZE,CL_MEM_READ_WRITE);
+    createCLBuffer(clDict,QSUMCL,sizeof(double)*QSIZE,CL_MEM_WRITE_ONLY);
     createCLBuffer(clDict,PCL,sizeof(double)*PSIZE,CL_MEM_READ_WRITE);
+    createCLBuffer(clDict,PSUMCL,sizeof(double)*PSIZE,CL_MEM_WRITE_ONLY);
 
     if (FREQSCORR) {
         createCLBuffer(clDict,FSTCL,sizeof(double)*MAXPOPS,CL_MEM_READ_WRITE);
         createCLBuffer(clDict,FSTSUMCL,sizeof(double)*MAXPOPS,CL_MEM_WRITE_ONLY);
         createCLBuffer(clDict,NORMSCL,sizeof(double)*MAXPOPS,CL_MEM_READ_WRITE);
         createCLBuffer(clDict,EPSILONCL,sizeof(double)*NUMLOCI*MAXALLELES,CL_MEM_READ_WRITE);
+        createCLBuffer(clDict,EPSILONSUMCL,sizeof(double)*NUMLOCI*MAXALLELES,CL_MEM_WRITE_ONLY);
     }
 
     createCLBuffer(clDict,LAMBDACL,sizeof(double)*MAXPOPS,CL_MEM_READ_WRITE);
@@ -579,6 +592,7 @@ void createCLBuffers(CLDict *clDict)
     createCLBuffer(clDict,RANDGENSCL,sizeof(unsigned int)*NUMRANDGENS*2,CL_MEM_READ_WRITE);
     createCLBuffer(clDict,ERRORCL,sizeof(int)*2,CL_MEM_READ_WRITE);
 
+    createCLBuffer(clDict,ANCESTDISTCL,sizeof(int)*NUMINDS*MAXPOPS*NUMBOXES,CL_MEM_WRITE_ONLY);
 }
 
 
@@ -683,9 +697,9 @@ int InitCLDict(CLDict *clDictToInit)
     sprintf(options + strlen(options), "-D ONEFST=%d -D ALPHAPROPSD=%f \
         -D ALPHAMAX=%f \
         -D UNIFPRIORALPHA=%d -D POPALPHAS=%d -D ALPHAPRIORA=%f \
-        -D ALPHAPRIORB=%f -D NUMALPHAS=%d ",
+        -D ALPHAPRIORB=%f -D NUMALPHAS=%d -D ANCESTDIST=%d -D NUMBOXES=%d",
         ONEFST,ALPHAPROPSD, ALPHAMAX, UNIFPRIORALPHA, POPALPHAS,
-        ALPHAPRIORA, ALPHAPRIORB, numalphas);
+        ALPHAPRIORA, ALPHAPRIORB, numalphas,ANCESTDIST,NUMBOXES);
 
     printf("COMPILING KERNELS WITH:\n");
     printf("%s\n",options);

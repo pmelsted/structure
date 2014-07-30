@@ -29,7 +29,9 @@ enum KERNEL {
 
 enum BUFFER {
     QCL,
+    QSUMCL,
     PCL,
+    PSUMCL,
     ZCL,
     GENOCL,
     PREGENOCL,
@@ -41,6 +43,7 @@ enum BUFFER {
     NUMAFROMPOPSCL,
     NUMLOCIPOPSCL,
     EPSILONCL,
+    EPSILONSUMCL,
     FSTCL,
     FSTSUMCL,
     NORMSCL,
@@ -51,10 +54,12 @@ enum BUFFER {
     TESTQCL,
     ALPHACL,
     ALPHASUMCL,
+    ANCESTDISTCL,
     RANDCL, /* buffer for random numbers */
     ERRORCL, /* buffer for error codes */
     NumberOfBuffers
 };
+
 typedef struct CLDict {
     cl_kernel *kernels;
     cl_mem *buffers;
@@ -67,5 +72,6 @@ typedef struct CLDict {
     cl_device_id device_id;
     cl_command_queue commands;
 } CLDict;
+
 #endif
 

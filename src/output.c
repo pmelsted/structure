@@ -114,19 +114,28 @@ DataCollectionCL (CLDict *clDict,int *Geno, int *PreGeno,
                 double *sumindlikes, double *indlikes_norm, int rep)
 {
     int ind, pop, loc, pos;
-    size_t global[2]; 
-    UpdateSums (Q, QSum, Z, P, PSum, Fst, FstSum, NumAlleles, AncestDist,
-                Epsilon, SumEpsilon, lambda, sumlambda,
-                LocPrior, sumLocPrior, LocPriorLen);
+    int i;
+    size_t global[2];
+
+    if (LOCPRIOR){
+        for (i=0; i<LocPriorLen; i++) {
+            sumLocPrior[i] += LocPrior[i];
+        }
+    }
+
     if (LINKAGE) {
         for (ind = 0; ind < NUMINDS; ind++) {
             sumR[ind] += R[ind];
             varR[ind] += R[ind] * R[ind];
         }
     }
-    
+
     global[0] = MAXPOPS;
-    runKernel(clDict,DataCollectPopKernel,1,global,"DataCollection");
+    runKernel(clDict,DataCollectPopKernel,1,global,"DataCollectionPop");
+    global[1] = NUMINDS;
+    runKernel(clDict,DataCollectIndKernel,2,global,"DataCollectionInd");
+    global[1] = NUMLOCI;
+    runKernel(clDict,DataCollectLocKernel,2,global,"DataCollectionLoc");
 
     if (COMPUTEPROB) {
         if (LINKAGE) {
@@ -621,11 +630,11 @@ UpdateSums (double *Q, double *QSum, int *Z, double *P, double *PSum,
             double *sumLocPrior, int LocPriorLen)
 {
     int loc, ind, pop, allele, box, i;
-    /*  int line; */
+      int line; 
 
-    /*for (pop=0; pop<MAXPOPS; pop++) {*/
-        /*sumlambda[pop] += lambda[pop];*/
-    /*}*/
+    for (pop=0; pop<MAXPOPS; pop++) {
+        sumlambda[pop] += lambda[pop];
+    }
 
     for (ind = 0; ind < NUMINDS; ind++)
         for (pop = 0; pop < MAXPOPS; pop++) {
@@ -640,9 +649,9 @@ UpdateSums (double *Q, double *QSum, int *Z, double *P, double *PSum,
             }
 
     if (FREQSCORR) {
-        /*for (pop = 0; pop < MAXPOPS; pop++) {*/
-            /*FstSum[pop] += Fst[pop];*/
-        /*}*/
+        for (pop = 0; pop < MAXPOPS; pop++) {
+            FstSum[pop] += Fst[pop];
+        }
 
         for (loc = 0; loc < NUMLOCI; loc++)
             for (allele = 0; allele < NumAlleles[loc]; allele++) {
@@ -668,7 +677,7 @@ UpdateSums (double *Q, double *QSum, int *Z, double *P, double *PSum,
         }
 
 }
-/*-----------------------------------------*/
+
 
 /*====================================================*/
 /*---------------------------------------------------*/

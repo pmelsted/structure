@@ -444,6 +444,12 @@ int main (int argc, char *argv[])
     writeBuffer(clDict,sumAlpha, sizeof(double) * MAXPOPS,ALPHASUMCL, "alphasum");
     writeBuffer(clDict,sumlambda, sizeof(double) * MAXPOPS,LAMBDASUMCL, "lambdasum");
 
+    writeBuffer(clDict,QSum, sizeof(double) * QSIZE,QSUMCL, "qsum");
+    writeBuffer(clDict,PSum, sizeof(double) * PSIZE,PSUMCL, "psum");
+    writeBuffer(clDict,SumEpsilon, sizeof(double) * NUMLOCI*MAXALLELES,EPSILONSUMCL, "epssum");
+    if(ANCESTDIST){
+        writeBuffer(clDict,AncestDist, sizeof(int)*NUMINDS*MAXPOPS*NUMBOXES,ANCESTDISTCL, "ancest dist");
+    }
 
     if (FREQSCORR) {
         writeBuffer(clDict,Fst,sizeof(double) * MAXPOPS,FSTCL,"FST");
@@ -562,27 +568,16 @@ int main (int argc, char *argv[])
             UpdateEpsilonCL(clDict,P,Epsilon,Fst,NumAlleles,lambda[0]);
             UpdateFstCL (clDict,Epsilon, Fst, P, NumAlleles);
         }
-        /*if(rep > 1){*/
-            /*buffers[0]= FSTCL;*/
-            /*names[0] = "FST"; dests[0] = Fst; sizes[0] = sizeof(double) * MAXPOPS;*/
-
-        /*}*/
 
 
         /*====book-keeping stuff======================*/
         if (rep + 1 > BURNIN) {
-            buffers[0] = EPSILONCL; names[0] = "EPSILON";dests[0] = Epsilon;
-            sizes[0] = sizeof(double)*NUMLOCI*MAXALLELES;
-            buffers[1] = PCL;
-            names[1] = "P"; dests[1] = P; sizes[1] = sizeof(double) * PSIZE;
-            buffers[2] = QCL;
-            names[2] = "Q"; dests[2] = Q; sizes[2] = sizeof(double) * QSIZE;
+            buffers[0] = PCL;
+            names[0] = "P"; dests[0] = P; sizes[0] = sizeof(double) * PSIZE;
+            buffers[1] = QCL;
+            names[1] = "Q"; dests[1] = Q; sizes[1] = sizeof(double) * QSIZE;
 
-            /*buffers[3] = ALPHACL; names[3] = "ALPHA"; dests[3] = Alpha;*/
-            /*sizes[3] = sizeof(double) * MAXPOPS;*/
-            readBuffers(clDict,dests,sizes,buffers,names,3);
-            /* already in infer alpha */
-            /*readBuffer(clDict,Q,sizeof(double) * QSIZE,QCL,"Q");*/
+            readBuffers(clDict,dests,sizes,buffers,names,2);
             DataCollectionCL (clDict,Geno, PreGeno, Q, QSum, Z, Z1,  P, PSum,
                             Fst, FstSum, NumAlleles,
                             AncestDist, Alpha, sumAlpha, sumR, varR, &like,
@@ -599,6 +594,9 @@ int main (int argc, char *argv[])
             readBuffer(clDict,sumAlpha, sizeof(double) * MAXPOPS,ALPHASUMCL, "alphasum");
             readBuffer(clDict,sumlambda, sizeof(double) * MAXPOPS,LAMBDASUMCL, "lambdasum");
             readBuffer(clDict,FstSum, sizeof(double) * MAXPOPS,FSTSUMCL, "fstsum");
+            readBuffer(clDict,QSum, sizeof(double) * QSIZE,QSUMCL, "Qsum");
+            readBuffer(clDict,PSum, sizeof(double) * PSIZE,PSUMCL, "Psum");
+            readBuffer(clDict,SumEpsilon, sizeof(double) * NUMLOCI*MAXALLELES,EPSILONSUMCL, "epssum");
             OutPutResults (Geno, rep + 1, savefreq, Individual, PSum, QSum,
                            FstSum, AncestDist, UsePopProbs, sumlikes,
                            sumsqlikes, sumAlpha, sumR, varR,
@@ -637,6 +635,9 @@ int main (int argc, char *argv[])
     readBuffer(clDict,sumAlpha, sizeof(double) * MAXPOPS,ALPHASUMCL, "alphasum");
     readBuffer(clDict,sumlambda, sizeof(double) * MAXPOPS,LAMBDASUMCL, "lambdasum");
     readBuffer(clDict,FstSum, sizeof(double) * MAXPOPS,FSTSUMCL, "fstsum");
+    readBuffer(clDict,QSum, sizeof(double) * QSIZE,QSUMCL, "Qsum");
+    readBuffer(clDict,PSum, sizeof(double) * PSIZE,PSUMCL, "Psum");
+    readBuffer(clDict,SumEpsilon, sizeof(double) * NUMLOCI*MAXALLELES,EPSILONSUMCL, "epssum");
     OutPutResults (Geno, rep, savefreq, Individual, PSum, QSum,
                    FstSum, AncestDist, UsePopProbs,
                    sumlikes, sumsqlikes,

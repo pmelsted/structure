@@ -8,6 +8,7 @@
 #define QPos(ind,pop) ((ind)*(MAXPOPS)+(pop))
 #define NumAFromPopPos(pop,allele) ((pop)*(MAXALLELES)+(allele))    /* NumAFromPop */
 #define EpsPos(loc,allele) ((loc)*(MAXALLELES)+(allele))    /* Epsilon */
+#define AncestDistPos(ind,pop,box) ((ind)*(MAXPOPS)*(NUMBOXES)+(pop)*(NUMBOXES)+(box))
 
 #define UNDERFLO 10e-100
 #define SQUNDERFLO 10e-50
