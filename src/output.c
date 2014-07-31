@@ -115,6 +115,7 @@ DataCollectionCL (CLDict *clDict,int *Geno, int *PreGeno,
 {
     int ind, pop, loc, pos;
     int i;
+    int usesumindlikes;
     size_t global[2];
 
     if (LOCPRIOR){
@@ -142,9 +143,22 @@ DataCollectionCL (CLDict *clDict,int *Geno, int *PreGeno,
             *like = recomblikelihood;
         }
 
+        /*
+        if (rep == BURNIN) {
+            usesumindlikes = 1;
+            setKernelArgExplicit(clDict,CalcLikeKernel,sizeof(int),&usesumindlikes,3);
+        }
+
+        global[0] = NUMINDS;
+        runKernel(clDict,CalcLikeKernel,1,global,"CalcLike");
+        global[0] = 1;
+        runKernel(clDict,ComputeProbFinishKernel,1,global,"ComputeProbFinish");
+        */
+
         if (rep < BURNIN) {
             *like = CalcLike (Geno, PreGeno, Q, P, Recessive, NULL, NULL);
         } else {
+
             *like = CalcLike (Geno, PreGeno, Q, P, Recessive,
                               sumindlikes, indlikes_norm);
         }
