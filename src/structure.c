@@ -209,9 +209,9 @@ int main (int argc, char *argv[])
     double *sumR;                 /*NUMINDS */
     double *varR;                 /*NUMINDS */
     double recomblikelihood=0.0;
-    double like;                  /*current likelihood value */
-    double sumlikes;              /*sum of likelihood values */
-    double sumsqlikes;            /*sum of squared likelihoods */
+    double *like;                  /*current likelihood value */
+    double *sumlikes;              /*sum of likelihood values */
+    double *sumsqlikes;            /*sum of squared likelihoods */
 
     int *popflags; /*The populationflags of individuals*/
     unsigned int *randGens;
@@ -251,6 +251,9 @@ int main (int argc, char *argv[])
     }
 
     clDict = malloc(sizeof (*clDict));
+    sumlikes = malloc(sizeof(double));
+    sumsqlikes = malloc(sizeof(double));
+    like = malloc(sizeof(double));
     /*=====Code for getting started=============================*/
 
     Welcome (stdout);             /*welcome */
@@ -394,7 +397,7 @@ int main (int argc, char *argv[])
     Initialization (Geno, PreGeno, Individual, Translation, NumAlleles, Z, Z1,
                     Epsilon, SumEpsilon,
                     Fst, PSum, Q, QSum, FstSum, AncestDist, UsePopProbs, Alpha,
-                    sumAlpha, sumR, varR, &sumlikes, &sumsqlikes, &savefreq, R, lambda,
+                    sumAlpha, sumR, varR, sumlikes, sumsqlikes, &savefreq, R, lambda,
                     sumlambda,Phase,Recessive, LocPrior, sumLocPrior, LocPriorLen, sumIndLikes,
                     indLikesNorm, clDict);
 
@@ -443,6 +446,10 @@ int main (int argc, char *argv[])
 
     writeBuffer(clDict,sumAlpha, sizeof(double) * MAXPOPS,ALPHASUMCL, "alphasum");
     writeBuffer(clDict,sumlambda, sizeof(double) * MAXPOPS,LAMBDASUMCL, "lambdasum");
+
+    writeBuffer(clDict,like, sizeof(double),LIKECL, "like");
+    writeBuffer(clDict,sumsqlikes, sizeof(double),SUMSQLIKESCL, "sumsqlikes");
+    writeBuffer(clDict,sumlikes, sizeof(double),SUMLIKESCL, "sumlikes");
 
     writeBuffer(clDict,QSum, sizeof(double) * QSIZE,QSUMCL, "qsum");
     writeBuffer(clDict,PSum, sizeof(double) * PSIZE,PSUMCL, "psum");
@@ -580,8 +587,8 @@ int main (int argc, char *argv[])
             readBuffers(clDict,dests,sizes,buffers,names,2);
             DataCollectionCL (clDict,Geno, PreGeno, Q, QSum, Z, Z1,  P, PSum,
                             Fst, FstSum, NumAlleles,
-                            AncestDist, Alpha, sumAlpha, sumR, varR, &like,
-                            &sumlikes, &sumsqlikes, R, Epsilon,SumEpsilon,recomblikelihood,
+                            AncestDist, Alpha, sumAlpha, sumR, varR, like,
+                            sumlikes, sumsqlikes, R, Epsilon,SumEpsilon,recomblikelihood,
                             lambda, sumlambda, Recessive, LocPrior, sumLocPrior, LocPriorLen, sumIndLikes,
                             indLikesNorm, rep);
         }
@@ -598,8 +605,8 @@ int main (int argc, char *argv[])
             readBuffer(clDict,PSum, sizeof(double) * PSIZE,PSUMCL, "Psum");
             readBuffer(clDict,SumEpsilon, sizeof(double) * NUMLOCI*MAXALLELES,EPSILONSUMCL, "epssum");
             OutPutResults (Geno, rep + 1, savefreq, Individual, PSum, QSum,
-                           FstSum, AncestDist, UsePopProbs, sumlikes,
-                           sumsqlikes, sumAlpha, sumR, varR,
+                           FstSum, AncestDist, UsePopProbs, *sumlikes,
+                           *sumsqlikes, sumAlpha, sumR, varR,
                            NumAlleles, Translation, 0, Markername, R,
                            SumEpsilon,
                            lambda,sumlambda,sumLocPrior, LocPriorLen,
@@ -608,24 +615,28 @@ int main (int argc, char *argv[])
 
 
         if (PRINTLIKES) {
-            PrintLike (like, rep, Geno, PreGeno, Q, P,recomblikelihood);
+            /*readBuffer(clDict,like, sizeof(double),LIKECL, "like");*/
+            PrintLike (*like, rep, Geno, PreGeno, Q, P,recomblikelihood);
         }
 
         if (((rep + 1) % UPDATEFREQ) == 0) {
             readBuffer(clDict,Alpha, sizeof(double) * MAXPOPS,ALPHACL, "alpha");
             readBuffer(clDict,Fst, sizeof(double) * MAXPOPS,FSTCL, "fst");
+            /*readBuffer(clDict,like, sizeof(double),LIKECL, "like");
+            readBuffer(clDict,sumsqlikes, sizeof(double),SUMSQLIKESCL, "sumsqlikes");
+            readBuffer(clDict,sumlikes, sizeof(double),SUMLIKESCL, "sumlikes");*/
             /*readBuffer(clDict,sumlambda, sizeof(double) * MAXPOPS,LAMBDASUMCL, "lambdasum");*/
             /*readBuffer(clDict,FstSum, sizeof(double) * MAXPOPS,FSTSUMCL, "fstsum");*/
-            PrintUpdate (rep + 1, Geno, PreGeno, Alpha, Fst, P, Q, like,
-                         sumlikes, sumsqlikes, NumAlleles, R, lambda,Individual,
+            PrintUpdate (rep + 1, Geno, PreGeno, Alpha, Fst, P, Q, *like,
+                         *sumlikes, *sumsqlikes, NumAlleles, R, lambda,Individual,
                          recomblikelihood, Recessive, LocPrior, LocPriorLen);
         }
     }
 
     /*====final book-keeping====================================*/
     if ((rep % UPDATEFREQ) != 0) {
-        PrintUpdate (rep, Geno, PreGeno, Alpha, Fst, P, Q, like, sumlikes,
-                     sumsqlikes, NumAlleles,R, lambda, Individual,recomblikelihood,
+        PrintUpdate (rep, Geno, PreGeno, Alpha, Fst, P, Q, *like, *sumlikes,
+                     *sumsqlikes, NumAlleles,R, lambda, Individual,recomblikelihood,
                      Recessive, LocPrior, LocPriorLen);
     }
 
@@ -640,7 +651,7 @@ int main (int argc, char *argv[])
     readBuffer(clDict,SumEpsilon, sizeof(double) * NUMLOCI*MAXALLELES,EPSILONSUMCL, "epssum");
     OutPutResults (Geno, rep, savefreq, Individual, PSum, QSum,
                    FstSum, AncestDist, UsePopProbs,
-                   sumlikes, sumsqlikes,
+                   *sumlikes, *sumsqlikes,
                    sumAlpha, sumR, varR, NumAlleles, Translation, 1,
                    Markername, R, SumEpsilon,
                    lambda,sumlambda,sumLocPrior, LocPriorLen,
@@ -665,6 +676,9 @@ int main (int argc, char *argv[])
             sumLocPrior, Alpha, sumAlpha, sumIndLikes, indLikesNorm, clDict);
     free(randomArr);
     free(randGens);
+    free(like);
+    free(sumsqlikes);
+    free(sumlikes);
     return (0);
 }
 

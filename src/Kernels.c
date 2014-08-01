@@ -468,7 +468,11 @@ int CompileKernels(CLDict *clDict,  char *options)
     /*cl_int ret;*/
 
 
-    char *KERNELNAMES[NumberOfKernels] = {"UpdateZ","GetNumFromPops","UpdateP","mapReduceLogDiffs","Dirichlet", "MetroAcceptTest","GetNumLociPops","UpdQDirichlet","FillArrayWRandom","InitRandGens","UpdateFst","PopNormals","UpdateAlpha","NonIndUpdateEpsilon","DataCollectPop","DataCollectInd","DataCollectLoc"};
+    char *KERNELNAMES[NumberOfKernels] = {"UpdateZ","GetNumFromPops","UpdateP"
+        ,"mapReduceLogDiffs","Dirichlet", "MetroAcceptTest","GetNumLociPops"
+        ,"UpdQDirichlet","FillArrayWRandom","InitRandGens","UpdateFst"
+        ,"PopNormals","UpdateAlpha","NonIndUpdateEpsilon","DataCollectPop"
+        ,"DataCollectInd","DataCollectLoc","CalcLike","ComputeProbFinish"};
 
     /* Load the source code containing the kernels*/
     fp = fopen("Kernels/Kernels.cl", "r");
@@ -591,6 +595,9 @@ void createCLBuffers(CLDict *clDict)
     createCLBuffer(clDict,RANDCL,sizeof(double)*RANDSIZE,CL_MEM_READ_WRITE);
     createCLBuffer(clDict,RANDGENSCL,sizeof(unsigned int)*NUMRANDGENS*2,CL_MEM_READ_WRITE);
     createCLBuffer(clDict,ERRORCL,sizeof(int)*2,CL_MEM_READ_WRITE);
+    createCLBuffer(clDict,LIKECL,sizeof(double),CL_MEM_READ_WRITE);
+    createCLBuffer(clDict,SUMLIKESCL,sizeof(double),CL_MEM_WRITE_ONLY);
+    createCLBuffer(clDict,SUMSQLIKESCL,sizeof(double),CL_MEM_WRITE_ONLY);
 
     createCLBuffer(clDict,ANCESTDISTCL,sizeof(int)*NUMINDS*MAXPOPS*NUMBOXES,CL_MEM_WRITE_ONLY);
 }

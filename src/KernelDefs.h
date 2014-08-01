@@ -23,6 +23,8 @@ enum KERNEL {
     DataCollectPopKernel,
     DataCollectIndKernel,
     DataCollectLocKernel,
+    CalcLikeKernel,
+    ComputeProbFinishKernel,
     NumberOfKernels
 };
 
@@ -57,6 +59,9 @@ enum BUFFER {
     ANCESTDISTCL,
     RANDCL, /* buffer for random numbers */
     ERRORCL, /* buffer for error codes */
+    LIKECL,
+    SUMLIKESCL,
+    SUMSQLIKESCL,
     NumberOfBuffers
 };
 
