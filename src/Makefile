@@ -115,7 +115,7 @@ test: structure
 wcachetest: structure
 	CUDA_CACHE_DISABLE=0 /usr/bin/time ./structure -m testdata/mainparams
 
-bigtest: structure
+bigtest:
 	/usr/bin/time --verbose ./structure -m bigdata/mainparams
 
 callgrind: prof structure
