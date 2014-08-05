@@ -215,10 +215,6 @@ __kernel void mapReduceLogLike(__global double *Q,
     double logterm = 0.0;
     /* Map and partial reduce */
     /* clear results buffer */
-    for(int id =0; id < numgroups; id ++){
-        results[ind*numgroups + id] = 0;
-    }
-    barrier(CLK_GLOBAL_MEM_FENCE);
     while( loc < NUMLOCI){
         double elem = mapLogLikeFunc(Q,P,Geno,ind,loc);
         logterm += elem;

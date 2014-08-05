@@ -149,7 +149,8 @@ DataCollectionCL (CLDict *clDict,int *Geno, int *PreGeno,
             setKernelArgExplicit(clDict,CalcLikeKernel,sizeof(int),&usesumindlikes,3);
         }
         global[1] = NUMINDS;
-        global[0] = NUMLOCI;
+        /*global[0] = (32 < NUMLOCI) ? 32 : NUMLOCI;*/
+        global[0] = 32;
         runKernel(clDict,MapReduceLogLikeKernel,2,global,"LogLike");
 
         global[0] = NUMINDS;
@@ -158,24 +159,24 @@ DataCollectionCL (CLDict *clDict,int *Geno, int *PreGeno,
         runKernel(clDict,ComputeProbFinishKernel,1,global,"ComputeProbFinish");
         global[1] = NUMLOCI;
 
-        readBuffer(clDict,gpulike, sizeof(double),LIKECL, "like");
+        /*readBuffer(clDict,gpulike, sizeof(double),LIKECL, "like");*/
 
-        if (rep < BURNIN) {
-            *like = CalcLike (Geno, PreGeno, Q, P, Recessive, NULL, NULL);
-        } else {
+        /*if (rep < BURNIN) {*/
+            /**like = CalcLike (Geno, PreGeno, Q, P, Recessive, NULL, NULL);*/
+        /*} else {*/
 
-            *like = CalcLike (Geno, PreGeno, Q, P, Recessive,
-                              sumindlikes, indlikes_norm);
-        }
-        if (rep % 100 == 0){
-            printf("like %f %f ",*like,*gpulike);
-            if(fabs(*like - *gpulike) > 10e-10){
-                printf("DIFF!");
-            }
-            printf("\n");
-        }
-        *sumlikes += *like;
-        *sumsqlikes += (*like) * (*like);
+            /**like = CalcLike (Geno, PreGeno, Q, P, Recessive,*/
+                              /*sumindlikes, indlikes_norm);*/
+        /*}*/
+        /*if (rep % 100 == 0){*/
+            /*printf("like %f %f ",*like,*gpulike);*/
+            /*if(fabs(*like - *gpulike) > 10e-10){*/
+                /*printf("DIFF!");*/
+            /*}*/
+            /*printf("\n");*/
+        /*}*/
+        /**sumlikes += *like;*/
+        /**sumsqlikes += (*like) * (*like);*/
     }
     /*printf("%f %f %f\n", *like, *sumlikes, *sumsqlikes); */
 }
