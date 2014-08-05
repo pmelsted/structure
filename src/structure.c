@@ -245,6 +245,8 @@ int main (int argc, char *argv[])
     size_t        sizes[5];
     void         *dests[5];
 
+    double  *reduceresult;
+
     if (signal(SIGINT, catch_function) == SIG_ERR) {
         fputs("An error occurred while setting a signal handler.\n", stderr);
         return EXIT_FAILURE;
@@ -443,6 +445,13 @@ int main (int argc, char *argv[])
     writeBuffer(clDict,popflags,sizeof(int)*NUMINDS,POPFLAGCL,"popflags");
 
     writeBuffer(clDict,Alpha,sizeof(double) *MAXPOPS,ALPHACL,"Alpha");
+    reduceresult = calloc(NUMINDS*NUMLOCI*MAXGROUPS,sizeof(double));
+    if(reduceresult == NULL){
+        printf("Failed to allocate reduce result\n");
+    }
+    printf("Writing reduce results\n");
+    writeBuffer(clDict,reduceresult,sizeof(double)*MAXGROUPS*NUMINDS*NUMLOCI,REDUCERESULTSCL,"result");
+    printf("Done writing reduce results\n");
 
     writeBuffer(clDict,sumAlpha, sizeof(double) * MAXPOPS,ALPHASUMCL, "alphasum");
     writeBuffer(clDict,sumlambda, sizeof(double) * MAXPOPS,LAMBDASUMCL, "lambdasum");
@@ -678,6 +687,7 @@ int main (int argc, char *argv[])
     free(like);
     free(sumsqlikes);
     free(sumlikes);
+    free(reduceresult);
     return (0);
 }
 

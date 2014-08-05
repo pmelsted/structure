@@ -606,7 +606,8 @@ void createCLBuffers(CLDict *clDict)
     createCLBuffer(clDict,NUMLOCIPOPSCL,sizeof(int)*NUMINDS*MAXPOPS,CL_MEM_READ_WRITE);
 
     createCLBuffer(clDict,LOGDIFFSCL,sizeof(double)*NUMINDS,CL_MEM_READ_WRITE);
-    createCLBuffer(clDict,REDUCERESULTSCL,sizeof(double)*MAXGROUPS*NUMINDS,CL_MEM_READ_WRITE);
+
+    createCLBuffer(clDict,REDUCERESULTSCL,sizeof(double)*MAXGROUPS*NUMINDS*NUMLOCI,CL_MEM_READ_WRITE);
 
     /*createCLBuffer(clDict,LOGTERMSCL,sizeof(double)*NUMINDS*NUMLOCI,CL_MEM_READ_WRITE);*/
     createCLBuffer(clDict,ALPHACL,sizeof(double)*MAXPOPS,CL_MEM_READ_WRITE);
@@ -719,13 +720,13 @@ int InitCLDict(CLDict *clDictToInit)
             -D LOCPRIOR=%d  -D NOTAMBIGUOUS=%d  -D NUMLOCATIONS=%d    \
             -D PFROMPOPFLAGONLY=%d -D FREQSCORR=%d -D blockSize=64\
             -D DEBUGCOMPARE=%d -D FPRIORMEAN=%f -D FPRIORSD=%f -D NOADMIX=%d \
-            -D NOALPHA=%d "
+            -D NOALPHA=%d -DMAXGROUPS=%d "
             , UNASSIGNED, MAXPOPS, MISSING
             , MAXALLELES, NUMLOCI, LINES
             , NUMINDS, MAXRANDOM, USEPOPINFO
             , LOCPRIOR, NOTAMBIGUOUS, NUMLOCATIONS
             , PFROMPOPFLAGONLY,FREQSCORR,DEBUGCOMPARE,
-            FPRIORMEAN,FPRIORSD, NOADMIX,NOALPHA);
+            FPRIORMEAN,FPRIORSD, NOADMIX,NOALPHA,MAXGROUPS);
     
     sprintf(options + strlen(options), "-D ONEFST=%d -D ALPHAPROPSD=%f \
         -D ALPHAMAX=%f \

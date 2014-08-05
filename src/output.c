@@ -148,15 +148,15 @@ DataCollectionCL (CLDict *clDict,int *Geno, int *PreGeno,
             usesumindlikes = 1;
             setKernelArgExplicit(clDict,CalcLikeKernel,sizeof(int),&usesumindlikes,3);
         }
-        global[0] = NUMLOCI;
         global[1] = NUMINDS;
+        global[0] = NUMLOCI;
         runKernel(clDict,MapReduceLogLikeKernel,2,global,"LogLike");
 
         global[0] = NUMINDS;
-        global[1] = NUMLOCI;
         runKernel(clDict,CalcLikeKernel,1,global,"CalcLike");
         global[0] = 1;
         runKernel(clDict,ComputeProbFinishKernel,1,global,"ComputeProbFinish");
+        global[1] = NUMLOCI;
 
         readBuffer(clDict,gpulike, sizeof(double),LIKECL, "like");
 

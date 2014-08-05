@@ -3,7 +3,7 @@
 #include <CL/cl.h>
 #include "Kernels/KernelErrors.h"
 /*TODO: Determine this number, used for reductions */
-#define MAXGROUPS 63
+#define MAXGROUPS 31
 
 enum KERNEL {
     UpdateZKernel,
