@@ -58,6 +58,7 @@ __kernel void UpdateP (
     int numalleles = NumAlleles[loc];
     double Parameters[MAXALLELES];
     RndDiscState randState[1];
+    double param;
     int allele;
 
     while (loc < NUMLOCI){
@@ -68,14 +69,18 @@ __kernel void UpdateP (
             initRndDiscState(randState,randGens,loc*MAXPOPS +pop);
 
             for (allele = 0; allele < numalleles; allele++) {
-                #if FREQSCORR
-                Parameters[allele] = Epsilon[EpsPos (loc, allele)]
-                                     *(1.0- Fst[pop])/Fst[pop]
-                                     + NumAFromPops[NumAFromPopPos (pop, allele)+offset];
-                #else
-                Parameters[allele] = lambda[pop] + NumAFromPops[NumAFromPopPos (pop,
+                Parameters[allele] = NumAFromPops[NumAFromPopPos (pop,
                                      allele)+offset];
+                #if FREQSCORR
+                    param = Epsilon[EpsPos (loc, allele)]
+                                     *(1.0- Fst[pop])/Fst[pop];
+                #else
+                    param = lambda[pop]
                 #endif
+                /*if (param < SQUNDERFLO){*/
+                    /*param = SQUNDERFLO;*/
+                /*}*/
+                Parameters[allele] += param;
             }
 
             /*return a value of P simulated from the posterior Di(Parameters) */

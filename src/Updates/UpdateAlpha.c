@@ -331,7 +331,7 @@ void UpdateAlphaCL (CLDict *clDict,double *Q, double *Alpha, struct IND *Individ
         runKernel(clDict,PopNormals,1,global,"PopNormals Alpha");
 
         /* The smaller the group, the less danger of underflow is there */
-        global[0] = NUMINDS/25;
+        global[0] = NUMINDS;
         global[1] = numalphas;
         runKernel(clDict,UpdateAlphaKernel,2,global,"Update Alpha kernel");
         /*

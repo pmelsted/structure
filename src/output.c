@@ -1,4 +1,4 @@
-/*Part of structure.c.
+    /*Part of structure.c.
 
   This bit of the program is involved in collecting data (DataCollection)
   and printing results (OutPutResults). */
@@ -116,6 +116,7 @@ DataCollectionCL (CLDict *clDict,int *Geno, int *PreGeno,
     int ind, pop, loc, pos;
     int i;
     int usesumindlikes;
+    double gpulike[1];
     size_t global[2];
 
     if (LOCPRIOR){
@@ -139,21 +140,25 @@ DataCollectionCL (CLDict *clDict,int *Geno, int *PreGeno,
     runKernel(clDict,DataCollectLocKernel,2,global,"DataCollectionLoc");
 
     if (COMPUTEPROB) {
-        if (LINKAGE) {
-            *like = recomblikelihood;
-        }
+        /*if (LINKAGE) {*/
+            /**like = recomblikelihood;*/
+        /*}*/
 
-        /*
         if (rep == BURNIN) {
             usesumindlikes = 1;
             setKernelArgExplicit(clDict,CalcLikeKernel,sizeof(int),&usesumindlikes,3);
         }
+        global[0] = NUMLOCI;
+        global[1] = NUMINDS;
+        runKernel(clDict,MapReduceLogLikeKernel,2,global,"LogLike");
 
         global[0] = NUMINDS;
+        global[1] = NUMLOCI;
         runKernel(clDict,CalcLikeKernel,1,global,"CalcLike");
         global[0] = 1;
         runKernel(clDict,ComputeProbFinishKernel,1,global,"ComputeProbFinish");
-        */
+
+        readBuffer(clDict,gpulike, sizeof(double),LIKECL, "like");
 
         if (rep < BURNIN) {
             *like = CalcLike (Geno, PreGeno, Q, P, Recessive, NULL, NULL);
@@ -161,6 +166,13 @@ DataCollectionCL (CLDict *clDict,int *Geno, int *PreGeno,
 
             *like = CalcLike (Geno, PreGeno, Q, P, Recessive,
                               sumindlikes, indlikes_norm);
+        }
+        if (rep % 100 == 0){
+            printf("like %f %f ",*like,*gpulike);
+            if(fabs(*like - *gpulike) > 10e-10){
+                printf("DIFF!");
+            }
+            printf("\n");
         }
         *sumlikes += *like;
         *sumsqlikes += (*like) * (*like);

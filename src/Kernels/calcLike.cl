@@ -74,7 +74,7 @@ double mapLogDiffsFunc(__global double *Q, __global double *TestQ,
 
                 //TODO: Evaluate underflow safe vs nonsafe
                 // safe version, should not underflow
-                /*if (termP > SQUNDERFLO) {
+                if (termP > SQUNDERFLO) {
                     runningtotalP *= termP;
                 } else {
                     runningtotalP *= SQUNDERFLO;
@@ -92,10 +92,10 @@ double mapLogDiffsFunc(__global double *Q, __global double *TestQ,
                 if (runningtotalM < SQUNDERFLO){
                     logtermM += log(runningtotalM);
                     runningtotalM = 1.0;
-                }*/
+                }
                 //Might underflow?
-                logtermP += log(termP);
-                logtermM += log(termM);
+                /*logtermP += log(termP);
+                logtermM += log(termM);*/
             }
         }
         logtermP += log(runningtotalP);
@@ -157,6 +157,7 @@ __kernel void mapReduceLogDiffs(__global double *Q,
         logdiffs[ind] = 0;
         for(int id =0; id < numgroups; id ++){
             logdiffs[ind] += results[ind*numgroups + id];
+            results[ind*numgroups + id] = 0;
         }
     }
 }
@@ -180,7 +181,7 @@ double mapLogLikeFunc(__global double *Q, __global double *P,
 
                 //TODO: Evaluate underflow safe vs nonsafe
                 // safe version, should not underflow
-                /*
+                
                 if (term > SQUNDERFLO) {
                     runningtotal *= term;
                 } else {
@@ -189,9 +190,9 @@ double mapLogLikeFunc(__global double *Q, __global double *P,
                 if (runningtotal < SQUNDERFLO){
                     logterm += log(runningtotal);
                     runningtotal = 1.0;
-                }*/
+                }
                 //Might underflow?
-                logterm += log(term);
+                /*logterm += log(term);*/
             }
         }
         logterm += log(runningtotal);
@@ -215,7 +216,7 @@ __kernel void mapReduceLogLike(__global double *Q,
     /* Map and partial reduce */
     while( loc < NUMLOCI){
         double elem = mapLogLikeFunc(Q,P,Geno,ind,loc);
-        logterm += elem;
+        logterm += 1;
         loc += get_global_size(0);
     }
 
@@ -239,6 +240,7 @@ __kernel void mapReduceLogLike(__global double *Q,
     /* save result */
     int gid = get_group_id(0);
     if(localLoc == 0){
+        /*results[ind*numgroups +gid] = 1;*/
         results[ind*numgroups +gid] = scratch[0];
     }
 
@@ -248,6 +250,7 @@ __kernel void mapReduceLogLike(__global double *Q,
         loglikes[ind] = 0;
         for(int id =0; id < numgroups; id ++){
             loglikes[ind] += results[ind*numgroups + id];
+            results[ind*numgroups + id] = 0;
         }
     }
 }
@@ -306,7 +309,8 @@ __kernel void CalcLike(
     if(gid==0){
         loglike[0] = 0;
         for(int id =0; id < numgroups; id++){
-            loglikes[0] += results[id];
+            loglike[0] += results[id];
+            results[id] = 0;
         }
     }
 }

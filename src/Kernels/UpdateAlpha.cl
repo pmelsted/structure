@@ -37,7 +37,7 @@ __kernel void UpdateAlpha(
                     if (!((USEPOPINFO) && (popflags[ind]))) {
                         //Safe version (similar to in code)
                         //Watching out for underflow
-                        /*double elem = 1.0;
+                        double elem = 1.0;
                         for(redpop = alpha; redpop < numredpops; redpop++){
                             elem *= Q[QPos (ind, redpop)];
                         }
@@ -50,13 +50,14 @@ __kernel void UpdateAlpha(
                         if(sum < SQUNDERFLO){
                             total += log(sum);
                             sum = 1.0;
-                        }*/
+                        }
                         //Might underflow?
-                        double elem = 0.0;
+                        /*double elem = 0.0;
                         for(redpop = alpha; redpop < numredpops; redpop++){
                             elem += log(Q[QPos (ind, redpop)]);
                         }
-                        total += elem;
+                        total += elem;*/
+
                         ind += get_global_size(0);
                     }
                 }
@@ -103,6 +104,7 @@ __kernel void UpdateAlpha(
 
                     for(int id =0; id < numgroups; id++){
                         logterm += results[alpha*numgroups + id];
+                        results[alpha*numgroups + id] = 0;
                     }
 
                     int multiple = numredpops - alpha;

@@ -117,6 +117,8 @@ wcachetest: structure
 
 bigtest:
 	/usr/bin/time --verbose ./structure -m bigdata/mainparams
+cbigtest:
+	/usr/bin/time --verbose ./cpustructure -m bigdata/mainparams
 
 callgrind: prof structure
 	CUDA_CACHE_DISABLE=0 valgrind --tool=callgrind ./structure -m testdata/mainparams -i testdata/testdata1.str -o testdata1.out

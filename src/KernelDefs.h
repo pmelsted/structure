@@ -3,7 +3,7 @@
 #include <CL/cl.h>
 #include "Kernels/KernelErrors.h"
 /*TODO: Determine this number, used for reductions */
-#define MAXGROUPS 31
+#define MAXGROUPS 63
 
 enum KERNEL {
     UpdateZKernel,
@@ -25,6 +25,7 @@ enum KERNEL {
     DataCollectLocKernel,
     CalcLikeKernel,
     ComputeProbFinishKernel,
+    MapReduceLogLikeKernel,
     NumberOfKernels
 };
 
@@ -62,6 +63,9 @@ enum BUFFER {
     LIKECL,
     SUMLIKESCL,
     SUMSQLIKESCL,
+    LOGLIKESCL,
+    INDLIKECL,
+    SUMINDLIKECL,
     NumberOfBuffers
 };
 

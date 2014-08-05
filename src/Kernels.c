@@ -220,6 +220,7 @@ void setKernelArgExplicit(CLDict *clDict, enum KERNEL kernel,size_t size, void *
 void setKernelArgs(CLDict *clDict)
 {
     cl_int err;
+    int flag = 0;
     err = 0;
     /*=========================== Update Z =================*/
     setKernelArg(clDict,UpdateZKernel,QCL,0);
@@ -350,6 +351,26 @@ void setKernelArgs(CLDict *clDict)
     setKernelArg(clDict,DataCollectLocKernel,EPSILONCL,3);
     setKernelArg(clDict,DataCollectLocKernel,EPSILONSUMCL,4);
 
+    setKernelArg(clDict,ComputeProbFinishKernel,LIKECL,0);
+    setKernelArg(clDict,ComputeProbFinishKernel,SUMLIKESCL,1);
+    setKernelArg(clDict,ComputeProbFinishKernel,SUMSQLIKESCL,2);
+
+    setKernelArg(clDict,MapReduceLogLikeKernel,QCL,0);
+    setKernelArg(clDict,MapReduceLogLikeKernel,PCL,1);
+    setKernelArg(clDict,MapReduceLogLikeKernel,GENOCL,2);
+    setKernelArg(clDict,MapReduceLogLikeKernel,LOGLIKESCL,3);
+    setKernelArg(clDict,MapReduceLogLikeKernel,REDUCERESULTSCL,4);
+    setKernelArgExplicit(clDict,MapReduceLogLikeKernel,sizeof(double)*NUMLOCI,NULL,5);
+
+    setKernelArg(clDict,CalcLikeKernel,LOGLIKESCL,0);
+    setKernelArg(clDict,CalcLikeKernel,INDLIKECL,1);
+    setKernelArg(clDict,CalcLikeKernel,SUMINDLIKECL,2);
+    /* this is set to 1 after burnin */
+    setKernelArgExplicit(clDict,CalcLikeKernel,sizeof(int),&flag,3);
+    setKernelArg(clDict,CalcLikeKernel,LIKECL,4);
+    setKernelArg(clDict,CalcLikeKernel,REDUCERESULTSCL,5);
+    setKernelArgExplicit(clDict,CalcLikeKernel,sizeof(double)*NUMINDS,NULL,6);
+
 }
 
 void getLocal(CLDict *clDict,enum KERNEL kernel){
@@ -472,7 +493,7 @@ int CompileKernels(CLDict *clDict,  char *options)
         ,"mapReduceLogDiffs","Dirichlet", "MetroAcceptTest","GetNumLociPops"
         ,"UpdQDirichlet","FillArrayWRandom","InitRandGens","UpdateFst"
         ,"PopNormals","UpdateAlpha","NonIndUpdateEpsilon","DataCollectPop"
-        ,"DataCollectInd","DataCollectLoc","CalcLike","ComputeProbFinish"};
+        ,"DataCollectInd","DataCollectLoc","CalcLike","ComputeProbFinish","mapReduceLogLike"};
 
     /* Load the source code containing the kernels*/
     fp = fopen("Kernels/Kernels.cl", "r");
@@ -595,6 +616,11 @@ void createCLBuffers(CLDict *clDict)
     createCLBuffer(clDict,RANDCL,sizeof(double)*RANDSIZE,CL_MEM_READ_WRITE);
     createCLBuffer(clDict,RANDGENSCL,sizeof(unsigned int)*NUMRANDGENS*2,CL_MEM_READ_WRITE);
     createCLBuffer(clDict,ERRORCL,sizeof(int)*2,CL_MEM_READ_WRITE);
+
+    createCLBuffer(clDict,LOGLIKESCL,sizeof(double)*NUMINDS,CL_MEM_READ_WRITE);
+    createCLBuffer(clDict,INDLIKECL,sizeof(double)*NUMINDS,CL_MEM_READ_WRITE);
+    createCLBuffer(clDict,SUMINDLIKECL,sizeof(double)*NUMINDS,CL_MEM_READ_WRITE);
+
     createCLBuffer(clDict,LIKECL,sizeof(double),CL_MEM_READ_WRITE);
     createCLBuffer(clDict,SUMLIKESCL,sizeof(double),CL_MEM_WRITE_ONLY);
     createCLBuffer(clDict,SUMSQLIKESCL,sizeof(double),CL_MEM_WRITE_ONLY);

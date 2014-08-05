@@ -27,7 +27,8 @@ double FlikeFreqsDiffMap (double newfrac,double oldfrac,
             logp = log(P[PPos(loc,pop,allele)]);
             sum += newfrac*eps*logp;
             sum -= oldfrac*eps*logp;
-            sum -= lgamma( newfrac*eps) - lgamma( oldfrac*eps);
+            sum -= lgamma( newfrac*eps);
+            sum += lgamma( oldfrac*eps);
         }
         return sum;
     }
@@ -105,6 +106,7 @@ __kernel void UpdateFst(
                 logprobdiff -= multiple*NUMLOCI*lgamma(oldfrac);
                 for(int id =0; id < numgroups; id ++){
                     logprobdiff += results[pop*numgroups + id];
+                    results[pop*numgroups + id] = 0;
                 }
                 if (logprobdiff >= 0.0 || rndDisc(randState) < exp(logprobdiff)) {   /*accept new f */
                     for(redpop = pop; redpop < numredpops; redpop++){
