@@ -123,8 +123,7 @@ UpdateFstCL (CLDict *clDict,double *Epsilon, double *Fst, double *P, int *NumAll
     setKernelArgExplicit(clDict,PopNormals,sizeof(double),&FPRIORSD,3);
     runKernel(clDict,PopNormals,1,global,"PopNormals Fst");
 
-    global[0] = 32;
-    /*global[0] = NUMLOCI;*/
+    global[0] = (256 < NUMLOCI ) ? 256 : 32;
     global[1] = numfst;
     runKernel(clDict,UpdateFstKernel,2,global,"UpdateFst");
 

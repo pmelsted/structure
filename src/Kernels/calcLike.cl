@@ -215,43 +215,45 @@ __kernel void mapReduceLogLike(__global double *Q,
     double logterm = 0.0;
     /* Map and partial reduce */
     /* clear results buffer */
-    while( loc < NUMLOCI){
-        double elem = mapLogLikeFunc(Q,P,Geno,ind,loc);
-        logterm += elem;
-        loc += get_global_size(0);
-    }
+    if (ind < NUMINDS && loc < NUMLOCI){
+        while( loc < NUMLOCI){
+            double elem = mapLogLikeFunc(Q,P,Geno,ind,loc);
+            logterm += elem;
+            loc += get_global_size(0);
+        }
 
-    /* reduce locally */
-    int localLoc = get_local_id(0);
-    scratch[localLoc] = logterm;
-    barrier(CLK_LOCAL_MEM_FENCE);
-    int devs = get_local_size(0);
-    for(int offset = get_local_size(0) /2; offset > 0; offset >>= 1){
-        if(localLoc < offset){
-            scratch[localLoc] += scratch[localLoc + offset];
-        }
-        //Handle if were not working on a multiple of 2
-        if (localLoc == 0 && (devs-1)/2 == offset){
-            scratch[localLoc] += scratch[devs-1];
-        }
-        devs >>= 1;
+        /* reduce locally */
+        int localLoc = get_local_id(0);
+        scratch[localLoc] = logterm;
         barrier(CLK_LOCAL_MEM_FENCE);
-    }
+        int devs = get_local_size(0);
+        for(int offset = get_local_size(0) /2; offset > 0; offset >>= 1){
+            if(localLoc < offset){
+                scratch[localLoc] += scratch[localLoc + offset];
+            }
+            //Handle if were not working on a multiple of 2
+            if (localLoc == 0 && (devs-1)/2 == offset){
+                scratch[localLoc] += scratch[devs-1];
+            }
+            devs >>= 1;
+            barrier(CLK_LOCAL_MEM_FENCE);
+        }
 
-    /* save result */
-    int gid = get_group_id(0);
-    if(localLoc == 0){
-        /*results[ind*numgroups +gid] = 1;*/
-        results[ind*numgroups +gid] = scratch[0];
-    }
+        /* save result */
+        int gid = get_group_id(0);
+        if(localLoc == 0){
+            /*results[ind*numgroups +gid] = 1;*/
+            results[ind*numgroups +gid] = scratch[0];
+        }
 
-    /* reduce over the groups into final result */
-    barrier(CLK_GLOBAL_MEM_FENCE);
-    if(gid==0){
-        loglikes[ind] = 0;
-        for(int id =0; id < numgroups; id ++){
-            loglikes[ind] += results[ind*numgroups + id];
-            results[ind*numgroups + id] = 0;
+        /* reduce over the groups into final result */
+        barrier(CLK_GLOBAL_MEM_FENCE);
+        if(gid==0){
+            loglikes[ind] = 0;
+            for(int id =0; id < numgroups; id ++){
+                loglikes[ind] += results[ind*numgroups + id];
+                results[ind*numgroups + id] = 0;
+            }
         }
     }
 }
