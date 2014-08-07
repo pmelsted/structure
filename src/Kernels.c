@@ -293,6 +293,7 @@ void setKernelArgs(CLDict *clDict)
     setKernelArg(clDict,UpdQDirichletKernel,NUMLOCIPOPSCL,1);
     setKernelArg(clDict,UpdQDirichletKernel,RANDGENSCL,2);
     setKernelArg(clDict,UpdQDirichletKernel,QCL,3);
+    setKernelArg(clDict,UpdQDirichletKernel,POPFLAGCL,4);
 
     /* FillArrayWithRandom dirichlet */
     setKernelArg(clDict,FillArrayWRandomKernel,RANDCL,0);

@@ -64,28 +64,32 @@ __kernel void UpdQDirichlet(
         __global double *Alpha,
         __global int *NumLociPops,
         __global uint *randGens,
-        __global double *Q)
+        __global double *Q,
+        __global int *popflags)
 {
     int ind = get_global_id(0);
     RndDiscState randState[1];
-    while (ind < NUMINDS){
-        initRndDiscState(randState,randGens,ind);
-        double GammaSample[MAXPOPS];
+    //TODO: Add PopFlag here
+    if (!((USEPOPINFO) && (popflags[ind]))) {
+        while (ind < NUMINDS){
+            initRndDiscState(randState,randGens,ind);
+            double GammaSample[MAXPOPS];
 
-        int i = 0;
-        double sum = 0.0;
-        int offset = ind*MAXPOPS;
-        double param;
-        for(i = 0; i < MAXPOPS; i++){
-            param = Alpha[i]+NumLociPops[i+offset];
-            GammaSample[i] = RGammaDisc(param,1,randState);
-            sum += GammaSample[i];
+            int i = 0;
+            double sum = 0.0;
+            int offset = ind*MAXPOPS;
+            double param;
+            for(i = 0; i < MAXPOPS; i++){
+                param = Alpha[i]+NumLociPops[i+offset];
+                GammaSample[i] = RGammaDisc(param,1,randState);
+                sum += GammaSample[i];
+            }
+            for(i = 0; i < MAXPOPS; i++){
+                Q[i+offset] = GammaSample[i]/sum;
+            }
+            saveRndDiscState(randState);
+            ind += get_global_size(0);
         }
-        for(i = 0; i < MAXPOPS; i++){
-            Q[i+offset] = GammaSample[i]/sum;
-        }
-        saveRndDiscState(randState);
-        ind += get_global_size(0);
     }
 }
 

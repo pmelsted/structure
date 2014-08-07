@@ -150,7 +150,8 @@ DataCollectionCL (CLDict *clDict,int *Geno, int *PreGeno,
         }
         global[1] = NUMINDS;
         /*global[0] = (32 < NUMLOCI) ? 32 : NUMLOCI;*/
-        global[0] = ( 256 < NUMLOCI) ? 256 : NUMLOCI;
+        /*global[0] = ( 128 < NUMLOCI) ? 128 : NUMLOCI;*/
+        global[0] = pow(2,(int) (log(NUMLOCI)/log(2)));
         runKernel(clDict,MapReduceLogLikeKernel,2,global,"LogLike");
 
         global[0] = NUMINDS;

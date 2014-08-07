@@ -250,7 +250,9 @@ void CalcLogdiffsCL(CLDict *clDict,int *Geno,double *TestQ, double *Q, double *P
     reduceLogdiffsCL(logterms,logdiffs);*/
 
     runKernel(clDict,mapReduceLogDiffsKernel,2,global,"reduceLogDiffs");
-    readBuffer(clDict,logdiffs,sizeof(double) * NUMINDS,LOGDIFFSCL,"Logdiffs");
+    if (DEBUGCOMPARE){
+        readBuffer(clDict,logdiffs,sizeof(double) * NUMINDS,LOGDIFFSCL,"Logdiffs");
+    }
 
 
     /*runKernel(clDict,mapReduceLogDiffsKernel,2,global,"mapReduceLogDiffs");*/

@@ -154,6 +154,7 @@ void initRandGens(CLDict *clDict){
     size_t global[1];
     int seed = rand();
     global[0] = NUMRANDGENS;
+    printf("Seed: %d\n", seed);
     setKernelArgExplicit(clDict,InitRandGenKernel,sizeof(int),&seed,1);
     runKernel(clDict,InitRandGenKernel,1,global,"InitRandGen");
     finishCommands(clDict,"init rand gens");

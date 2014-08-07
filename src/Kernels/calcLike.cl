@@ -74,7 +74,7 @@ double mapLogDiffsFunc(__global double *Q, __global double *TestQ,
 
                 //TODO: Evaluate underflow safe vs nonsafe
                 // safe version, should not underflow
-                if (termP > SQUNDERFLO) {
+                /*if (termP > SQUNDERFLO) {
                     runningtotalP *= termP;
                 } else {
                     runningtotalP *= SQUNDERFLO;
@@ -92,10 +92,10 @@ double mapLogDiffsFunc(__global double *Q, __global double *TestQ,
                 if (runningtotalM < SQUNDERFLO){
                     logtermM += log(runningtotalM);
                     runningtotalM = 1.0;
-                }
+                }*/
                 //Might underflow?
-                /*logtermP += log(termP);
-                logtermM += log(termM);*/
+                logtermP += log(termP);
+                logtermM += log(termM);
             }
         }
         logtermP += log(runningtotalP);
@@ -181,7 +181,7 @@ double mapLogLikeFunc(__global double *Q, __global double *P,
 
                 //TODO: Evaluate underflow safe vs nonsafe
                 // safe version, should not underflow
-                
+                /*
                 if (term > SQUNDERFLO) {
                     runningtotal *= term;
                 } else {
@@ -190,9 +190,9 @@ double mapLogLikeFunc(__global double *Q, __global double *P,
                 if (runningtotal < SQUNDERFLO){
                     logterm += log(runningtotal);
                     runningtotal = 1.0;
-                }
+                }*/
                 //Might underflow?
-                /*logterm += log(term);*/
+                logterm += log(term);
             }
         }
         logterm += log(runningtotal);

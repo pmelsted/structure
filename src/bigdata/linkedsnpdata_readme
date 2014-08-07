@@ -1,0 +1,84 @@
+(Version 1.1) The data files below describe the SNP data used for the
+paper "A worldwide survey of haploype variation and linkage
+disequilibrium in the human genome" by DF Conrad, M Jakobsson, G Coop
+et al. (Nature Genetics 38:1251-1260 [2006]).
+
+*Version 1.1 of the package of files - created by Noah, Jan 19, 2007
+   Files 1 and 4 added. 
+*Version 1.0 of the package of files - created by Jon, Dec 11, 2006
+
+---------------------------------------------------------------------
+
+The following data sets are available:
+
+1. unphased_HGDP_regions1to36 (HGDP data - 927 individuals, 2834 SNPs)
+2. phased_HGDP_regions1to36   (HGDP data - 927 individuals, 2834 SNPs)
+3. phased_HapMap_regions1to36 (Phase 2 HapMap genotypes for SNPs in 
+	our data - 210 individuals, 2046 SNPs)
+4. phased_combined_regions1to36 (HGDP+HapMap genotypes for SNPs in 
+	our data - 1137 individuals, 2046 SNPs; this file previously 
+	is based on the file previously called hgdp_hapmap_merged)
+
+File 1 is the raw unphased data, after elimination of SNPs that failed
+quality checks and individuals who were related.
+
+File 2 is the phased data with all missing genotypes imputed,
+using the genomic "regions" labels (1-36) as described in
+Supplementary Table SM.2.  Almost all of the analyses in the paper
+used this version of the data.
+
+File 3 is the phased HapMap data with all missing genotypes imputed.
+This file was created from the HapMap collection by leaving out the
+offspring in CEU and YRI trios.
+
+File 4 is the combined data from Files 2 and 3.
+
+For some SNPs, Files 1 and 2 differ in strand polarity from File 3 -
+that is, for some of the SNPs, our data arrived with a strand polarity
+different from that in the HapMap.  To create File 4, the HapMap data
+in File 3 was repolarized to match the HGDP data and was combined with
+the subset of SNPs in File 2 present in the HapMap.  After publishing
+the paper we later discovered that in File 4 the allele labels seem to
+be switched between HapMap and HGDP for one SNP in region 21:
+rs2183577.  The attached File 4 contains the data (with this error) in
+the way that we analyzed them in the paper.
+
+The data are in "structure" format with 2 rows per individual.  
+
+Rows:
+1. rs number
+2. region number (1..36)
+3. chromosome number
+4. snp position on chromosome
+5...1858: individual data for 927 individuals
+
+In the phased files (Files 2-4) each of the two rows for an individual
+represents one of the two haplotypes.  Phasing was performed within
+genomic regions, so there is no correspondence of haplotypes across
+region boundaries.  In the unphased file (File 1), the placement of
+genotypes on the first versus second line for an individual is
+arbitary.
+
+Columns for individual data (HGDP individuals):
+1. HGDP ID number
+2. numeric code for population
+3. name of population
+4. country of origin
+5. geographic region of origin
+6. ID number assigned during genotyping
+7. sex
+8... genotypes (A, C, G, T, or ? for missing data or hemizygous males 
+   on the X-chromosome)
+
+Columns for individual data (HapMap individuals):
+1. HapMap ID number (string)
+2. numeric code for individual - this code is not unique and repeats 
+	across HapMap populations; the number may also be shared with a 
+	population code used for a HGDP population
+3. name of population (YRI, CEU, or JPT+CHB)
+4. name of population (YRI, CEU, or JPT+CHB)
+5. name of population (YRI, CEU, or JPT+CHB)
+6. meaningless- a placeholder to make the number of columns match the HGDP data
+7. meaningless- a placeholder to make the number of columns match the HGDP data
+8... genotypes (A, C, G, T, or ? for missing data or hemizygous males 
+   on the X-chromosome)

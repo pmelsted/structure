@@ -105,6 +105,11 @@ UpdateFstCL (CLDict *clDict,double *Epsilon, double *Fst, double *P, int *NumAll
 
     size_t global[2];
     int numfst;
+    /*double *reduceresult;
+    static int rep = 0;
+
+    reduceresult = calloc(MAXGROUPS*NUMINDS*NUMLOCI,sizeof(double));
+    writeBuffer(clDict,reduceresult,sizeof(double)*MAXGROUPS*NUMINDS*NUMLOCI,REDUCERESULTSCL,"result");*/
 
     /*------Update f ()----See notebook, 5/14/99-----------*/
 
@@ -123,8 +128,14 @@ UpdateFstCL (CLDict *clDict,double *Epsilon, double *Fst, double *P, int *NumAll
     setKernelArgExplicit(clDict,PopNormals,sizeof(double),&FPRIORSD,3);
     runKernel(clDict,PopNormals,1,global,"PopNormals Fst");
 
-    global[0] = (256 < NUMLOCI ) ? 256 : 32;
+    global[0] = pow(2,(int) (log(NUMLOCI)/log(2)));
+    /*global[0] = (128 < NUMLOCI ) ? 128 : NUMLOCI;*/
     global[1] = numfst;
     runKernel(clDict,UpdateFstKernel,2,global,"UpdateFst");
-
+    /*if (rep % 100 == 0){
+        readBuffer(clDict,reduceresult,sizeof(double)*MAXGROUPS*NUMINDS*NUMLOCI,REDUCERESULTSCL,"result");
+        printf("%.2f %.2f \n",reduceresult[0],reduceresult[1]);
+    }
+    free(reduceresult);
+    rep +=1; */
 }
