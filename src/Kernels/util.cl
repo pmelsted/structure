@@ -107,42 +107,40 @@ double RGammaDisc(double n,double lambda,RndDiscState *randState)
         double E=2.71828182;
         double b=(n+E)/E;
         double p=0.0;
-one:
-        p=b*rndDisc(randState);
-        if(p>1) {
-            goto two;
+        while(1){
+            p=b*rndDisc(randState);
+            if(p>1) {
+                x=-log((b-p)/n);
+                if (!(((n-1)*log(x))<log(rndDisc(randState)))) {
+                    /* Accept */
+                    break;
+                }
+            } else {
+                x=exp(log(p)/n);
+                if(!(x>-log(rndDisc(randState)))) {
+                    /* Accept */
+                    break;
+                }
+            }
         }
-        x=exp(log(p)/n);
-        if(x>-log(rndDisc(randState))) {
-            goto one;
-        }
-        goto three;
-two:
-        x=-log((b-p)/n);
-        if (((n-1)*log(x))<log(rndDisc(randState))) {
-            goto one;
-        }
-three:
-        ;
+        return x/lambda;
     } else if(n==1.0) {
-
         double a=0.0;
         double u,u0,ustar;
-ten:
         u=rndDisc(randState);
         u0=u;
-twenty:
-        ustar=rndDisc(randState);
-        if(u<ustar) {
-            goto thirty;
+        while (1){
+            ustar=rndDisc(randState);
+            if(u<ustar) {
+                break;
+            }
+            u=rndDisc(randState);
+            if(u>=ustar) {
+                a += 1;
+                u=rndDisc(randState);
+                u0=u;
+            }
         }
-        u=rndDisc(randState);
-        if(u<ustar) {
-            goto twenty;
-        }
-        a += 1;
-        goto ten;
-thirty:
         return (a+u0)/lambda;
     } else {
         double nprev=0.0;
@@ -184,9 +182,8 @@ five:
 six:
         x=c1*w;
         nprev=n;
+        return x/lambda;
     }
-
-    return x/lambda;
 }
 
 
