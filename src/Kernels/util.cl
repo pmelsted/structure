@@ -209,7 +209,6 @@ double RGammaBest(double a,RndDiscState *randState){
 
 double RGammaDisc(double n,double lambda,RndDiscState *randState)
 {
-    
     double x=0.0;
     if(n<1) {
         x = RGammaDiscFloat(n,randState);

@@ -29,7 +29,7 @@ __kernel void GetNumFromPops (
 
                     if ((allelevalue != MISSING) && (popvalue != UNASSIGNED)) {
                         pos = NumAFromPopPos (popvalue, allelevalue) + offset;
-                        atomic_add(&NumAFromPops[pos],1);
+                        atom_inc(&NumAFromPops[pos]);
                     }
 
                 }
