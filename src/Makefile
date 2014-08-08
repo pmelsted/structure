@@ -112,6 +112,12 @@ clean:
 
 test: structure
 	CL_LOG_ERRORS=stdout /usr/bin/time --verbose ./structure -m testdata/mainparams
+errtest: structure
+	CL_LOG_ERRORS=stdout /usr/bin/time --verbose ./structure -m testdata/mainparams -D 1407409831
+goodtest: structure
+	CL_LOG_ERRORS=stdout /usr/bin/time --verbose ./structure -m testdata/mainparams -D 1407420643
+cerrtest: structure
+	CL_LOG_ERRORS=stdout /usr/bin/time --verbose ./cpustructure -m testdata/mainparams -D 1407409831
 wcachetest: structure
 	CUDA_CACHE_DISABLE=0 /usr/bin/time ./structure -m testdata/mainparams
 
@@ -127,7 +133,7 @@ cleanTest:
 	rm -f testdata1.out_f
 
 gpuprof: prof structure
-	ltpv ./structure -m testdata/mainparams -i testdata/testdata1.str -o testdata1.out
+	ltpv "./structure -m testdata/mainparams -i testdata/testdata1.str -o testdata1.out"
 
 beautify:
 	astyle -n --style=kr -xC79 -c -j -Y -xw -R "*.c" "*.h" "*.cl"

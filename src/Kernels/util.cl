@@ -153,7 +153,7 @@ thirty:
         double c5=0.0;
         double u1;
         double u2;
-        if(n!=nprev) {
+        /*if(n!=nprev) {*/
             c1=n-1.0;
             aa=1.0/c1;
             c2=aa*(n-1/(6*n));
@@ -162,7 +162,7 @@ thirty:
             if(n>2.5) {
                 c5=1/sqrt(n);
             }
-        }
+        /*}*/
 four:
         u1=rndDisc(randState);
         u2=rndDisc(randState);

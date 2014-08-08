@@ -115,7 +115,7 @@ void Randomize(int RANDOMIZE, int *seed)
 /* Seed the random number generator */
 {
     FILE *outfile;
-    if (RANDOMIZE) {
+    if (RANDOMIZE || *seed == 2245) {
         *seed = (int)time(NULL);
     }
     srand(*seed);

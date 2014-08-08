@@ -14,12 +14,13 @@ __kernel void Dirichlet(
 
         int i = 0;
         double sum = 0.0;
+        int offset = ind*MAXPOPS;
         for(i = 0; i < MAXPOPS; i++){
             GammaSample[i] = RGammaDisc(Parameters[i],1,randState);
             sum += GammaSample[i];
         }
         for(i = 0; i < MAXPOPS; i++){
-            TestQ[i+ind*MAXPOPS] = GammaSample[i]/sum;
+            TestQ[i+offset] = GammaSample[i]/sum;
         }
         saveRndDiscState(randState);
         ind += get_global_size(0);

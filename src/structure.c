@@ -155,6 +155,7 @@ void initRandGens(CLDict *clDict){
     int seed = rand();
     global[0] = NUMRANDGENS;
     printf("Seed: %d\n", seed);
+    printf("Structure seed: %d\n", SEED);
     setKernelArgExplicit(clDict,InitRandGenKernel,sizeof(int),&seed,1);
     runKernel(clDict,InitRandGenKernel,1,global,"InitRandGen");
     finishCommands(clDict,"init rand gens");
@@ -594,6 +595,10 @@ int main (int argc, char *argv[])
             names[1] = "Q"; dests[1] = Q; sizes[1] = sizeof(double) * QSIZE;
 
             readBuffers(clDict,dests,sizes,buffers,names,2);*/
+            /*readBuffer(clDict,Alpha, sizeof(double) * MAXPOPS,ALPHACL, "alpha");
+            if(rep % 100 == 0){
+            printf("%f",Alpha[0]);
+            }*/
             DataCollectionCL (clDict,Geno, PreGeno, Q, QSum, Z, Z1,  P, PSum,
                             Fst, FstSum, NumAlleles,
                             AncestDist, Alpha, sumAlpha, sumR, varR, like,
@@ -637,6 +642,12 @@ int main (int argc, char *argv[])
             readBuffer(clDict,like, sizeof(double),LIKECL, "like");
             readBuffer(clDict,sumlikes, sizeof(double),SUMLIKESCL, "sumlike");
             readBuffer(clDict,sumsqlikes, sizeof(double),SUMSQLIKESCL, "sumsqlikes");
+            /*readBuffer(clDict,sumAlpha, sizeof(double) * MAXPOPS,ALPHASUMCL, "alphasum");
+            readBuffer(clDict,sumlambda, sizeof(double) * MAXPOPS,LAMBDASUMCL, "lambdasum");
+            readBuffer(clDict,FstSum, sizeof(double) * MAXPOPS,FSTSUMCL, "fstsum");
+            readBuffer(clDict,QSum, sizeof(double) * QSIZE,QSUMCL, "Qsum");
+            readBuffer(clDict,PSum, sizeof(double) * PSIZE,PSUMCL, "Psum");
+            readBuffer(clDict,SumEpsilon, sizeof(double) * NUMLOCI*MAXALLELES,EPSILONSUMCL, "epssum");*/
             PrintUpdate (rep + 1, Geno, PreGeno, Alpha, Fst, P, Q, *like,
                          *sumlikes, *sumsqlikes, NumAlleles, R, lambda,Individual,
                          recomblikelihood, Recessive, LocPrior, LocPriorLen);
@@ -649,7 +660,13 @@ int main (int argc, char *argv[])
         readBuffer(clDict,Fst, sizeof(double) * MAXPOPS,FSTCL, "fst");
         readBuffer(clDict,like, sizeof(double),LIKECL, "like");
         readBuffer(clDict,sumsqlikes, sizeof(double),SUMSQLIKESCL, "sumsqlikes");
-        readBuffer(clDict,sumlikes, sizeof(double),SUMLIKESCL, "sumlikes");
+            readBuffer(clDict,sumlikes, sizeof(double),SUMLIKESCL, "sumlikes");
+        /*readBuffer(clDict,sumAlpha, sizeof(double) * MAXPOPS,ALPHASUMCL, "alphasum");
+        readBuffer(clDict,sumlambda, sizeof(double) * MAXPOPS,LAMBDASUMCL, "lambdasum");
+        readBuffer(clDict,FstSum, sizeof(double) * MAXPOPS,FSTSUMCL, "fstsum");
+        readBuffer(clDict,QSum, sizeof(double) * QSIZE,QSUMCL, "Qsum");
+        readBuffer(clDict,PSum, sizeof(double) * PSIZE,PSUMCL, "Psum");
+        readBuffer(clDict,SumEpsilon, sizeof(double) * NUMLOCI*MAXALLELES,EPSILONSUMCL, "epssum");*/
         PrintUpdate (rep, Geno, PreGeno, Alpha, Fst, P, Q, *like, *sumlikes,
                      *sumsqlikes, NumAlleles,R, lambda, Individual,recomblikelihood,
                      Recessive, LocPrior, LocPriorLen);
@@ -689,6 +706,7 @@ int main (int argc, char *argv[])
     free(sumsqlikes);
     free(sumlikes);
     free(reduceresult);
+    printf("Structure seed: %d\n", SEED);
     return (0);
 }
 
