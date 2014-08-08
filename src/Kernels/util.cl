@@ -93,98 +93,147 @@ int AlphaPos(int loc, int pop)
     }
 }
 
+/* Returns gamma(f,1), where 0 < f < 1 */
+double RGammaDiscFloat(double n,RndDiscState *randState){
+    double x=0.0;
+    double E=2.71828182;
+    double b=(n+E)/E;
+    double p=0.0;
+    while(1){
+        p=b*rndDisc(randState);
+        if(p>1) {
+            x=-log((b-p)/n);
+            if (!(((n-1)*log(x))<log(rndDisc(randState)))) {
+                /* Accept */
+                break;
+            }
+        } else {
+            x=exp(log(p)/n);
+            if(!(x>-log(rndDisc(randState)))) {
+                /* Accept */
+                break;
+            }
+        }
+    }
+    return x;
+}
+
+/* Returns gamma(1,1) */
+double RGammaDiscOne(RndDiscState *randState){
+    double a=0.0;
+    double u,u0,ustar;
+    u=rndDisc(randState);
+    u0=u;
+    while (1){
+        ustar=rndDisc(randState);
+        if(u<ustar) {
+            break;
+        }
+        u=rndDisc(randState);
+        if(u>=ustar) {
+            a += 1;
+            u=rndDisc(randState);
+            u0=u;
+        }
+    }
+    return (a+u0);
+}
+
+/* Returns gamma(n,1) where n is an int */
+double RGammaDiscInt(int n,RndDiscState *randState){
+    int i =0;
+    double x = 0;
+    for(i = 0; i < n; ++i){
+        x += log(rndDisc(randState));
+    }
+    return -x;
+}
+
+/*  taken from page 413 of
+ *
+ *  Non-Uniform Random Variate Generation by Luc Devroye
+ *
+ *  (originally published with Springer-Verlag, New York, 1986)
+ *
+ *  which can be found online at http://luc.devroye.org/rnbookindex.html
+ */
+double RGammaCheng(double a,RndDiscState *randState){
+    double b = a - log(4.0);
+    double c = a + sqrt(2.0*a-1.0);
+    double U,V,X,Y,Z,R;
+    while (1){
+        U = rndDisc(randState);
+        V = rndDisc(randState);
+        Y = a*log(V/(1.0-V));
+        X = a*exp(V);
+        Z = U*(V*V);
+        R = b + c*Y - X;
+        if( (R >= (9.0/2.0)*Z - (1+log(9.0/2.0))) ||   ( R >= log(Z)) ){
+            break;
+        }
+    }
+    return X;
+}
+
+/*  taken from page 410 of
+ *
+ *  Non-Uniform Random Variate Generation by Luc Devroye
+ *
+ *  (originally published with Springer-Verlag, New York, 1986)
+ *
+ *  which can be found online at http://luc.devroye.org/rnbookindex.html
+ */
+
+double RGammaBest(double a,RndDiscState *randState){
+    double b = a -1;
+    double c = 3*a - 0.75;
+    double U,V,W,Y,X,Z;
+    while (1){
+        U = rndDisc(randState);
+        V = rndDisc(randState);
+        W = U*(1-U);
+        Y = sqrt((c/W))*(U-0.5);
+        X = b + Y;
+        if( X >= 0){
+            Z = 64*(W*W*W)*(V*V);
+            if((Z <= 1 - (2*(Y*Y))/X) || (log(Z) <= 2*(b*log(X/b)-Y))){
+                break;
+            }
+        }
+    }
+    return X;
+}
+
 /*-----------Gamma and dirichlet from Matt.----------*/
 /* gamma random generator from Ripley, 1987, P230 */
 
 double RGammaDisc(double n,double lambda,RndDiscState *randState)
 {
-
-    double aa;
-    double w;
-
+    
     double x=0.0;
     if(n<1) {
-        double E=2.71828182;
-        double b=(n+E)/E;
-        double p=0.0;
-        while(1){
-            p=b*rndDisc(randState);
-            if(p>1) {
-                x=-log((b-p)/n);
-                if (!(((n-1)*log(x))<log(rndDisc(randState)))) {
-                    /* Accept */
-                    break;
-                }
-            } else {
-                x=exp(log(p)/n);
-                if(!(x>-log(rndDisc(randState)))) {
-                    /* Accept */
-                    break;
-                }
-            }
-        }
-        return x/lambda;
+        x = RGammaDiscFloat(n,randState);
     } else if(n==1.0) {
-        double a=0.0;
-        double u,u0,ustar;
-        u=rndDisc(randState);
-        u0=u;
-        while (1){
-            ustar=rndDisc(randState);
-            if(u<ustar) {
-                break;
-            }
-            u=rndDisc(randState);
-            if(u>=ustar) {
-                a += 1;
-                u=rndDisc(randState);
-                u0=u;
-            }
-        }
-        return (a+u0)/lambda;
+        /* gamma (1,1) is an exponential dist */
+        /*x = RGammaDiscOne(randState);*/
+        x = -log(rndDisc(randState));
     } else {
-        double nprev=0.0;
-        double c1=0.0;
-        double c2=0.0;
-        double c3=0.0;
-        double c4=0.0;
-        double c5=0.0;
-        double u1;
-        double u2;
-        /*if(n!=nprev) {*/
-            c1=n-1.0;
-            aa=1.0/c1;
-            c2=aa*(n-1/(6*n));
-            c3=2*aa;
-            c4=c3+2;
-            if(n>2.5) {
-                c5=1/sqrt(n);
-            }
+        /*if (rndDisc(randState) < 0.5){*/
+        x = RGammaBest(n,randState);
+        /*} else {*/
+            /*x = RGammaCheng(n,randState);*/
         /*}*/
-four:
-        u1=rndDisc(randState);
-        u2=rndDisc(randState);
-        if(n<=2.5) {
-            goto five;
-        }
-        u1=u2+c5*(1-1.86*u1);
-        if ((u1<=0) || (u1>=1)) {
-            goto four;
-        }
-five:
-        w=c2*u2/u1;
-        if(c3*u1+w+1.0/w < c4) {
-            goto six;
-        }
-        if(c3*log(u1)-log(w)+w >=1) {
-            goto four;
-        }
-six:
-        x=c1*w;
-        nprev=n;
-        return x/lambda;
+        /*int wholepart = (int) n;*/
+        /*double xi = 0.0;*/
+        /*double wholegamma = 0.0;*/
+        /*double floatpart = n - wholepart;*/
+        /*xi = RGammaDiscFloat(floatpart,randState);*/
+        /*wholegamma = RGammaBest(wholepart,randState);*/
+        /*x = xi + wholegamma;*/
     }
+    return x/lambda;
 }
+
 
 
 /* Dirichlet random generator

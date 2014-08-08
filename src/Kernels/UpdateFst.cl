@@ -51,14 +51,14 @@ __kernel void UpdateFst(
     while (pop < MAXPOPS){
             int loc = get_global_id(0);
             double newf = normals[pop];
-            double oldf = Fst[pop];
-            double newfrac = (1.0-newf)/newf;
-            double oldfrac = (1.0-oldf)/oldf;
+        /* ensure newf is large enough so we don't cause over/underflow */
+        if (newf > 10e-10 && newf < 1.0){
             double sum = 0.0;
             int redpop;
             int numredpops;
-
-        if (newf > 0.0 && newf < 1.0){
+            double oldf = Fst[pop];
+            double newfrac = (1.0-newf)/newf;
+            double oldfrac = (1.0-oldf)/oldf;
             numredpops = pop +1;
             if (ONEFST) numredpops = MAXPOPS;
             /* idempotent */

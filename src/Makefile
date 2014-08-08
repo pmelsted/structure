@@ -114,6 +114,10 @@ test: structure
 	CL_LOG_ERRORS=stdout /usr/bin/time --verbose ./structure -m testdata/mainparams
 errtest: structure
 	CL_LOG_ERRORS=stdout /usr/bin/time --verbose ./structure -m testdata/mainparams -D 1407409831
+errtest2: structure
+	CL_LOG_ERRORS=stdout /usr/bin/time --verbose ./structure -m testdata/mainparams -D 1407500105
+errtest3: structure
+	CL_LOG_ERRORS=stdout /usr/bin/time --verbose ./structure -m testdata/mainparams -D 1407500453
 goodtest: structure
 	CL_LOG_ERRORS=stdout /usr/bin/time --verbose ./structure -m testdata/mainparams -D 1407420643
 cerrtest: structure
