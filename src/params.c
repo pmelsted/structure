@@ -442,41 +442,41 @@ void SetValue(char Word[])
     } else if (!(strcmp(Word,"NUMBOXES"))) {
         ret = fscanf(PARAMS,"%d",&NUMBOXES);
     } else if (!(strcmp(Word,"ANCESTPINT"))) {
-        ret = fscanf(PARAMS,"%lf",&ANCESTPINT);
+        ret = fscanf(PARAMS,"%f",&ANCESTPINT);
     } else if (!(strcmp(Word,"GENSBACK"))) {
         ret = fscanf(PARAMS,"%d",&GENSBACK);
     } else if (!(strcmp(Word,"MIGRPRIOR"))) {
-        ret = fscanf(PARAMS,"%lf",&MIGRPRIOR);
+        ret = fscanf(PARAMS,"%f",&MIGRPRIOR);
     } else if (!(strcmp(Word,"ALPHA"))) {
-        ret = fscanf(PARAMS,"%lf",&ALPHA);
+        ret = fscanf(PARAMS,"%f",&ALPHA);
     } else if (!(strcmp(Word,"LOG10RPROPSD"))) {
-        ret = fscanf(PARAMS,"%lf",&LOG10RPROPSD);
+        ret = fscanf(PARAMS,"%f",&LOG10RPROPSD);
     } else if (!(strcmp(Word,"LOG10RMIN"))) {
-        ret = fscanf(PARAMS,"%lf",&LOG10RMIN);
+        ret = fscanf(PARAMS,"%f",&LOG10RMIN);
     } else if (!(strcmp(Word,"LOG10RMAX"))) {
-        ret = fscanf(PARAMS,"%lf",&LOG10RMAX);
+        ret = fscanf(PARAMS,"%f",&LOG10RMAX);
     } else if (!(strcmp(Word,"LOG10RSTART"))) {
-        ret = fscanf(PARAMS,"%lf",&LOG10RSTART);
+        ret = fscanf(PARAMS,"%f",&LOG10RSTART);
     } else if (!(strcmp(Word,"FREQSCORR"))) {
         ret = fscanf(PARAMS,"%d",&FREQSCORR);
     } else if (!(strcmp(Word,"ONEFST"))) {
         ret = fscanf(PARAMS,"%d",&ONEFST);
     } else if (!(strcmp(Word,"FPRIORMEAN"))) {
-        ret = fscanf(PARAMS,"%lf",&FPRIORMEAN);
+        ret = fscanf(PARAMS,"%f",&FPRIORMEAN);
     } else if (!(strcmp(Word,"FPRIORSD"))) {
-        ret = fscanf(PARAMS,"%lf",&FPRIORSD);
+        ret = fscanf(PARAMS,"%f",&FPRIORSD);
     } else if (!(strcmp(Word,"LAMBDA"))) {
-        ret = fscanf(PARAMS,"%lf",&LAMBDA);
+        ret = fscanf(PARAMS,"%f",&LAMBDA);
     } else if (!(strcmp(Word,"UNIFPRIORALPHA"))) {
         ret = fscanf(PARAMS,"%d",&UNIFPRIORALPHA);
     } else if (!(strcmp(Word,"ALPHAMAX"))) {
-        ret = fscanf(PARAMS,"%lf",&ALPHAMAX);
+        ret = fscanf(PARAMS,"%f",&ALPHAMAX);
     } else if (!(strcmp(Word,"ALPHAPRIORA"))) {
-        ret = fscanf(PARAMS,"%lf",&ALPHAPRIORA);
+        ret = fscanf(PARAMS,"%f",&ALPHAPRIORA);
     } else if (!(strcmp(Word,"ALPHAPRIORB"))) {
-        ret = fscanf(PARAMS,"%lf",&ALPHAPRIORB);
+        ret = fscanf(PARAMS,"%f",&ALPHAPRIORB);
     } else if (!(strcmp(Word,"ALPHAPROPSD"))) {
-        ret = fscanf(PARAMS,"%lf",&ALPHAPROPSD);
+        ret = fscanf(PARAMS,"%f",&ALPHAPROPSD);
     } else if (!(strcmp(Word,"STARTATPOPINFO"))) {
         ret = fscanf(PARAMS,"%d",&STARTATPOPINFO);
     } else if (!(strcmp(Word,"RANDOMIZE"))) {
@@ -504,7 +504,7 @@ void SetValue(char Word[])
     else if (!(strcmp(Word,"NUMSIMSTATS"))) {
         ret = fscanf(PARAMS,"%d",&NUMSIMSTATS);
     } else if (!(strcmp(Word,"EMERROR"))) {
-        ret = fscanf(PARAMS,"%lf",&EMERROR);
+        ret = fscanf(PARAMS,"%f",&EMERROR);
     }
     /* else if (!(strcmp(Word,"NUMPHENS"))) ret = fscanf(PARAMS,"%d",&NUMPHENS);*/
     else if (!(strcmp(Word,"POOLFREQ"))) {
@@ -523,15 +523,15 @@ void SetValue(char Word[])
     } else if (strcmp(Word, "UPDATELOCPRIOR")==0) {
         ret = fscanf(PARAMS, "%i", &UPDATELOCPRIOR);
     } else if (strcmp(Word, "LOCPRIORINIT")==0) {
-        ret = fscanf(PARAMS, "%lf", &LOCPRIORINIT);
+        ret = fscanf(PARAMS, "%f", &LOCPRIORINIT);
     } else if (strcmp(Word, "MAXLOCPRIOR")==0) {
-        ret = fscanf(PARAMS, "%lf", &MAXLOCPRIOR);
+        ret = fscanf(PARAMS, "%f", &MAXLOCPRIOR);
     } else if (strcmp(Word, "LOCISPOP")==0) {
         ret = fscanf(PARAMS, "%i", &LOCISPOP);
     } else if (strcmp(Word, "LOCDATA")==0) {
         ret = fscanf(PARAMS, "%i", &LOCDATA);
     } else if (strcmp(Word, "LOCPRIORSTEP")==0) {
-        ret = fscanf(PARAMS, "%lf", &LOCPRIORSTEP);
+        ret = fscanf(PARAMS, "%f", &LOCPRIORSTEP);
     }
 
     /*Melissa added 1/15/08 so that seed can be set*/
