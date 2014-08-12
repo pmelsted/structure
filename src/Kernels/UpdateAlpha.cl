@@ -37,25 +37,26 @@ __kernel void UpdateAlpha(
                     if (!((USEPOPINFO) && (popflags[ind]))) {
                         //Safe version (similar to in code)
                         //Watching out for underflow
-                        /*double elem = 1.0;
-                        for(redpop = alpha; redpop < numredpops; redpop++){
-                            elem *= Q[QPos (ind, redpop)];
-                        }
+                        /* double elem = 1.0; */
+                        /* for(redpop = alpha; redpop < numredpops; redpop++){ */
+                        /*     elem *= Q[QPos (ind, redpop)]; */
+                        /* } */
 
-                        if (elem > SQUNDERFLO){
-                            sum *= elem;
-                        } else {
-                            sum *= SQUNDERFLO;
-                        }
-                        if(sum < SQUNDERFLO){
-                            total += log(sum);
-                            sum = 1.0;
-                        }*/
+                        /* if (elem > SQUNDERFLO){ */
+                        /*     sum *= elem; */
+                        /* } else { */
+                        /*     sum *= SQUNDERFLO; */
+                        /* } */
+                        /* if(sum < SQUNDERFLO){ */
+                        /*     total += log(sum); */
+                        /*     sum = 1.0; */
+                        /* } */
                         //Might underflow?
                         double elem = 0.0;
                         for(redpop = alpha; redpop < numredpops; redpop++){
                             elem += log(Q[QPos (ind, redpop)]);
                         }
+
                         total += elem;
 
                         ind += get_global_size(0);
@@ -134,5 +135,6 @@ __kernel void UpdateAlpha(
             }
         }
         alpha += get_global_size(1);
+        barrier(CLK_GLOBAL_MEM_FENCE);
     }
 }

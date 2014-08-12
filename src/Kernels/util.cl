@@ -204,6 +204,52 @@ double RGammaBest(double a,RndDiscState *randState){
     return X;
 }
 
+double RGammaLargerThanOne(double n, RndDiscState *randState)
+{
+    double aa,w,x;
+    double nprev=0.0;
+    double c1=0.0;
+    double c2=0.0;
+    double c3=0.0;
+    double c4=0.0;
+    double c5=0.0;
+    double u1;
+    double u2;
+    /*if(n!=nprev) {*/
+        c1=n-1.0;
+        aa=1.0/c1;
+        c2=aa*(n-1/(6*n));
+        c3=2*aa;
+        c4=c3+2;
+        if(n>2.5) {
+            c5=1/sqrt(n);
+        }
+    /*}*/
+four:
+    u1=rndDisc(randState);
+    u2=rndDisc(randState);
+    if(n<=2.5) {
+        goto five;
+    }
+    u1=u2+c5*(1-1.86*u1);
+    if ((u1<=0) || (u1>=1)) {
+        goto four;
+    }
+five:
+    w=c2*u2/u1;
+    if(c3*u1+w+1.0/w < c4) {
+        goto six;
+    }
+    if(c3*log(u1)-log(w)+w >=1) {
+        goto four;
+    }
+six:
+    x=c1*w;
+    nprev=n;
+    return x;
+
+}
+
 /*-----------Gamma and dirichlet from Matt.----------*/
 /* gamma random generator from Ripley, 1987, P230 */
 
@@ -219,6 +265,8 @@ double RGammaDisc(double n,double lambda,RndDiscState *randState)
     } else {
         /*if (rndDisc(randState) < 0.5){*/
         x = RGammaBest(n,randState);
+        /* x = RGammaLargerThanOne(n,randState); */
+        /* x = RGammaCheng(n,randState); */
         /*} else {*/
             /*x = RGammaCheng(n,randState);*/
         /*}*/
@@ -232,6 +280,8 @@ double RGammaDisc(double n,double lambda,RndDiscState *randState)
     }
     return x/lambda;
 }
+
+
 
 
 

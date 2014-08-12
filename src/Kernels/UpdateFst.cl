@@ -49,8 +49,8 @@ __kernel void UpdateFst(
     int pop = get_global_id(1);
     int numgroups = get_num_groups(0);
     while (pop < MAXPOPS){
-            int loc = get_global_id(0);
-            double newf = normals[pop];
+        int loc = get_global_id(0);
+        double newf = normals[pop];
         /* ensure newf is large enough so we don't cause over/underflow */
         if (newf > 10e-10 && newf < 1.0){
             double sum = 0.0;
@@ -117,6 +117,7 @@ __kernel void UpdateFst(
             }
         }
         pop += get_global_size(1);
+        barrier(CLK_GLOBAL_MEM_FENCE);
     }
 }
 

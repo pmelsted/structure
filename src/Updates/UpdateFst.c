@@ -39,13 +39,12 @@ FlikeFreqs (double f, double *Epsilon, double *P, int *NumAlleles, int pop)
 
     sum = NUMLOCI*mylgamma(frac);
     for (loc=0; loc<NUMLOCI; loc++) {
+        for (allele=0; allele < NumAlleles[loc]; allele++) {
+            sum += frac*Epsilon[EpsPos (loc, allele)]* log(P[PPos(loc,pop,allele)]);
+            sum -= mylgamma( frac*Epsilon[EpsPos (loc, allele)]);
+        }
         if (NumAlleles[loc]==0) {
             sum -=mylgamma(frac); /* should not be counting sites with all missing data */
-        } else {
-            for (allele=0; allele < NumAlleles[loc]; allele++) {
-                sum += frac*Epsilon[EpsPos (loc, allele)]* log(P[PPos(loc,pop,allele)]);
-                sum -= mylgamma( frac*Epsilon[EpsPos (loc, allele)]);
-            }
         }
     }
     return sum;
@@ -138,4 +137,68 @@ UpdateFstCL (CLDict *clDict,double *Epsilon, double *Fst, double *P, int *NumAll
     }
     free(reduceresult);
     rep +=1; */
+}
+
+void UpdateFst (double *Epsilon, double *Fst, double *P, int *NumAlleles)
+    /*update the correlation factor, Fst, for each population*/
+{
+
+  double newf,oldf;
+  double logprobdiff;
+  double unifrv;
+  double threshold;
+  int pop1,pop2;
+  int numpops1, numpops2;
+
+  /*------Update f ()----See notebook, 5/14/99-----------*/
+
+  /*There are two models: either there is a different F for each population,
+    in which case we go through the entire loop K times; otherwise there
+    is a single F, in which case we sum the likelihood ratio across populations.*/
+
+  /*control the outer loop*/
+  if (ONEFST) {
+    numpops1 = 1;
+  } else {
+    numpops1 = MAXPOPS;
+  }
+
+  for (pop1 = 0; pop1 < numpops1; pop1++) {
+    /*generate proposal f */
+    oldf = Fst[pop1];
+    newf = RNormal (oldf, FPRIORSD);
+
+    /*reject if propopal < 0 or greater than 1 */
+    if (newf > 0.0 && newf<1.0) {
+      /*compute prior ratio */
+      logprobdiff = FPriorDiff (newf, oldf);
+
+      /*compute log likelihood diff */
+      if (ONEFST) {
+        numpops2 = MAXPOPS;
+      } else {
+        numpops2 = pop1+1;
+      }
+      for (pop2 = pop1; pop2 < numpops2; pop2++){
+        logprobdiff += FlikeFreqs (newf, Epsilon, P, NumAlleles, pop2);
+        logprobdiff -= FlikeFreqs (oldf, Epsilon, P, NumAlleles, pop2);
+      }
+
+      /*decide whether to accept, and then update*/
+
+      if (logprobdiff >= 0.0) {   /*accept new f */
+        for (pop2 = pop1; pop2 < numpops2; pop2++) {
+          Fst[pop2] = newf;
+        }
+      } else {                 /*accept new parameter with prob p */
+        threshold = exp (logprobdiff);
+        unifrv = rnd ();
+        if (unifrv < threshold) {
+          for (pop2 = pop1; pop2 < numpops2; pop2++) {
+            Fst[pop2] = newf;
+          }
+        }
+      }
+    }
+  }
 }

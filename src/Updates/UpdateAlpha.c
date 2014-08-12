@@ -18,37 +18,6 @@ double AlphaPriorDiff (double newalpha, double oldalpha)
 }
 
 /*-----------------------------------------*/
-double LogProbQ (double *Q, double alpha, struct IND *Individual,double alphasum, int pop,int numredpops)
-{
-    /*return log prob of q given alpha [for single alpha in all populations].
-      See notes 5/13/99 */
-    double sum;
-    int ind, redpop;
-    /*this is the number of individuals without pop. info */
-    int numinds = 0;
-    double logterm;
-    int multiple = numredpops - pop;
-
-    sum = 0.0;
-    logterm = 0.0;
-    /*redpop = 0;*/
-    for (ind = 0; ind < NUMINDS; ind++) {
-        if (!((USEPOPINFO) && (Individual[ind].PopFlag))) {
-            /* ie don't use individuals for whom prior pop info is used */
-            numinds++;
-            for (redpop = pop; redpop < numredpops; redpop++) {
-                logterm += log(Q[QPos (ind, redpop)]);
-            }
-        }
-    }
-
-    sum += (alpha - 1.0) * logterm;
-    sum += (mylgamma (alphasum) - multiple * mylgamma ( alpha)) * numinds;
-
-    return (sum);
-}
-
-/*-----------------------------------------*/
 double LogProbQDiff (double *Q, double oldalpha, double newalpha,
                      struct IND *Individual,double sumalphas,
                      int pop,int numredpops)
@@ -172,75 +141,117 @@ double LogProbQ_LocPrior_loc(double *Q, double *Alpha, struct IND *Individual,
     return like;
 }
 
-/*-----------------------------------------*/
+double LogProbQ (double *Q, double onealpha, struct IND *Individual)
+{
+  /*return log prob of q given alpha [for single alpha in all populations].
+    See notes 5/13/99 */
+  double sum;
+  double runningtotal;
+  int ind, pop;
+  int numinds = 0;              /*this is the number of individuals without pop. info */
+  double sqrtunder = sqrt (UNDERFLO);
+
+  sum = 0.0;
+
+  runningtotal = 1.0;
+  for (ind = 0; ind < NUMINDS; ind++) {
+    if (!((USEPOPINFO) && (Individual[ind].PopFlag))) {
+      /* ie don't use individuals for whom prior pop info is used */
+      numinds++;
+      for (pop = 0; pop < MAXPOPS; pop++) {
+        /*being more careful with underflow caused by very small values of Q */
+        if (Q[QPos (ind, pop)] > sqrtunder) {             /*0-values lead to underflow */
+          runningtotal *= Q[QPos (ind, pop)];
+        } else {
+          runningtotal *= sqrtunder;
+        }
+
+        if (runningtotal < sqrtunder)  {  /*this is to avoid having to take logs all the time */
+          if (runningtotal == 0.0) {
+            printf ("*");
+          }
+          sum += (onealpha - 1.0) * log (runningtotal);
+          runningtotal = 1.0;
+        }
+      }
+    }
+  }
+
+  sum += (onealpha - 1.0) * log (runningtotal);
+  sum += (mylgamma (MAXPOPS * onealpha) - MAXPOPS * mylgamma (onealpha)) * numinds;
+
+  /*printf("%1.2e ",sum);
+    printf("%d ",numinds); */
+  return (sum);
+}
+
+
 void UpdateAlpha (double *Q, double *Alpha, struct IND *Individual, int rep)
 {
-    /*
-     * Produce new *Alpha using metropolis step.  There are two cases
-     * here: either there is the same alpha for all populations, or we do a
-     * separate Metropolis update for the alpha for each population.
-     */
+  /* Produce new *Alpha using metropolis step.  There are two cases
+     here: either there is the same alpha for all populations, or we do a
+     separate Metropolis update for the alpha for each population.*/
 
-    double newalpha;
-    /*  double logoldprob;
-     *  double lognewprob; */
-    double unifrv;
-    double threshold;
-    double logprobdiff = 0;
-    double sumalphas;
-    int pop, numalphas,i;
+  double newalpha;
+  /*  double logoldprob;
+   *  double lognewprob; */
+  double unifrv;
+  double threshold;
+  double logprobdiff = 0;
+  double sumalphas;
+  int pop, numalphas,i;
 
-    if (!((NOADMIX) && ((rep >= ADMBURNIN) || (rep > BURNIN)))) {
-        /*don't update alpha in these cases*/
-        if (POPALPHAS) {
-            numalphas = MAXPOPS;
-        } else {
-            numalphas = 1;
-        }
-        for (pop = 0; pop < numalphas; pop++) {
-            newalpha = RNormal (Alpha[pop], ALPHAPROPSD); /*generate proposal alpha */
-
-            /*reject immed. if out of range*/
-            if ((newalpha > 0) && ((newalpha < ALPHAMAX) || (!(UNIFPRIORALPHA)) ) ) {
-                if (!(UNIFPRIORALPHA)) {
-                    logprobdiff = AlphaPriorDiff (newalpha, Alpha[pop]);
-                }
-                /*compute probabilities */
-                if (POPALPHAS)  { /*different alphas in each population*/
-                    sumalphas = 0.0;  /*need to send in sum of alphas*/
-                    for (i=0; i<MAXPOPS; i++)  {
-                        sumalphas += Alpha[i];
-                    }
-
-                    /*compute probabilities for M-H ratio*/
-                    logprobdiff -= LogProbQonepop (Q, Alpha[pop], sumalphas,Individual,pop);
-                    sumalphas += newalpha - Alpha[pop];
-                    logprobdiff += LogProbQonepop (Q, newalpha, sumalphas, Individual,pop);
-                } else  {  /*same alpha for all populations*/
-                    logprobdiff += LogProbQ (Q, newalpha, Individual,MAXPOPS*newalpha,pop,numalphas);
-                    logprobdiff -= LogProbQ (Q, Alpha[pop], Individual,MAXPOPS*Alpha[pop],pop,numalphas);
-                }
-
-                /*accept new alpha with min of 1 and exp(logprobdiff) */
-                threshold = exp (logprobdiff);
-                unifrv = rnd ();
-
-                /*printf("%d %.3f %.3f %.4f     ",pop,Alpha[pop],newalpha,threshold);
-                  if (pop==MAXPOPS-1) printf("\n");*/
-
-                if (unifrv < threshold) {
-                    Alpha[pop] = newalpha;
-
-                    if (!(POPALPHAS)) { /*if same alpha in all populations*/
-                        for (pop = 1; pop < MAXPOPS; pop++) {
-                            Alpha[pop] = newalpha;
-                        }
-                    }
-                }
-            }
-        }
+  if (!((NOADMIX) && ((rep >= ADMBURNIN) || (rep > BURNIN)))) {
+    /*don't update alpha in these cases*/
+    if (POPALPHAS) {
+      numalphas = MAXPOPS;
     }
+    else numalphas = 1;
+    for (pop = 0; pop < numalphas; pop++) {
+      newalpha = RNormal (Alpha[pop], ALPHAPROPSD); /*generate proposal alpha */
+
+      /*reject immed. if out of range*/
+      if ((newalpha > 0) && ((newalpha < ALPHAMAX) || (!(UNIFPRIORALPHA)) ) ) {
+        if (!(UNIFPRIORALPHA)) {
+          logprobdiff = AlphaPriorDiff (newalpha, Alpha[pop]);
+        }
+        /*compute probabilities */
+        if (POPALPHAS)  { /*different alphas in each population*/
+          sumalphas = 0.0;  /*need to send in sum of alphas*/
+          for (i=0; i<MAXPOPS; i++)  {
+            sumalphas += Alpha[i];
+          }
+
+          /*compute probabilities for M-H ratio*/
+          logprobdiff -= LogProbQonepop (Q, Alpha[pop], sumalphas,Individual,pop);
+          sumalphas += newalpha - Alpha[pop];
+          logprobdiff += LogProbQonepop (Q, newalpha, sumalphas, Individual,pop);
+        } else  {  /*same alpha for all populations*/
+          logprobdiff += LogProbQ (Q, newalpha, Individual);
+          logprobdiff -= LogProbQ (Q, Alpha[pop], Individual);
+        }
+
+        /*accept new alpha with min of 1 and exp(logprobdiff) */
+        threshold = exp (logprobdiff);
+        unifrv = rnd ();
+
+        /*printf("%d %.3f %.3f %.4f     ",pop,Alpha[pop],newalpha,threshold);
+          if (pop==MAXPOPS-1) printf("\n");*/
+
+        if (unifrv < threshold) {
+          Alpha[pop] = newalpha;
+
+          if (!(POPALPHAS)) { /*if same alpha in all populations*/
+            for (pop = 1; pop < MAXPOPS; pop++) {
+              Alpha[pop] = newalpha;
+            }
+          }
+        }
+      }
+    }
+  }
 }
+
 
 /* updates Alpha under LocPrior model */
 void UpdateAlphaLocPrior(double *Q, double *Alpha, double *LocPrior,
@@ -331,7 +342,8 @@ void UpdateAlphaCL (CLDict *clDict,double *Q, double *Alpha, struct IND *Individ
         runTask(clDict,PopNormals,"PopNormals Alpha");
 
         /* The smaller the group, the less danger of underflow is there */
-        global[0] = pow(2,(int) (log(NUMINDS)/log(2)));
+        /* global[0] = pow(2,(int) (log(NUMINDS)/log(2))); */
+        global[0] = NUMINDS;
         global[1] = numalphas;
         runKernel(clDict,UpdateAlphaKernel,2,global,"Update Alpha kernel");
         /*
