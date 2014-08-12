@@ -38,12 +38,12 @@ __kernel void GetNumLociPops(
         int line, from,pop;
         while( loc < NUMLOCI){
             /* initialize the NumLociPops array */
-            if(get_global_id(1) == 0){
-                for(pop = 0; pop < MAXPOPS; pop++){
-                    NumLociPops[pop+offset] = 0;
-                }
-            }
-            barrier(CLK_GLOBAL_MEM_FENCE);
+            /* if(get_global_id(1) == 0){ */
+            /*     for(pop = 0; pop < MAXPOPS; pop++){ */
+            /*         NumLociPops[pop+offset] = 0; */
+            /*     } */
+            /* } */
+            /* barrier(CLK_GLOBAL_MEM_FENCE); */
             if(ind < NUMINDS && loc < NUMLOCI) {
                 if (!((USEPOPINFO) && (popflags[ind]))) {
                     for (line = 0; line < LINES; line++) {

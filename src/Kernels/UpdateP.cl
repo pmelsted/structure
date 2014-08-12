@@ -14,12 +14,12 @@ __kernel void GetNumFromPops (
         int numalleles = NumAlleles[loc];
         int pos,line,popvalue,allelevalue;
         /* initialize the NumAFromPops array */
-        if(ind == 0){
-            for(pos = 0; pos < MAXPOPS*MAXALLELES; pos++){
-                NumAFromPops[pos+offset] = 0;
-            }
-        }
-        barrier(CLK_GLOBAL_MEM_FENCE);
+        /* if(ind == 0){ */
+        /*     for(pos = 0; pos < MAXPOPS*MAXALLELES; pos++){ */
+        /*         NumAFromPops[pos+offset] = 0; */
+        /*     } */
+        /* } */
+        /* barrier(CLK_GLOBAL_MEM_FENCE); */
         while(ind < NUMINDS) {
             if (!PFROMPOPFLAGONLY
                     || popflags[ind] == 1) {    /*individual must have popflag turned on*/
@@ -75,11 +75,11 @@ __kernel void UpdateP (
                     param = Epsilon[EpsPos (loc, allele)]
                                      *(1.0- Fst[pop])/Fst[pop];
                 #else
-                    param = lambda[pop]
+                    param = lambda[pop];
                 #endif
-                /*if (param < SQUNDERFLO){*/
-                    /*param = SQUNDERFLO;*/
-                /*}*/
+                /* if (param >= 10e20){ */
+                /*     param = 10e20; */
+                /* } */
                 Parameters[allele] += param;
             }
 

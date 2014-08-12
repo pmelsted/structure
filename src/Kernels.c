@@ -886,6 +886,17 @@ void runKernel(CLDict *clDict, enum KERNEL kernel, int numdims, size_t *dims,
     /*finishCommands(clDict,name);*/
 }
 
+void runTask(CLDict *clDict, enum KERNEL kernel, char *name)
+{
+    cl_int err;
+    char msg[120];
+    err = clEnqueueTask(clDict->commands, clDict->kernels[kernel],0, NULL,NULL) ;
+    strcpy(msg,"Failed to run task: ");
+    strcat(msg,name);
+    strcat(msg,"!\n");
+    handleCLErr(err, clDict,msg);
+}
+
 
 
 

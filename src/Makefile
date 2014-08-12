@@ -112,6 +112,8 @@ clean:
 
 test: structure
 	CL_LOG_ERRORS=stdout /usr/bin/time --verbose ./structure -m testdata/mainparams
+cputest: structure
+	CL_LOG_ERRORS=stdout /usr/bin/time --verbose ./cpustructure -m testdata/mainparams
 errtest: structure
 	CL_LOG_ERRORS=stdout /usr/bin/time --verbose ./structure -m testdata/mainparams -D 1407409831
 errtest2: structure
@@ -120,6 +122,8 @@ errtest3: structure
 	CL_LOG_ERRORS=stdout /usr/bin/time --verbose ./structure -m testdata/mainparams -D 1407500453
 errtest4: structure
 	CL_LOG_ERRORS=stdout /usr/bin/time --verbose ./structure -m testdata/mainparams -D 1407501403
+errtest5: structure
+	CL_LOG_ERRORS=stdout /usr/bin/time --verbose ./structure -m testdata/mainparams -D 1407503122
 goodtest: structure
 	CL_LOG_ERRORS=stdout /usr/bin/time --verbose ./structure -m testdata/mainparams -D 1407420643
 cerrtest: structure

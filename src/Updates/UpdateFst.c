@@ -122,11 +122,11 @@ UpdateFstCL (CLDict *clDict,double *Epsilon, double *Fst, double *P, int *NumAll
     if (ONEFST){
         numfst = 1;
     }
-
-    global[0] = numfst;
+    global[0] = 1;
     setKernelArg(clDict,PopNormals,FSTCL,0);
     setKernelArgExplicit(clDict,PopNormals,sizeof(double),&FPRIORSD,3);
-    runKernel(clDict,PopNormals,1,global,"PopNormals Fst");
+    setKernelArgExplicit(clDict,PopNormals,sizeof(int),&numfst,4);
+    runTask(clDict,PopNormals,"PopNormals Fst");
 
     global[0] = pow(2,(int) (log(NUMLOCI)/log(2)));
     /*global[0] = (128 < NUMLOCI ) ? 128 : NUMLOCI;*/

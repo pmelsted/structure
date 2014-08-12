@@ -2,9 +2,9 @@ double
 FPriorDiff (double newf, double oldf)
 {
     /*returns log diff in priors for the correlation, f. See notes 5/14/99, and 7/15/99 */
+    double pri = (FPRIORMEAN*FPRIORMEAN/(FPRIORSD*FPRIORSD) - 1);
 
-    return ((FPRIORMEAN*FPRIORMEAN/(FPRIORSD*FPRIORSD) - 1) * log (newf / oldf) +
-            (oldf - newf) *FPRIORMEAN/(FPRIORSD*FPRIORSD));
+    return (pri * (log (newf) - log( oldf)) + (oldf - newf) *FPRIORMEAN/(FPRIORSD*FPRIORSD));
 }
 
 

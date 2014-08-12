@@ -52,16 +52,22 @@ __kernel void PopNormals(
         __global double *Prev,
         __global double *norms,
         __global uint *randGens,
-        const double SD)
+        const double SD,
+        const int length)
 {
-    int pop = get_global_id(0);
-    while(pop < MAXPOPS){
-        RndDiscState randState[1];
-        initRndDiscState(randState,randGens,pop);
+    RndDiscState randState[1];
+    initRndDiscState(randState,randGens,0);
+    int i;
+    for( i=0; i < length; i+= 2){
         double2 rnorms = BoxMuller(randState);
-        double oldf = Prev[pop];
-        norms[pop] = rnorms.x*SD + oldf;
-        saveRndDiscState(randState);
-        pop += get_global_size(0);
+        double oldf;
+        oldf = Prev[i];
+        norms[i] = rnorms.x*SD + oldf;
+
+        if (i +1 < length){
+            oldf = Prev[i+1];
+            norms[i+1] = rnorms.y*SD + oldf;
+        }
     }
+    saveRndDiscState(randState);
 }

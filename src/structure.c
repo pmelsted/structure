@@ -248,6 +248,8 @@ int main (int argc, char *argv[])
     void         *dests[5];
 
     double  *reduceresult;
+    int *Numafrompopscl;
+    int *Numlocipopscl;
 
     if (signal(SIGINT, catch_function) == SIG_ERR) {
         fputs("An error occurred while setting a signal handler.\n", stderr);
@@ -255,9 +257,9 @@ int main (int argc, char *argv[])
     }
 
     clDict = malloc(sizeof (*clDict));
-    sumlikes = malloc(sizeof(double));
-    sumsqlikes = malloc(sizeof(double));
-    like = malloc(sizeof(double));
+    sumlikes = calloc(1,sizeof(double));
+    sumsqlikes = calloc(1,sizeof(double));
+    like = calloc(1,sizeof(double));
     /*=====Code for getting started=============================*/
 
     Welcome (stdout);             /*welcome */
@@ -411,6 +413,8 @@ int main (int argc, char *argv[])
      CL implementation to the original */
     randomArr = calloc(RANDSIZE,sizeof(double));
     randGens = calloc(NUMRANDGENS,sizeof(unsigned int));
+    Numafrompopscl = calloc(NUMLOCI*MAXPOPS*MAXALLELES,sizeof(int));
+    Numlocipopscl = calloc(NUMINDS*MAXPOPS,sizeof(int));
 
     /* ====== OpenCL initialized ====== */
 
@@ -420,6 +424,8 @@ int main (int argc, char *argv[])
 
     /*=====Main MCMC loop=======================================*/
 
+    writeBuffer(clDict,Numafrompopscl,sizeof(int) * NUMLOCI*MAXPOPS*MAXALLELES,NUMAFROMPOPSCL,"NumAFromPops");
+    writeBuffer(clDict,Numlocipopscl,sizeof(int)*NUMINDS*MAXPOPS,NUMLOCIPOPSCL,"NUMLOCIPOPS");
     /* init buffers on GPU */
     writeBuffer(clDict,P,sizeof(double) * PSIZE,PCL,"P");
     writeBuffer(clDict,Z,sizeof(int)*ZSIZE,ZCL,"Z");
@@ -502,6 +508,8 @@ int main (int argc, char *argv[])
                            lambda, Individual, randomArr);
         }
         if (USEWORKINGCL) {
+            /* clear buffer */
+            writeBuffer(clDict,Numafrompopscl,sizeof(int) * NUMLOCI*MAXPOPS*MAXALLELES,NUMAFROMPOPSCL,"NumAFromPops");
             UpdatePCL (clDict,P, Epsilon, Fst, NumAlleles, Geno, Z, lambda,
                        Individual,
                        randomArr);
@@ -519,6 +527,7 @@ int main (int argc, char *argv[])
             UpdateQMetroRecombine (Geno, Q, Z, P, Alpha, rep,
                                    Individual, Mapdistance, R, Phase,Phasemodel,randomArr);
         } else {
+            writeBuffer(clDict,Numlocipopscl,sizeof(int)*NUMINDS*MAXPOPS,NUMLOCIPOPSCL,"NUMLOCIPOPS");
             UpdateQCL (clDict,Geno, PreGeno, Q, P, Z, Alpha, rep, Individual, UsePopProbs,
                      Recessive, LocPrior,randomArr);
         }

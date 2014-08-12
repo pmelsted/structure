@@ -20,6 +20,7 @@ extern void writeBuffer(CLDict *clDict, void * source, size_t size,
                         enum BUFFER buffer, char *name);
 extern void runKernel(CLDict *clDict, enum KERNEL kernel, int numdims,
                       size_t *dims, char *name);
+extern void runTask(CLDict *clDict, enum KERNEL kernel, char *name);
 
 extern void setKernelArgExplicit(CLDict *clDict, enum KERNEL kernel,size_t size, void *arg, int argnum);
 extern void setKernelArg(CLDict *clDict, enum KERNEL kernel, enum BUFFER buffer,int argnum);

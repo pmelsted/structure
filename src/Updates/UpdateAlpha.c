@@ -325,16 +325,15 @@ void UpdateAlphaCL (CLDict *clDict,double *Q, double *Alpha, struct IND *Individ
             numalphas = 1;
         }
 
-        global[0] = numalphas;
         setKernelArg(clDict,PopNormals,ALPHACL,0);
         setKernelArgExplicit(clDict,PopNormals,sizeof(double),&ALPHAPROPSD,3);
-        runKernel(clDict,PopNormals,1,global,"PopNormals Alpha");
+        setKernelArgExplicit(clDict,PopNormals,sizeof(int),&numalphas,4);
+        runTask(clDict,PopNormals,"PopNormals Alpha");
 
         /* The smaller the group, the less danger of underflow is there */
         global[0] = pow(2,(int) (log(NUMINDS)/log(2)));
         global[1] = numalphas;
         runKernel(clDict,UpdateAlphaKernel,2,global,"Update Alpha kernel");
-        
         /*
         alphasum = 0.0;
         for (i=0; i<MAXPOPS; i++)  {

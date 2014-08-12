@@ -289,7 +289,7 @@ void LogRDirichletDisc (double *a, int k,__global double *b,
 {
     int i;
     double sum = 0.0;
-    double sum2;
+    /* double sum2; */
     for (i = 0; i < k; i++) {
         b[i] =RGammaDisc (a[i], 1,randState);
         sum += b[i];
@@ -298,15 +298,14 @@ void LogRDirichletDisc (double *a, int k,__global double *b,
     /* patch added May 2007 to set gene frequencies equal if all draws
        from the Gamma distribution are very low.
        Ensures that P and logP remain defined in this rare event */
-    /*if(sum<UNDERFLO) {
-        for(i=0; i<k; i++) {
-            b[i] = 1.0/(double)(k);
-            c[i] = log(b[i]);
+    /* if(sum<UNDERFLO) { */
+    /*     for(i=0; i<k; i++) { */
+    /*         b[i] = 1.0/(double)(k); */
+    /*     } */
+    /* } else { */
+        /* sum2=log(sum); */
+        for (i = 0; i < k; i++) {
+            b[i]/=sum;
         }
-    } else {*/
-    sum2=log(sum);
-    for (i = 0; i < k; i++) {
-        b[i]/=sum;
-    }
-    /*}*/
+    /* } */
 }
