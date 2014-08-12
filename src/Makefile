@@ -5,7 +5,11 @@ OPT = -O3
 
 CFLAGS = -Wall -pedantic -g
 CC = clang
-LIBS = -lm -lOpenCL
+OPENCL_LIBS=-lOpenCL
+ifeq ($(shell uname -s),Darwin)
+	OPENCL_LIBS=-framework OpenCL
+endif
+LIBS = -lm $(OPENCL_LIBS)
 
 all: target
 

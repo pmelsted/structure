@@ -1,7 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef __APPLE__
+#include <OpenCL/cl.h>
+#else
 #include <CL/cl.h>
+#endif
 #include "KernelDefs.h"
 #include "structure.h"
 
@@ -523,7 +527,7 @@ int CompileKernels(CLDict *clDict,  char *options)
     err = clBuildProgram(program, 1, &clDict->device_id, options, NULL, NULL);
     if (err != CL_SUCCESS) {
         size_t len;
-        char buffer[32768];
+        char buffer[327680];
         printCLErr(err);
         printf("Error: Failed to build program executable!\n");
         printf("Options:");
@@ -715,13 +719,7 @@ int InitCLDict(CLDict *clDictToInit)
 
 
 
-    sprintf(options,"-Werror -D UNASSIGNED=%d  -D MAXPOPS=%d -D MISSING=%d \
-            -D MAXALLELES=%d -D NUMLOCI=%d  -D LINES=%d    \
-            -D NUMINDS=%d -D MAXRANDOM=%d  -D USEPOPINFO=%d    \
-            -D LOCPRIOR=%d  -D NOTAMBIGUOUS=%d  -D NUMLOCATIONS=%d    \
-            -D PFROMPOPFLAGONLY=%d -D FREQSCORR=%d -D blockSize=64\
-            -D DEBUGCOMPARE=%d -D FPRIORMEAN=%f -D FPRIORSD=%f -D NOADMIX=%d \
-            -D NOALPHA=%d -DMAXGROUPS=%d "
+    sprintf(options,"-Werror -D UNASSIGNED=%d -D MAXPOPS=%d -D MISSING=%d -D MAXALLELES=%d -D NUMLOCI=%d -D LINES=%d -D NUMINDS=%d -D MAXRANDOM=%d -D USEPOPINFO=%d -D LOCPRIOR=%d -D NOTAMBIGUOUS=%d -D NUMLOCATIONS=%d -D PFROMPOPFLAGONLY=%d -D FREQSCORR=%d -D blockSize=64 -D DEBUGCOMPARE=%d -D FPRIORMEAN=%f -D FPRIORSD=%f -D NOADMIX=%d -D NOALPHA=%d -DMAXGROUPS=%d "
             , UNASSIGNED, MAXPOPS, MISSING
             , MAXALLELES, NUMLOCI, LINES
             , NUMINDS, MAXRANDOM, USEPOPINFO
@@ -729,10 +727,7 @@ int InitCLDict(CLDict *clDictToInit)
             , PFROMPOPFLAGONLY,FREQSCORR,DEBUGCOMPARE,
             FPRIORMEAN,FPRIORSD, NOADMIX,NOALPHA,MAXGROUPS);
     
-    sprintf(options + strlen(options), "-D ONEFST=%d -D ALPHAPROPSD=%f \
-        -D ALPHAMAX=%f \
-        -D UNIFPRIORALPHA=%d -D POPALPHAS=%d -D ALPHAPRIORA=%f \
-        -D ALPHAPRIORB=%f -D NUMALPHAS=%d -D ANCESTDIST=%d -D NUMBOXES=%d",
+    sprintf(options + strlen(options), "-D ONEFST=%d -D ALPHAPROPSD=%f -D ALPHAMAX=%f -D UNIFPRIORALPHA=%d -D POPALPHAS=%d -D ALPHAPRIORA=%f -D ALPHAPRIORB=%f -D NUMALPHAS=%d -D ANCESTDIST=%d -D NUMBOXES=%d",
         ONEFST,ALPHAPROPSD, ALPHAMAX, UNIFPRIORALPHA, POPALPHAS,
         ALPHAPRIORA, ALPHAPRIORB, numalphas,ANCESTDIST,NUMBOXES);
 

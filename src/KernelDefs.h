@@ -1,6 +1,10 @@
 #ifndef KernelDefs
 #define KernelDefs
+#ifdef __APPLE__
+#include <OpenCL/cl.h>
+#else
 #include <CL/cl.h>
+#endif
 #include "Kernels/KernelErrors.h"
 /*TODO: Determine this number, used for reductions */
 #define MAXGROUPS 31
