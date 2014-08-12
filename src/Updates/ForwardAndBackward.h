@@ -1,10 +1,10 @@
-extern double Forward (int *Z, double *IndividualQ, double *P,
-                       int *Geno, double Rec, int ind, double *RTransitProb,
-                       double *Mapdistance, double *Phase,int *Phasemodel);
+extern float Forward (int *Z, float *IndividualQ, float *P,
+                       int *Geno, float Rec, int ind, float *RTransitProb,
+                       float *Mapdistance, float *Phase,int *Phasemodel);
 
 
-extern void Backward (int *Z, double *IndividualQ,
-                      double Rec, int ind, double *Mapdistance,
-                      double *RTransitProb, int rep, int *Z1,
-                      double *Phase, double *P, int *Geno,int *Phasemodel);
+extern void Backward (int *Z, float *IndividualQ,
+                      float Rec, int ind, float *Mapdistance,
+                      float *RTransitProb, int rep, int *Z1,
+                      float *Phase, float *P, int *Geno,int *Phasemodel);
 

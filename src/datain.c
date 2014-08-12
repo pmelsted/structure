@@ -16,8 +16,8 @@
 FILE *INPUT;            /*Data file */
 
 void OpenData ();
-void ReadData (int *Geno, double *Mapdistance, char *Markername,
-               struct IND *Individual, double *Phase,
+void ReadData (int *Geno, float *Mapdistance, char *Markername,
+               struct IND *Individual, float *Phase,
                int *Recessive);
 void WarnEOF (int ind);
 int CheckIfValidInt (char intstr[ALLELLEN], int ind, int loc);
@@ -31,8 +31,8 @@ void RecessiveDataCheck(int *Geno, int *Recessive);
 
 /*================================================*/
 void
-ReadInputFile (int *Geno, double *Mapdistance, char *Markername,
-               struct IND *Individual, double *Phase,
+ReadInputFile (int *Geno, float *Mapdistance, char *Markername,
+               struct IND *Individual, float *Phase,
                int *Recessive)
 {
     OpenData ();          /*open input file */
@@ -64,8 +64,8 @@ OpenData ()
 
 /*-------------------------------------------*/
 void
-ReadData (int *Geno, double *Mapdistance, char *Markername,
-          struct IND *Individual, double *Phase, int *Recessive)
+ReadData (int *Geno, float *Mapdistance, char *Markername,
+          struct IND *Individual, float *Phase, int *Recessive)
 {
     int ind;
     int loc;
@@ -90,7 +90,7 @@ ReadData (int *Geno, double *Mapdistance, char *Markername,
     int location=-1;
     int phenotypecol=-1;
     /*  int numcols; */
-    int CheckIfValidDouble (char intstr[ALLELLEN], int ind,int loc);
+    int CheckIfValidfloat (char intstr[ALLELLEN], int ind,int loc);
 
 
     ind = -1;
@@ -133,7 +133,7 @@ ReadData (int *Geno, double *Mapdistance, char *Markername,
             if (strlength == 0) {
                 WarnEOF (ind);
             }
-            Recessive[loc] = (double) atoi (intstr);
+            Recessive[loc] = (float) atoi (intstr);
         }
     if (MAPDISTANCES)
         for (loc = 0; loc < NUMLOCI; loc++) {
@@ -143,7 +143,7 @@ ReadData (int *Geno, double *Mapdistance, char *Markername,
             }
 
             /* daniel made the change: change from atoi to atof on Dec 24, 2002 */
-            Mapdistance[loc] = (double) atof (intstr);
+            Mapdistance[loc] = (float) atof (intstr);
         }
     /*End reading in locus information-------------------------------
       Read in individual/genotype data-------------------------------*/
@@ -303,7 +303,7 @@ ReadData (int *Geno, double *Mapdistance, char *Markername,
                 if (strlength == 0) {
                     WarnEOF (ind);
                 }
-                valid=valid * CheckIfValidDouble(intstr,ind,loc);
+                valid=valid * CheckIfValidfloat(intstr,ind,loc);
                 Phase[PhasePos(ind,loc)]=atof(intstr);
                 /*check that probabilities are in [0,1]*/
                 if (Phase[PhasePos(ind,loc)]>1.0 || Phase[PhasePos(ind,loc)]<0.0) {
@@ -459,7 +459,7 @@ CheckIfValidInt (char intstr[ALLELLEN], int ind, int loc)
 }
 /*------------------------------------*/
 int
-CheckIfValidDouble (char intstr[ALLELLEN], int ind,int loc)
+CheckIfValidfloat (char intstr[ALLELLEN], int ind,int loc)
 {
     /*This function checks for non-numeric data in the input file (not
        used when reading the labels).  Returns 1 if valid, otherwise 0. */
@@ -700,7 +700,7 @@ void CountLineLens ()
         }
 
         printf ("There are %d rows of data in the input file, with an average of %1.2f\n",
-                datalines, (double) totalwords / datalines);
+                datalines, (float) totalwords / datalines);
         printf ("entries per line.  The following shows the number of entries in each\n");
         printf ("line of the input file:\n\n");
         printf ("# Entries:   Line numbers\n");
@@ -815,7 +815,7 @@ int FindMaxAlleles (int *Geno, int *Recessive)
     }
 
     printf ("Number of alleles per locus: min=%2d; ave=%2.1f; max=%2d\n",
-            mink, (double) sumk / NUMLOCI, maxk);
+            mink, (float) sumk / NUMLOCI, maxk);
     free (Alleles);
     return maxk;
 }

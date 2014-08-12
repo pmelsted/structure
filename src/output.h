@@ -1,45 +1,45 @@
 /* #include "structure.h" */
 void
-DataCollection (int *Geno,int *PreGeno, double *Q, double *QSum, int *Z,
-                int *Z1,  double *P, double *PSum,
-                double *Fst, double *FstSum, int *NumAlleles,
-                int *AncestDist, double *Alpha, double *sumAlpha,
-                double *sumR, double *varR, double *like,
-                double *sumlikes, double *sumsqlikes, double *R,
-                double *Epsilon, double *SumEpsilon, double recomblikelihood,
-                double *lambda, double *sumlambda, int *Recessive,
-                double *PopPrior, double *PopPriorSum, int PopPriorLen,
-                double *sumindlikes, double *indlikes_norm, int rep);
+DataCollection (int *Geno,int *PreGeno, float *Q, float *QSum, int *Z,
+                int *Z1,  float *P, float *PSum,
+                float *Fst, float *FstSum, int *NumAlleles,
+                int *AncestDist, float *Alpha, float *sumAlpha,
+                float *sumR, float *varR, float *like,
+                float *sumlikes, float *sumsqlikes, float *R,
+                float *Epsilon, float *SumEpsilon, float recomblikelihood,
+                float *lambda, float *sumlambda, int *Recessive,
+                float *PopPrior, float *PopPriorSum, int PopPriorLen,
+                float *sumindlikes, float *indlikes_norm, int rep);
 void
-DataCollectionCL (CLDict *clDict,int *Geno,int *PreGeno, double *Q, double *QSum, int *Z,
-                int *Z1,  double *P, double *PSum,
-                double *Fst, double *FstSum, int *NumAlleles,
-                int *AncestDist, double *Alpha, double *sumAlpha,
-                double *sumR, double *varR, double *like,
-                double *sumlikes, double *sumsqlikes, double *R,
-                double *Epsilon, double *SumEpsilon, double recomblikelihood,
-                double *lambda, double *sumlambda, int *Recessive,
-                double *PopPrior, double *PopPriorSum, int PopPriorLen,
-                double *sumindlikes, double *indlikes_norm, int rep);
+DataCollectionCL (CLDict *clDict,int *Geno,int *PreGeno, float *Q, float *QSum, int *Z,
+                int *Z1,  float *P, float *PSum,
+                float *Fst, float *FstSum, int *NumAlleles,
+                int *AncestDist, float *Alpha, float *sumAlpha,
+                float *sumR, float *varR, float *like,
+                float *sumlikes, float *sumsqlikes, float *R,
+                float *Epsilon, float *SumEpsilon, float recomblikelihood,
+                float *lambda, float *sumlambda, int *Recessive,
+                float *PopPrior, float *PopPriorSum, int PopPriorLen,
+                float *sumindlikes, float *indlikes_norm, int rep);
 
-void PrintLike (double like, int rep, int *Geno, int *PreGeno, double *Q,
-                double *P,
-                double recomblikelihood);
-void PrintUpdate (int rep, int *Geno, int *PreGeno, double *Alpha,
-                  double *Correls,
-                  double *P, double *Q, double like, double sumlikes,
-                  double sumsqlikes, int *NumAlleles, double *R, double *lambda,
-                  struct IND *Individual,  double recomblikelihood, int *Recessive,
-                  double *PopPrior, int PopPriorLen);
+void PrintLike (float like, int rep, int *Geno, int *PreGeno, float *Q,
+                float *P,
+                float recomblikelihood);
+void PrintUpdate (int rep, int *Geno, int *PreGeno, float *Alpha,
+                  float *Correls,
+                  float *P, float *Q, float like, float sumlikes,
+                  float sumsqlikes, int *NumAlleles, float *R, float *lambda,
+                  struct IND *Individual,  float recomblikelihood, int *Recessive,
+                  float *PopPrior, int PopPriorLen);
 void
 OutPutResults (int *Geno, int rep, int savefreq, struct IND *Individual,
-               double *PSum, double *QSum,  double *FstSum,
-               int *AncestDist, double *UsePopProbs,
-               double sumlikes, double sumsqlikes, double *sumAlpha,
-               double *sumR, double *varR,
+               float *PSum, float *QSum,  float *FstSum,
+               int *AncestDist, float *UsePopProbs,
+               float sumlikes, float sumsqlikes, float *sumAlpha,
+               float *sumR, float *varR,
                int *NumAlleles, int *Translation, int final,
-               char *Markername, double *R, double *SumEpsilon,
-               double *lambda, double *sumlambda, double *PopPriorSum,
-               int PopPriorLen, double *sumindlikes, double *indlikes_norm,
+               char *Markername, float *R, float *SumEpsilon,
+               float *lambda, float *sumlambda, float *PopPriorSum,
+               int PopPriorLen, float *sumindlikes, float *indlikes_norm,
                int argc, char *argv[]);
 

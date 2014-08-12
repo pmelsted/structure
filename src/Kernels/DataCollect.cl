@@ -1,8 +1,8 @@
 void UpdateSumsPop (
-        __global double *lambda,
-        __global double *sumlambda,
-        __global double *Fst,
-        __global double *FstSum){
+        __global float *lambda,
+        __global float *sumlambda,
+        __global float *Fst,
+        __global float *FstSum){
     int pop = get_global_id(0);
     sumlambda[pop] += lambda[pop];
     if (FREQSCORR) {
@@ -12,12 +12,12 @@ void UpdateSumsPop (
 
 /* Data collection paralell over pop */
 __kernel void DataCollectPop(
-       __global double *Alpha,
-       __global double *AlphaSum,
-       __global double *lambda,
-       __global double *lambdaSum,
-       __global double *Fst,
-       __global double *FstSum
+       __global float *Alpha,
+       __global float *AlphaSum,
+       __global float *lambda,
+       __global float *lambdaSum,
+       __global float *Fst,
+       __global float *FstSum
        )
 {
     int pop = get_global_id(0);
@@ -42,8 +42,8 @@ __kernel void DataCollectPop(
 
 /* Data collection paralell over ind */
 void UpdateSumsInd (
-        __global double *Q,
-        __global double *QSum,
+        __global float *Q,
+        __global float *QSum,
         __global int *AncestDist
         )
 {
@@ -52,7 +52,7 @@ void UpdateSumsInd (
 
     QSum[QPos (ind, pop)] += Q[QPos (ind, pop)];
     if (ANCESTDIST) {
-        int box = ((int) (Q[QPos (ind, pop)] * ((double) NUMBOXES)));
+        int box = ((int) (Q[QPos (ind, pop)] * ((float) NUMBOXES)));
         /*printf("%1.3f__%d  ",Q[QPos(ind,pop)],box); */
         if (box == NUMBOXES) {
             box = NUMBOXES - 1;    /*ie, Q = 1.000 */
@@ -62,8 +62,8 @@ void UpdateSumsInd (
 }
 
 __kernel void DataCollectInd(
-        __global double *Q,
-        __global double *QSum,
+        __global float *Q,
+        __global float *QSum,
         __global int *AncestDist
         )
 {
@@ -75,10 +75,10 @@ __kernel void DataCollectInd(
 /* Data collection parallell over loc */
 void UpdateSumsLoc (
         __global int *NumAlleles,
-        __global double *P,
-        __global double *PSum,
-        __global double *Epsilon,
-        __global double *SumEpsilon
+        __global float *P,
+        __global float *PSum,
+        __global float *Epsilon,
+        __global float *SumEpsilon
         )
 {
     int pop = get_global_id(0);
@@ -97,10 +97,10 @@ void UpdateSumsLoc (
 
 __kernel void DataCollectLoc(
         __global int *NumAlleles,
-        __global double *P,
-        __global double *PSum,
-        __global double *Epsilon,
-        __global double *SumEpsilon
+        __global float *P,
+        __global float *PSum,
+        __global float *Epsilon,
+        __global float *SumEpsilon
         ) 
 {
     int pop = get_global_id(0);
@@ -109,12 +109,12 @@ __kernel void DataCollectLoc(
 }
 
 __kernel void ComputeProbFinish(
-        __global double *loglike,
-        __global double *sumlikes,
-        __global double *sumsqlikes
+        __global float *loglike,
+        __global float *sumlikes,
+        __global float *sumsqlikes
         )
 {
-    double like = loglike[0];
+    float like = loglike[0];
     sumlikes[0] += like;
     sumsqlikes[0] += like*like;
 }

@@ -1,16 +1,16 @@
 #include "../KernelDefs.h"
-extern void UpdateQ (int *Geno, int *PreGeno, double *Q, double *P,
-                     int *Z, double *Alpha, int rep,
-                     struct IND *Individual, double *UsePopProbs,
-                     int *Recessive, double *LocPrior,double * randomArr);
-extern void UpdateQCL (CLDict *clDict,int *Geno, int *PreGeno, double *Q, double *P,
-                     int *Z, double *Alpha, int rep,
-                     struct IND *Individual, double *UsePopProbs,
-                     int *Recessive, double *LocPrior,double * randomArr);
-extern void UpdateQMetroRecombine (int *Geno, double *Q, int *Z, double *P,
-                                   double *Alpha, int rep,
+extern void UpdateQ (int *Geno, int *PreGeno, float *Q, float *P,
+                     int *Z, float *Alpha, int rep,
+                     struct IND *Individual, float *UsePopProbs,
+                     int *Recessive, float *LocPrior,float * randomArr);
+extern void UpdateQCL (CLDict *clDict,int *Geno, int *PreGeno, float *Q, float *P,
+                     int *Z, float *Alpha, int rep,
+                     struct IND *Individual, float *UsePopProbs,
+                     int *Recessive, float *LocPrior,float * randomArr);
+extern void UpdateQMetroRecombine (int *Geno, float *Q, int *Z, float *P,
+                                   float *Alpha, int rep,
                                    struct IND *Individual,
-                                   double *Mapdistance, double *R,
-                                   double *Phase,int *Phasemodel,
-                                   double * randomArr);
+                                   float *Mapdistance, float *R,
+                                   float *Phase,int *Phasemodel,
+                                   float * randomArr);
 

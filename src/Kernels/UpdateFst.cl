@@ -1,22 +1,22 @@
-double
-FPriorDiff (double newf, double oldf)
+float
+FPriorDiff (float newf, float oldf)
 {
     /*returns log diff in priors for the correlation, f. See notes 5/14/99, and 7/15/99 */
-    double pri = (FPRIORMEAN*FPRIORMEAN/(FPRIORSD*FPRIORSD) - 1);
+    float pri = (FPRIORMEAN*FPRIORMEAN/(FPRIORSD*FPRIORSD) - 1);
 
     return (pri * (log (newf) - log( oldf)) + (oldf - newf) *FPRIORMEAN/(FPRIORSD*FPRIORSD));
 }
 
 
 
-double FlikeFreqsDiffMap (double newfrac,double oldfrac,
-        __global double *Epsilon,
-        __global double *P,
+float FlikeFreqsDiffMap (float newfrac,float oldfrac,
+        __global float *Epsilon,
+        __global float *P,
         __global int *NumAlleles,
         int loc,int pop){
     int allele;
-    double eps,logp;
-    double sum;
+    float eps,logp;
+    float sum;
 
     if (NumAlleles[loc]==0) {
         return -(lgamma(newfrac) - lgamma(oldfrac)); /* should not be counting sites with all missing data */
@@ -37,34 +37,34 @@ double FlikeFreqsDiffMap (double newfrac,double oldfrac,
 
 
 __kernel void UpdateFst(
-            __global double *Epsilon,
-            __global double *Fst,
-            __global double *P,
+            __global float *Epsilon,
+            __global float *Fst,
+            __global float *P,
             __global int *NumAlleles,
-            __global double *normals,
+            __global float *normals,
             __global uint *randGens,
-            __global double *results,
-            __local  double *scratch)
+            __global float *results,
+            __local  float *scratch)
 {
     int pop = get_global_id(1);
     int numgroups = get_num_groups(0);
     while (pop < MAXPOPS){
         int loc = get_global_id(0);
-        double newf = normals[pop];
+        float newf = normals[pop];
         /* ensure newf is large enough so we don't cause over/underflow */
         if (newf > 10e-10 && newf < 1.0){
-            double sum = 0.0;
+            float sum = 0.0;
             int redpop;
             int numredpops;
-            double oldf = Fst[pop];
-            double newfrac = (1.0-newf)/newf;
-            double oldfrac = (1.0-oldf)/oldf;
+            float oldf = Fst[pop];
+            float newfrac = (1.0-newf)/newf;
+            float oldfrac = (1.0-oldf)/oldf;
             numredpops = pop +1;
             if (ONEFST) numredpops = MAXPOPS;
             /* idempotent */
             /* Map and partial reduce */
             while( loc < NUMLOCI){
-                double elem = 0.0;
+                float elem = 0.0;
                 for(redpop = pop; redpop < numredpops; redpop++){
                     elem += FlikeFreqsDiffMap(newfrac,oldfrac,Epsilon,P,NumAlleles,loc,redpop);
                 }
@@ -101,7 +101,7 @@ __kernel void UpdateFst(
                 initRndDiscState(randState,randGens,pop);
                 int multiple = 1;
                 if (ONEFST) multiple = MAXPOPS;
-                double logprobdiff = FPriorDiff (newf, oldf);
+                float logprobdiff = FPriorDiff (newf, oldf);
                 logprobdiff += multiple*NUMLOCI*lgamma(newfrac);
                 logprobdiff -= multiple*NUMLOCI*lgamma(oldfrac);
                 for(int id =0; id < numgroups; id ++){

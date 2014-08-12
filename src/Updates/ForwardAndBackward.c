@@ -8,18 +8,18 @@
 
 
 /*---------------------------------------*/
-double
-Forward (int *Z, double *IndividualQ, double *P, int *Geno, double Rec,
+float
+Forward (int *Z, float *IndividualQ, float *P, int *Geno, float Rec,
          int ind,
-         double *RTransitProb, double *Mapdistance, double *Phase,int *Phasemodel)
+         float *RTransitProb, float *Mapdistance, float *Phase,int *Phasemodel)
 {
     long pop, pop2,  loc, line;
-    double loglikelihood, temp, problinked, tempP00, tempP01,
+    float loglikelihood, temp, problinked, tempP00, tempP01,
            tempP10, tempP11,asum;
-    double *sum1,*sum2;
-    double sqrtunder = sqrt (UNDERFLO);
-    sum1=calloc(MAXPOPS,sizeof(double));
-    sum2=calloc(MAXPOPS,sizeof(double));
+    float *sum1,*sum2;
+    float sqrtunder = sqrt (UNDERFLO);
+    sum1=calloc(MAXPOPS,sizeof(float));
+    sum2=calloc(MAXPOPS,sizeof(float));
     if (sum1==NULL || sum2==NULL) {
         printf("WARNING: unable to allocate array space in Forward\n");
         Kill();
@@ -236,22 +236,22 @@ Forward (int *Z, double *IndividualQ, double *P, int *Geno, double Rec,
 
 /*-----------------------------------------------------------*/
 void
-Backward (int *Z,  double *IndividualQ, double Rec, int ind,
-          double *Mapdistance, double *RTransitProb, int rep, int *Z1,
-          double *Phase, double *P, int *Geno,int *Phasemodel)
+Backward (int *Z,  float *IndividualQ, float Rec, int ind,
+          float *Mapdistance, float *RTransitProb, int rep, int *Z1,
+          float *Phase, float *P, int *Geno,int *Phasemodel)
 {
     int loc, pop, line, pop2, answer;
-    double sum, sum2, problinked;
-    double *Cutoffs, *Cutoffs2;
-    double *SquareCutoffs;
-    double temp00,temp01,temp10,temp11;
-    /*  double temp; */
+    float sum, sum2, problinked;
+    float *Cutoffs, *Cutoffs2;
+    float *SquareCutoffs;
+    float temp00,temp01,temp10,temp11;
+    /*  float temp; */
 
     /*added 1 in next two lines because the minimum allowable size is 2 (see last
       bit of this function where these start to refer to chromosome strands).*/
-    Cutoffs = calloc (MAXPOPS+1, sizeof (double));
-    Cutoffs2 = calloc (MAXPOPS+1, sizeof (double));
-    SquareCutoffs = calloc (MAXPOPS * MAXPOPS, sizeof (double));
+    Cutoffs = calloc (MAXPOPS+1, sizeof (float));
+    Cutoffs2 = calloc (MAXPOPS+1, sizeof (float));
+    SquareCutoffs = calloc (MAXPOPS * MAXPOPS, sizeof (float));
     if (Cutoffs == NULL || SquareCutoffs == NULL || Cutoffs2 == NULL) {
         printf ("WARNING: unable to allocate array space in Backwards\n");
         Kill ();

@@ -9,25 +9,25 @@
 
 /*------------------------------------------*/
 /*Melissa added 7/12/07*/
-void UpdateLocPriorNoAdmix(double *Q, double *LocPrior,
+void UpdateLocPriorNoAdmix(float *Q, float *LocPrior,
                            struct IND *Individual)
 {
     int i, j;
-    double **dcount, newpp, diff;
-    double logdiff, e1, e2, g1, g2, *eta;
+    float **dcount, newpp, diff;
+    float logdiff, e1, e2, g1, g2, *eta;
     int loc, pop1, pop2;
 
     /* get counts in each location, cluster */
-    dcount = malloc(NUMLOCATIONS*sizeof(double*));
+    dcount = malloc(NUMLOCATIONS*sizeof(float*));
     for (i=0; i<NUMLOCATIONS; i++) {
-        dcount[i] = malloc(MAXPOPS*sizeof(double));
+        dcount[i] = malloc(MAXPOPS*sizeof(float));
         for (j=0; j<MAXPOPS; j++) {
             dcount[i][j] = 0.0;
         }
     }
     for (i=0; i<NUMINDS; i++) {
         for (j=0; j<MAXPOPS; j++) {
-            dcount[Individual[i].myloc][j] += (double)Q[QPos(i, j)];
+            dcount[Individual[i].myloc][j] += (float)Q[QPos(i, j)];
         }
     }
 
@@ -107,11 +107,11 @@ void UpdateLocPriorNoAdmix(double *Q, double *LocPrior,
     free(dcount);
 }
 
-void UpdateLocPriorAdmix(double *Q, double *LocPrior, double *Alpha,
+void UpdateLocPriorAdmix(float *Q, float *LocPrior, float *Alpha,
                          struct IND *Individual)
 {
-    double diff;
-    double currPP, newPP, PPdiff, globalpha, localpha, alpharat;
+    float diff;
+    float currPP, newPP, PPdiff, globalpha, localpha, alpharat;
     int k, loc;
 
     diff = 0.0;
@@ -139,7 +139,7 @@ void UpdateLocPriorAdmix(double *Q, double *LocPrior, double *Alpha,
     }
 }
 
-void UpdateLocPrior(double *Q, double *LocPrior, double *Alpha,
+void UpdateLocPrior(float *Q, float *LocPrior, float *Alpha,
                     struct IND *Individual)
 {
     if (NOADMIX) {

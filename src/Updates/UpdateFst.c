@@ -7,8 +7,8 @@
 #include "../Kernels.h"
 
 /*============================================*/
-double
-FPriorDiff (double newf, double oldf)
+float
+FPriorDiff (float newf, float oldf)
 {
     /*returns log diff in priors for the correlation, f. See notes 5/14/99, and 7/15/99 */
 
@@ -19,8 +19,8 @@ FPriorDiff (double newf, double oldf)
 
 
 /*-----------------------------------------*/
-double
-FlikeFreqs (double f, double *Epsilon, double *P, int *NumAlleles, int pop)
+float
+FlikeFreqs (float f, float *Epsilon, float *P, int *NumAlleles, int pop)
 {
     /*
      * returns the log probability of the allele frequencies (for a particular pop)
@@ -33,9 +33,9 @@ FlikeFreqs (double f, double *Epsilon, double *P, int *NumAlleles, int pop)
      * here passes Epsilon into mylgamma. Does this cause problems if epsilon very small?
      */
     int allele;
-    double sum;
+    float sum;
     int loc;
-    double frac = (1.0-f)/f;
+    float frac = (1.0-f)/f;
 
     sum = NUMLOCI*mylgamma(frac);
     for (loc=0; loc<NUMLOCI; loc++) {
@@ -50,10 +50,10 @@ FlikeFreqs (double f, double *Epsilon, double *P, int *NumAlleles, int pop)
     return sum;
 }
 
-double FlikeFreqsDiffMap (double newfrac,double oldfrac, double *Epsilon, double *P, int *NumAlleles, int loc,int pop){
+float FlikeFreqsDiffMap (float newfrac,float oldfrac, float *Epsilon, float *P, int *NumAlleles, int loc,int pop){
     int allele;
-    double eps,logp;
-    double sum;
+    float eps,logp;
+    float sum;
 
     if (NumAlleles[loc]==0) {
         return -(mylgamma(newfrac) - mylgamma(oldfrac)); /* should not be counting sites with all missing data */
@@ -69,8 +69,8 @@ double FlikeFreqsDiffMap (double newfrac,double oldfrac, double *Epsilon, double
 }
 
 /*-----------------------------------------*/
-double
-FlikeFreqsDiff (double newf,double oldf, double *Epsilon, double *P, int *NumAlleles, int pop)
+float
+FlikeFreqsDiff (float newf,float oldf, float *Epsilon, float *P, int *NumAlleles, int pop)
 {
     /*
      * returns the log probability of the allele frequencies (for a particular pop)
@@ -83,10 +83,10 @@ FlikeFreqsDiff (double newf,double oldf, double *Epsilon, double *P, int *NumAll
      * here passes Epsilon into mylgamma. Does this cause problems if epsilon very small?
      */
     int loc;
-    double newfrac = (1.0-newf)/newf;
-    double oldfrac = (1.0-oldf)/oldf;
-    double sum = 0.0;
-    double init = NUMLOCI*(mylgamma(newfrac) - mylgamma(oldfrac));
+    float newfrac = (1.0-newf)/newf;
+    float oldfrac = (1.0-oldf)/oldf;
+    float sum = 0.0;
+    float init = NUMLOCI*(mylgamma(newfrac) - mylgamma(oldfrac));
 
     for (loc=0; loc<NUMLOCI; loc++) {
         sum += FlikeFreqsDiffMap(newfrac,oldfrac,Epsilon,P,NumAlleles,loc,pop);
@@ -98,17 +98,17 @@ FlikeFreqsDiff (double newf,double oldf, double *Epsilon, double *P, int *NumAll
 
 /*-----------------------------------------*/
 void
-UpdateFstCL (CLDict *clDict,double *Epsilon, double *Fst, double *P, int *NumAlleles)
+UpdateFstCL (CLDict *clDict,float *Epsilon, float *Fst, float *P, int *NumAlleles)
 /*update the correlation factor, Fst, for each population*/
 {
 
     size_t global[2];
     int numfst;
-    /*double *reduceresult;
+    /*float *reduceresult;
     static int rep = 0;
 
-    reduceresult = calloc(MAXGROUPS*NUMINDS*NUMLOCI,sizeof(double));
-    writeBuffer(clDict,reduceresult,sizeof(double)*MAXGROUPS*NUMINDS*NUMLOCI,REDUCERESULTSCL,"result");*/
+    reduceresult = calloc(MAXGROUPS*NUMINDS*NUMLOCI,sizeof(float));
+    writeBuffer(clDict,reduceresult,sizeof(float)*MAXGROUPS*NUMINDS*NUMLOCI,REDUCERESULTSCL,"result");*/
 
     /*------Update f ()----See notebook, 5/14/99-----------*/
 
@@ -123,7 +123,7 @@ UpdateFstCL (CLDict *clDict,double *Epsilon, double *Fst, double *P, int *NumAll
     }
     global[0] = 1;
     setKernelArg(clDict,PopNormals,FSTCL,0);
-    setKernelArgExplicit(clDict,PopNormals,sizeof(double),&FPRIORSD,3);
+    setKernelArgExplicit(clDict,PopNormals,sizeof(float),&FPRIORSD,3);
     setKernelArgExplicit(clDict,PopNormals,sizeof(int),&numfst,4);
     runTask(clDict,PopNormals,"PopNormals Fst");
 
@@ -132,21 +132,21 @@ UpdateFstCL (CLDict *clDict,double *Epsilon, double *Fst, double *P, int *NumAll
     global[1] = numfst;
     runKernel(clDict,UpdateFstKernel,2,global,"UpdateFst");
     /*if (rep % 100 == 0){
-        readBuffer(clDict,reduceresult,sizeof(double)*MAXGROUPS*NUMINDS*NUMLOCI,REDUCERESULTSCL,"result");
+        readBuffer(clDict,reduceresult,sizeof(float)*MAXGROUPS*NUMINDS*NUMLOCI,REDUCERESULTSCL,"result");
         printf("%.2f %.2f \n",reduceresult[0],reduceresult[1]);
     }
     free(reduceresult);
     rep +=1; */
 }
 
-void UpdateFst (double *Epsilon, double *Fst, double *P, int *NumAlleles)
+void UpdateFst (float *Epsilon, float *Fst, float *P, int *NumAlleles)
     /*update the correlation factor, Fst, for each population*/
 {
 
-  double newf,oldf;
-  double logprobdiff;
-  double unifrv;
-  double threshold;
+  float newf,oldf;
+  float logprobdiff;
+  float unifrv;
+  float threshold;
   int pop1,pop2;
   int numpops1, numpops2;
 

@@ -10,21 +10,21 @@
 
 /*-----------------------------------------*/
 /*O*(NUMINDS*LINES*NUMLOCI*MAXPOPS)*/
-void UpdateZ (int *Z,  double *Q, double *P, int *Geno,double * randomArr)
+void UpdateZ (int *Z,  float *Q, float *P, int *Geno,float * randomArr)
 /*update Z: population origin of each allele */
 {
     int ind, line, loc, pop;
-    double *Cutoffs /*[MAXPOPS] */ ;
+    float *Cutoffs /*[MAXPOPS] */ ;
     /*Cutoffs contains unnormalized probabilities of
       an allele coming from each population */
-    double sum=0.0;
+    float sum=0.0;
     /* allocate on stack, as we don't use it afterwards */
     RndDiscState randState[1];
     /*  int i, ok; */
 
     int allele;
 
-    Cutoffs = calloc (MAXPOPS, sizeof (double));
+    Cutoffs = calloc (MAXPOPS, sizeof (float));
     if (Cutoffs == NULL) {
         printf ("WARNING: unable to allocate array space in UpdateZ\n");
         Kill ();
@@ -57,8 +57,8 @@ void UpdateZ (int *Z,  double *Q, double *P, int *Geno,double * randomArr)
 
 /*-----------------------------------------*/
 /*O*(NUMINDS*LINES*NUMLOCI*MAXPOPS)*/
-void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,
-                double * randomArr)
+void UpdateZCL (CLDict *clDict,int *Z,  float *Q, float *P, int *Geno,
+                float * randomArr)
 /*update Z: population origin of each allele */
 {
     size_t global[2];
@@ -71,7 +71,7 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,
 
 
 
-    /*writeBuffer(clDict,randomArr, sizeof(double) * NUMINDS*NUMLOCI*LINES,RANDCL,*/
+    /*writeBuffer(clDict,randomArr, sizeof(float) * NUMINDS*NUMLOCI*LINES,RANDCL,*/
                 /*"randomArr");*/
     /*writeBuffer(clDict,error,sizeof(int),ERRORCL,"error");*/
 
@@ -98,25 +98,25 @@ void UpdateZCL (CLDict *clDict,int *Z,  double *Q, double *P, int *Geno,
 
 
 /*----------------------------------------*/
-double
-UpdateZandSingleR (int *Z,  double *Q, double *P, int *Geno,
-                   double *R, double *Mapdistance, int rep, double *Phase,
-                   int *Z1,int *Phasemodel, double *sumIndLikes,
-                   double *indlike_norm)
+float
+UpdateZandSingleR (int *Z,  float *Q, float *P, int *Geno,
+                   float *R, float *Mapdistance, int rep, float *Phase,
+                   int *Z1,int *Phasemodel, float *sumIndLikes,
+                   float *indlike_norm)
 /* updates Z and R, assuming that the data is phased */
 {
     long ind, pop;
-    double *RTransitProb;
-    double *IndividualQ;
-    double trialR, logtrialR,currentloglikelihood, trialloglikelihood, indlike;
+    float *RTransitProb;
+    float *IndividualQ;
+    float trialR, logtrialR,currentloglikelihood, trialloglikelihood, indlike;
     /* long loc; */
     if (PHASED) {
-        RTransitProb = calloc (MAXPOPS * NUMLOCI * LINES, sizeof (double));
+        RTransitProb = calloc (MAXPOPS * NUMLOCI * LINES, sizeof (float));
     } else {
-        RTransitProb = calloc (MAXPOPS * MAXPOPS * NUMLOCI, sizeof (double));
+        RTransitProb = calloc (MAXPOPS * MAXPOPS * NUMLOCI, sizeof (float));
     }
 
-    IndividualQ = calloc (MAXPOPS, sizeof (double));
+    IndividualQ = calloc (MAXPOPS, sizeof (float));
     /*this form ensures compatibility with UpdateQMetroRecombine */
 
     if (RTransitProb == NULL || IndividualQ == NULL) {
@@ -175,27 +175,27 @@ UpdateZandSingleR (int *Z,  double *Q, double *P, int *Geno,
 
 
 /*----------------------------------------*/
-double
-UpdateZandR (int *Z,  double *Q, double *P, int *Geno,
-             double *R, double *Mapdistance, int rep, double *Phase, int *Z1,
-             int *Phasemodel, double *sumindlike, double *indlike_norm)
+float
+UpdateZandR (int *Z,  float *Q, float *P, int *Geno,
+             float *R, float *Mapdistance, int rep, float *Phase, int *Z1,
+             int *Phasemodel, float *sumindlike, float *indlike_norm)
 /* updates Z and R, assuming that the data is phased */
 {
     long ind, pop;
-    double *RTransitProb;
-    double *IndividualQ;
-    double trialR,logtrialR, currentloglikelihood, trialloglikelihood,
+    float *RTransitProb;
+    float *IndividualQ;
+    float trialR,logtrialR, currentloglikelihood, trialloglikelihood,
            sumlikelihood;
     /*  long loc; */
 
 
     if (PHASED) {
-        RTransitProb = calloc (MAXPOPS * NUMLOCI * LINES, sizeof (double));
+        RTransitProb = calloc (MAXPOPS * NUMLOCI * LINES, sizeof (float));
     } else {
-        RTransitProb = calloc (MAXPOPS * MAXPOPS * NUMLOCI, sizeof (double));
+        RTransitProb = calloc (MAXPOPS * MAXPOPS * NUMLOCI, sizeof (float));
     }
 
-    IndividualQ = calloc (MAXPOPS, sizeof (double));
+    IndividualQ = calloc (MAXPOPS, sizeof (float));
     /*this form ensures compatibility with UpdateQMetroRecombine */
 
     if (RTransitProb == NULL || IndividualQ == NULL) {

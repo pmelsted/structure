@@ -7,18 +7,18 @@
 
 
 /*------------------------------------------*/
-void IndependenceUpdateEpsilon(double *P,double *Epsilon,
-                               double *Fst,int *NumAlleles, double Lambda)
+void IndependenceUpdateEpsilon(float *P,float *Epsilon,
+                               float *Fst,int *NumAlleles, float Lambda)
 /*this is the alternative update to the one below, proposed by Graham */
 {
     int loc, pop, allele;
-    /*  double difference; */
-    double Sum;
-    double frac;
-    double *trialepsilon,*parameters;
+    /*  float difference; */
+    float Sum;
+    float frac;
+    float *trialepsilon,*parameters;
 
-    trialepsilon = calloc (MAXALLELES, sizeof (double));
-    parameters=calloc(MAXALLELES,sizeof(double));
+    trialepsilon = calloc (MAXALLELES, sizeof (float));
+    parameters=calloc(MAXALLELES,sizeof(float));
 
     if (trialepsilon == NULL || parameters == NULL) {
         printf ("warning: unable to allocate memory in UpdateEpsilon\n");
@@ -68,16 +68,16 @@ void IndependenceUpdateEpsilon(double *P,double *Epsilon,
     free (parameters);
 }
 
-void NonIndependenceUpdateEpsilon(double *P, double *Epsilon,
-                               double *Fst,int *NumAlleles, double lambda)
+void NonIndependenceUpdateEpsilon(float *P, float *Epsilon,
+                               float *Fst,int *NumAlleles, float lambda)
 {
 
     int loc,pop,allele1,allele2;
-    double difference,invsqrtnuminds;
-    double sum;
-    double frac;
+    float difference,invsqrtnuminds;
+    float sum;
+    float frac;
     /*this sets the range from which the proposal is drawn*/
-    invsqrtnuminds=pow((double)NUMINDS,-0.5);
+    invsqrtnuminds=pow((float)NUMINDS,-0.5);
 
     for (loc=0; loc<NUMLOCI; loc++) {
         if (NumAlleles[loc]>1) {
@@ -117,7 +117,7 @@ void NonIndependenceUpdateEpsilon(double *P, double *Epsilon,
                     sum += log(pow( (Epsilon[EpsPos (loc, allele1)] + difference)*
                                     (Epsilon[EpsPos (loc, allele2)] - difference)/
                                     (Epsilon[EpsPos (loc, allele1)])/
-                                    (Epsilon[EpsPos (loc, allele2)]), (double) lambda-1.0));
+                                    (Epsilon[EpsPos (loc, allele2)]), (float) lambda-1.0));
                 }
 
                 /*if (loc==3)
@@ -146,8 +146,8 @@ void NonIndependenceUpdateEpsilon(double *P, double *Epsilon,
 
 /*------------------------------------------*/
 void
-UpdateEpsilon(double *P,double *Epsilon, double *Fst,
-              int *NumAlleles, double lambda)
+UpdateEpsilon(float *P,float *Epsilon, float *Fst,
+              int *NumAlleles, float lambda)
 /*
  * update the ancestral allele freq vector Epsilon.  This is done
  * by picking 2 alleles at each locus, and changing their frequencies.
@@ -166,23 +166,23 @@ UpdateEpsilon(double *P,double *Epsilon, double *Fst,
     /* } */
 }
 
-void NonIndependenceUpdateEpsilonCL(CLDict *clDict,double *P, double *Epsilon,
-                               double *Fst,int *NumAlleles, double lambda){
+void NonIndependenceUpdateEpsilonCL(CLDict *clDict,float *P, float *Epsilon,
+                               float *Fst,int *NumAlleles, float lambda){
 
     size_t global[1];
     /*int loc,pop,allele1,allele2;
-    double difference,invsqrtnuminds;
-    double sum;
-    double frac;
+    float difference,invsqrtnuminds;
+    float sum;
+    float frac;
     int changed = 0;
-    double *gpueps;*/
+    float *gpueps;*/
     /*this sets the range from which the proposal is drawn*/
 
     global[0] = NUMLOCI;
     runKernel(clDict,NonIndUpdateEpsilonKernel,1,global,"Non Ind UpdateEpsilon kernel");
 
-    /*gpueps = calloc(MAXALLELES*NUMLOCI,sizeof(double));
-    invsqrtnuminds=pow((double)NUMINDS,-0.5);
+    /*gpueps = calloc(MAXALLELES*NUMLOCI,sizeof(float));
+    invsqrtnuminds=pow((float)NUMINDS,-0.5);
     for (loc=0; loc<NUMLOCI; loc++) {
         if (NumAlleles[loc]>1) {
             allele1=RandomInteger(0,NumAlleles[loc]-1);
@@ -214,7 +214,7 @@ void NonIndependenceUpdateEpsilonCL(CLDict *clDict,double *P, double *Epsilon,
                     [>TEMP: log added by JKP 6/30/03 as I think this was previously
                       an error.  Now doing testing <]
                     printf("lol");
-                    sum += log(pow( (Epsilon[EpsPos (loc, allele1)] + difference)* (Epsilon[EpsPos (loc, allele2)] - difference)/ (Epsilon[EpsPos (loc, allele1)])/ (Epsilon[EpsPos (loc, allele2)]), (double) lambda-1.0));
+                    sum += log(pow( (Epsilon[EpsPos (loc, allele1)] + difference)* (Epsilon[EpsPos (loc, allele2)] - difference)/ (Epsilon[EpsPos (loc, allele1)])/ (Epsilon[EpsPos (loc, allele2)]), (float) lambda-1.0));
                 }
 
                 [>if (loc==3)
@@ -239,7 +239,7 @@ void NonIndependenceUpdateEpsilonCL(CLDict *clDict,double *P, double *Epsilon,
             }
         }
     }
-    readBuffer(clDict,gpueps,sizeof(double)*NUMLOCI*MAXALLELES,EPSILONCL,"Esilon");
+    readBuffer(clDict,gpueps,sizeof(float)*NUMLOCI*MAXALLELES,EPSILONCL,"Esilon");
     for(loc = 0; loc < NUMLOCI; loc++){
         for(allele1 = 0; allele1 < MAXALLELES; allele1++){
             if (fabs(Epsilon[EpsPos(loc,allele1)]-gpueps[EpsPos(loc,allele1)]) > 10e-6){
@@ -268,8 +268,8 @@ void NonIndependenceUpdateEpsilonCL(CLDict *clDict,double *P, double *Epsilon,
 
 /*------------------------------------------*/
 void
-UpdateEpsilonCL(CLDict *clDict,double *P,double *Epsilon, double *Fst,
-              int *NumAlleles, double lambda)
+UpdateEpsilonCL(CLDict *clDict,float *P,float *Epsilon, float *Fst,
+              int *NumAlleles, float lambda)
 /*
  * update the ancestral allele freq vector Epsilon.  This is done
  * by picking 2 alleles at each locus, and changing their frequencies.

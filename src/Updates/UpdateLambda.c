@@ -5,12 +5,12 @@
 #include "../mymath.h"
 #include "../structure.h"
 
-void UpdatePopLambda (double *P, double *lambda, int *NumAlleles)
+void UpdatePopLambda (float *P, float *lambda, int *NumAlleles)
 /*updates a lambda for each population*/
 {
-    double new;
-    double sum;
-    double sumlogp;
+    float new;
+    float sum;
+    float sumlogp;
     int loc, pop, allele;
 
     for (pop=0; pop<MAXPOPS; pop++) {
@@ -21,10 +21,10 @@ void UpdatePopLambda (double *P, double *lambda, int *NumAlleles)
             for (loc=0; loc < NUMLOCI; loc++) {   /*compute log of likelihood ratio*/
                 if (NumAlleles[loc] > 1) {
                     /*norm constants*/
-                    sum +=  mylgamma((double) NumAlleles[loc]*new);
-                    sum -=  mylgamma((double) NumAlleles[loc]*lambda[pop]);
-                    sum +=  (double) NumAlleles[loc] * mylgamma(lambda[pop]);
-                    sum -=  (double) NumAlleles[loc] * mylgamma(new);
+                    sum +=  mylgamma((float) NumAlleles[loc]*new);
+                    sum -=  mylgamma((float) NumAlleles[loc]*lambda[pop]);
+                    sum +=  (float) NumAlleles[loc] * mylgamma(lambda[pop]);
+                    sum -=  (float) NumAlleles[loc] * mylgamma(new);
 
                     /*printf("%d %1.3f ----- ",loc,sum);*/
 
@@ -46,7 +46,7 @@ void UpdatePopLambda (double *P, double *lambda, int *NumAlleles)
 
 
 /*--------------------------------------------*/
-void UpdateLambda (double *P,double *Epsilon, double *lambda,
+void UpdateLambda (float *P,float *Epsilon, float *lambda,
                    int *NumAlleles)
 /*
  * updates single value of lambda.  If FREQSCORR is turned on, this is based on the
@@ -54,9 +54,9 @@ void UpdateLambda (double *P,double *Epsilon, double *lambda,
  * the population frequencies, P.  Uniform prior for lambda assumed
  */
 {
-    double new;
-    double sum;
-    double sumlogp;
+    float new;
+    float sum;
+    float sumlogp;
     int loc, pop, allele,stoppop;
 
     new = RNormal (lambda[0], LAMBDAPROPSD); /*proposal*/
@@ -72,10 +72,10 @@ void UpdateLambda (double *P,double *Epsilon, double *lambda,
         for (loc=0; loc < NUMLOCI; loc++) {  /*compute log of likelihood ratio*/
             if (NumAlleles[loc] > 1) {
                 /*norm constants*/
-                sum += (double) stoppop * mylgamma((double) NumAlleles[loc]*new);
-                sum -= (double) stoppop * mylgamma((double) NumAlleles[loc]*lambda[0]);
-                sum += (double) stoppop * (double) NumAlleles[loc] * mylgamma(lambda[0]);
-                sum -= (double) stoppop * (double) NumAlleles[loc] * mylgamma(new);
+                sum += (float) stoppop * mylgamma((float) NumAlleles[loc]*new);
+                sum -= (float) stoppop * mylgamma((float) NumAlleles[loc]*lambda[0]);
+                sum += (float) stoppop * (float) NumAlleles[loc] * mylgamma(lambda[0]);
+                sum -= (float) stoppop * (float) NumAlleles[loc] * mylgamma(new);
                 /*printf("%d %1.3f ----- ",loc,sum);*/
 
                 sumlogp = 0.0;

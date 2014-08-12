@@ -7,11 +7,11 @@
 #define M 7
 #define NSTACK 50
 
-void dsort(int n,double *arr)
+void dsort(int n,float *arr)
 {
     unsigned long i,ir=n,j,k,l=1,*istack;
     int jstack=0;
-    double a,temp;
+    float a,temp;
 
     istack = malloc((NSTACK+1)*sizeof(long));
     for (;;) {
@@ -154,13 +154,13 @@ void isort(int n, int *arr)
 
 
 void sort2(n,arr,brr)
-double arr[];
+float arr[];
 int brr[];
 unsigned long n;
 {
     unsigned long i,ir=n,j,k,l=1,*istack;
     int jstack=0;
-    double a,temp;
+    float a,temp;
     int b, itemp;
 
     istack=malloc((NSTACK+1)*sizeof(unsigned long));

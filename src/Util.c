@@ -98,23 +98,23 @@ void CheckParamCombinations()
 
 }
 /*---------------------------------------*/
-/*void FreeAll (int *Geno, double *Mapdistance, char *Markername,
+/*void FreeAll (int *Geno, float *Mapdistance, char *Markername,
           struct IND *Individual, int *Translation,
-          int *NumAlleles, int *Z, int *Z1, double *Q, double *P, double *LogP, double *Epsilon,
-          double *Fst, int *NumLociPop, double *PSum, double *QSum,
-          double *FstSum, int *AncestDist, double *UsePopProbs, double *R,
-          double *sumR, double *varR, double *LocPrior, double *sumLocPrior)
+          int *NumAlleles, int *Z, int *Z1, float *Q, float *P, float *LogP, float *Epsilon,
+          float *Fst, int *NumLociPop, float *PSum, float *QSum,
+          float *FstSum, int *AncestDist, float *UsePopProbs, float *R,
+          float *sumR, float *varR, float *LocPrior, float *sumLocPrior)
 */
-void FreeAll(double *Mapdistance, double *Phase, int *Phasemodel,
-             double *lambda, double *sumlambda,
+void FreeAll(float *Mapdistance, float *Phase, int *Phasemodel,
+             float *lambda, float *sumlambda,
              char *Markername, int *Geno, int* PreGeno, int* Recessive,
              struct IND *Individual,
-             int *Translation, int *NumAlleles, int *Z, int *Z1, double *Q, double *P,
-             double *R, double *sumR, double *varR, double *Epsilon, double *SumEpsilon,
-             double *Fst,
-             double *FstSum, int *NumLociPop, double *PSum, double *QSum,
-             int *AncestDist, double *UsePopProbs, double *LocPrior, double *sumLocPrior,
-             double *Alpha, double *sumAlpha, double *sumIndLikes, double *indLikesNorm,
+             int *Translation, int *NumAlleles, int *Z, int *Z1, float *Q, float *P,
+             float *R, float *sumR, float *varR, float *Epsilon, float *SumEpsilon,
+             float *Fst,
+             float *FstSum, int *NumLociPop, float *PSum, float *QSum,
+             int *AncestDist, float *UsePopProbs, float *LocPrior, float *sumLocPrior,
+             float *Alpha, float *sumAlpha, float *sumIndLikes, float *indLikesNorm,
              CLDict *clDict)
 {
     /** these variables are calloc'd in main and freed in the same order */
@@ -198,7 +198,7 @@ void FreeAll(double *Mapdistance, double *Phase, int *Phasemodel,
 /*--------------------------------------------*/
 
 /* returns log(exp(a)+exp(b)) without causing overflow issues */
-double logsumexp(double a, double b)
+float logsumexp(float a, float b)
 {
     if (a-b > 100) {
         return a;

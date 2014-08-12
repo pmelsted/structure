@@ -22,7 +22,7 @@ ulong MWC_AddMod64(ulong a, ulong b, ulong M)
 // This could be done more efficently, but it is portable, and should
 // be easy to understand. It can be replaced with any of the better
 // modular multiplication algorithms (for example if you know you have
-// double precision available or something).
+// float precision available or something).
 ulong MWC_MulMod64(ulong a, ulong b, ulong M)
 {
     ulong r=0;

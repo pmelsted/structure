@@ -1,3 +1,3 @@
-extern void UpdateLambda (double *P,double *Epsilon, double *lambda,
+extern void UpdateLambda (float *P,float *Epsilon, float *lambda,
                           int *NumAlleles);
-extern void UpdatePopLambda (double *P, double *lambda, int *NumAlleles);
+extern void UpdatePopLambda (float *P, float *lambda, int *NumAlleles);

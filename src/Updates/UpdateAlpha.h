@@ -1,7 +1,7 @@
-extern void UpdateAlpha (double *Q, double *Alpha, struct IND *Individual,
+extern void UpdateAlpha (float *Q, float *Alpha, struct IND *Individual,
                          int rep);
-extern void UpdateAlphaCL (CLDict *clDict,double *Q, double *Alpha, struct IND *Individual,
+extern void UpdateAlphaCL (CLDict *clDict,float *Q, float *Alpha, struct IND *Individual,
                          int rep,int POPFLAGINDS);
-extern void UpdateAlphaLocPrior(double *Q, double *Alpha, double *LocPrior,
+extern void UpdateAlphaLocPrior(float *Q, float *Alpha, float *LocPrior,
                                 struct IND *Individual);
 

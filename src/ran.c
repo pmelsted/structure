@@ -21,22 +21,22 @@ Binomial(n, p)           (Binomial rv)
 
 
 extern void Randomize(void);
-extern double RandomReal(double low, double high);
+extern float RandomReal(float low, float high);
 extern int RandomInteger(int low, int high);
-extern double rnd();
-extern double RGamma(double n,double lambda);
-extern void RDirichlet(const double * a, const int k, double * b);
-extern long RPoisson(double mu);
-extern double RExpon(double av);
-extern double RNormal(double mu,double sd) ;
-extern double fsign( double num, double sign );
-extern double sexpo(void);
-extern double snorm();
-extern double genexp(double av);
-extern long ignpoi(double mean);
+extern float rnd();
+extern float RGamma(float n,float lambda);
+extern void RDirichlet(const float * a, const int k, float * b);
+extern long RPoisson(float mu);
+extern float RExpon(float av);
+extern float RNormal(float mu,float sd) ;
+extern float fsign( float num, float sign );
+extern float sexpo(void);
+extern float snorm();
+extern float genexp(float av);
+extern long ignpoi(float mean);
 extern long ignuin(int low, int high);
-extern double genunf(double low, double high);
-extern long Binomial(int n, double p)
+extern float genunf(float low, float high);
+extern long Binomial(int n, float p)
 
 MORE DETAILS BELOW:
 
@@ -47,45 +47,45 @@ MORE DETAILS BELOW:
  Random number functions from random.c by Eric Roberts
 void Randomize(void);
                  Seed the random number generator
-double RandomReal(double low, double high);
+float RandomReal(float low, float high);
                  Get a random number between low and high
 int RandomInteger(int low, int high);
                  Get a random integer between low and high INCLUSIVE
-double rnd();
+float rnd();
                  Uniform(0,1) random number generation
 
 
  Random number functions from Matthew Stephens
 
-double RGamma(double n,double lambda);
+float RGamma(float n,float lambda);
                 gamma random generator from Ripley, 1987, P230
-void RDirichlet(const double * a, const int k, double * b);
+void RDirichlet(const float * a, const int k, float * b);
                 Dirichlet random generator
-   a and b are arrays of length k, containing doubles.
+   a and b are arrays of length k, containing floats.
    a is the array of parameters
    b is the output array, where b ~ Dirichlet(a)
 
 
 Functions from Brown and Lovato
 
-long RPoisson(double mu);
+long RPoisson(float mu);
                  Poisson with parameter mu
-double RExpon(double av);
+float RExpon(float av);
                  exponential with parameter av
-double RNormal(double mu,double sigsq) ;
+float RNormal(float mu,float sigsq) ;
                  Normal with mean mu, var sigsq; by JKP
  ---------Helper functions from Brown and Lovato
-double fsign( double num, double sign );
-double sexpo(void);
+float fsign( float num, float sign );
+float sexpo(void);
                  exponential with parameter 1
-double snorm();
+float snorm();
                  standard normal N(0,1)
 
 
-double genexp(double av);   return RExpon(av);
-long ignpoi(double mean);   return RPoisson(mean);
+float genexp(float av);   return RExpon(av);
+long ignpoi(float mean);   return RPoisson(mean);
 long ignuin(int low, int high);    return RandomInteger(low,high);
-double genunf(double low, double high);   return RandomReal(low,high);
+float genunf(float low, float high);   return RandomReal(low,high);
 */
 
 
@@ -125,13 +125,13 @@ void Randomize(int RANDOMIZE, int *seed)
     /*  srand((int) time(NULL) );  */
 }
 /*-------------------------------------*/
-double RandomReal(double low, double high)
+float RandomReal(float low, float high)
 /* Get a random number between low and high */
 
 {
-    double d;
+    float d;
 
-    d = (double) rand() / ((double) RAND_MAX + 1);
+    d = (float) rand() / ((float) RAND_MAX + 1);
     return (low + d * (high - low) );
 }
 /*-------------------------------------*/
@@ -139,9 +139,9 @@ int RandomInteger(int low, int high)
 /* Get a random integer between low and high INCLUSIVE*/
 {
     int k;
-    double d;
+    float d;
 
-    d = (double) rand() / ((double) RAND_MAX + 1);
+    d = (float) rand() / ((float) RAND_MAX + 1);
     k = (int) (d * (high - low + 1));
     return (low + k);
 }
@@ -149,9 +149,9 @@ int RandomInteger(int low, int high)
 /*=======================================================*/
 /*  Uniform(0,1) random number generation*/
 
-double rnd()
+float rnd()
 {
-    double value;
+    float value;
 
     do {
         value = RandomReal(0.0,1.0);
@@ -165,17 +165,17 @@ double rnd()
 /* gamma random generator from Ripley, 1987, P230 */
 
 
-double RGamma(double n,double lambda)
+float RGamma(float n,float lambda)
 {
-    double aa;
-    double w;
+    float aa;
+    float w;
     /*  int i; */
 
-    double x=0.0;
+    float x=0.0;
     if(n<1) {
-        const double E=2.71828182;
-        const double b=(n+E)/E;
-        double p=0.0;
+        const float E=2.71828182;
+        const float b=(n+E)/E;
+        float p=0.0;
 one:
         p=b*rnd();
         if(p>1) {
@@ -197,8 +197,8 @@ three:
 
         /* exponential random variable, from Ripley, 1987, P230  */
     {
-        double a=0.0;
-        double u,u0,ustar;
+        float a=0.0;
+        float u,u0,ustar;
 ten:
         u=rnd();
         u0=u;
@@ -216,14 +216,14 @@ twenty:
 thirty:
         return (a+u0)/lambda;
     } else {
-        double static nprev=0.0;
-        double static c1=0.0;
-        double static c2=0.0;
-        double static c3=0.0;
-        double static c4=0.0;
-        double static c5=0.0;
-        double u1;
-        double u2;
+        float static nprev=0.0;
+        float static c1=0.0;
+        float static c2=0.0;
+        float static c3=0.0;
+        float static c4=0.0;
+        float static c5=0.0;
+        float u1;
+        float u2;
         if(n!=nprev) {
             c1=n-1.0;
             aa=1.0/c1;
@@ -262,22 +262,22 @@ six:
 
 
 /*
-double
-LogRGamma (double n, double lambda)
+float
+LogRGamma (float n, float lambda)
 {
-  //double aa;
-  //  double w;
+  //float aa;
+  //  float w;
   //  int i;
-  double logx;
+  float logx;
   //  return log(RGamma(n, lambda));
   if (n < 1)
   //this is the case we need to worry about underflow
   //copied code from down below but work with logx
   //instead of x
     {
-      const double E = 2.71828182;
-      const double b = (n + E) / E;
-      double p = 0.0;
+      const float E = 2.71828182;
+      const float b = (n + E) / E;
+      float p = 0.0;
     one:
       p = b * rnd ();
       if (p > 1)
@@ -303,9 +303,9 @@ return log(RGamma(n,lambda));
 
 
 /* Melissa's version, adapted from an algorithm on wikipedia.  January 08 */
-double LogRGamma(double n, double lambda)
+float LogRGamma(float n, float lambda)
 {
-    double v0, v[3], E=2.71828182, em, logem, lognm;
+    float v0, v[3], E=2.71828182, em, logem, lognm;
     int i;
     if (lambda!=1.0) {
         printf("lambda=%e!\n", lambda);
@@ -340,15 +340,15 @@ double LogRGamma(double n, double lambda)
 /*--------------------------------------*/
 
 /* Dirichlet random generator
-   a and b are arrays of length k, containing doubles.
+   a and b are arrays of length k, containing floats.
    a is the array of parameters
    b is the output array, where b ~ Dirichlet(a)
    */
 
-void RDirichlet(const double * a, const int k, double * b)
+void RDirichlet(const float * a, const int k, float * b)
 {
     int i;
-    double sum=0.0;
+    float sum=0.0;
     for(i=0; i<k; i++) {
         b[i]=RGamma(a[i],1);
         sum += b[i];
@@ -367,11 +367,11 @@ b is the output array and c is a logged version of b*/
 
 /*O(k)*/
 void
-LogRDirichlet (const double *a, const int k, double *b,double *c)
+LogRDirichlet (const float *a, const int k, float *b,float *c)
 {
     int i;
-    double sum = 0.0;
-    double sum2;
+    float sum = 0.0;
+    float sum2;
     for (i = 0; i < k; i++) {
         c[i] = LogRGamma (a[i], 1);
         b[i]=exp(c[i]);
@@ -383,7 +383,7 @@ LogRDirichlet (const double *a, const int k, double *b,double *c)
        Ensures that P and logP remain defined in this rare event */
     if(sum<UNDERFLO) {
         for(i=0; i<k; i++) {
-            b[i] = 1.0/(double)(k);
+            b[i] = 1.0/(float)(k);
             c[i] = log(b[i]);
         }
     } else {
@@ -398,10 +398,10 @@ LogRDirichlet (const double *a, const int k, double *b,double *c)
 
 /*---------------------------------------*/
 
-long RPoisson(double mu)
+long RPoisson(float mu)
 /*
 **********************************************************************
-     long RPoissondouble mu)
+     long RPoissonfloat mu)
                     GENerate POIsson random deviate
                               Function
      Generates a single random deviate from a Poisson
@@ -452,22 +452,22 @@ long RPoisson(double mu)
      SEPARATION OF CASES A AND B
 */
 {
-    extern double fsign( double num, double sign );
-    static double a0 = -0.5;
-    static double a1 = 0.3333333;
-    static double a2 = -0.2500068;
-    static double a3 = 0.2000118;
-    static double a4 = -0.1661269;
-    static double a5 = 0.1421878;
-    static double a6 = -0.1384794;
-    static double a7 = 0.125006;
-    static double muold = 0.0;
-    static double muprev = 0.0;
-    static double fact[10] = {
+    extern float fsign( float num, float sign );
+    static float a0 = -0.5;
+    static float a1 = 0.3333333;
+    static float a2 = -0.2500068;
+    static float a3 = 0.2000118;
+    static float a4 = -0.1661269;
+    static float a5 = 0.1421878;
+    static float a6 = -0.1384794;
+    static float a7 = 0.125006;
+    static float muold = 0.0;
+    static float muprev = 0.0;
+    static float fact[10] = {
         1.0,1.0,2.0,6.0,24.0,120.0,720.0,5040.0,40320.0,362880.0
     };
     static long ignpoi,j,k,kflag,l,m;
-    static double b1,b2,c,c0,c1,c2,c3,d,del,difmuk,e,fk,fx,fy,g,omega,p,p0,px,py,q,
+    static float b1,b2,c,c0,c1,c2,c3,d,del,difmuk,e,fk,fx,fy,g,omega,p,p0,px,py,q,
            s,
            t,u,v,x,xx,pp[35];
 
@@ -507,7 +507,7 @@ S10:
     /*
          STEP S. SQUEEZE ACCEPTANCE - Srnd(IR) FOR (0,1)-SAMPLE U
     */
-    fk = (double)ignpoi;
+    fk = (float)ignpoi;
     difmuk = mu-fk;
     u = rnd();  /*was ranf -- JKP*/
     if(d*u >= difmuk*difmuk*difmuk) {
@@ -564,7 +564,7 @@ S50:
         goto S50;
     }
     ignpoi = (long) (mu+s*t);
-    fk = (double)ignpoi;
+    fk = (float)ignpoi;
     difmuk = mu-fk;
     /*
                  'SUBROUTINE' F IS CALLED (KFLAG=1 FOR CORRECT RETURN)
@@ -588,7 +588,7 @@ S70:
         goto S80;
     }
     px = -mu;
-    py = pow(mu,(double)ignpoi)/ *(fact+ignpoi);
+    py = pow(mu,(float)ignpoi)/ *(fact+ignpoi);
     goto S110;
 S80:
     /*
@@ -666,7 +666,7 @@ S150:
     */
     l += 1;
     for(k=l; k<=35; k++) {
-        p = p*mu/(double)k;
+        p = p*mu/(float)k;
         q += p;
         *(pp+k-1) = q;
         if(u <= q) {
@@ -683,7 +683,7 @@ S180:
 }
 
 /*-----------------------------------*/
-double RNormal(double mu,double sd)
+float RNormal(float mu,float sd)
 /* Returns Normal rv with mean mu, variance sigsq.
    Uses snorm function of Brown and Lovato.  By JKP*/
 {
@@ -718,29 +718,29 @@ double RNormal(double mu,double sd)
      THE DEFINITIONS OF THE CONSTANTS A(K), D(K), T(K) AND
      H(K) ARE ACCORDING TO THE ABOVEMENTIONED ARTICLE
 */
-double snorm()    /*was snorm(void) -- JKP*/
+float snorm()    /*was snorm(void) -- JKP*/
 {
-    static double a[32] = {
+    static float a[32] = {
         0.0,3.917609E-2,7.841241E-2,0.11777,0.1573107,0.1970991,0.2372021,0.2776904,
         0.3186394,0.36013,0.4022501,0.4450965,0.4887764,0.5334097,0.5791322,
         0.626099,0.6744898,0.7245144,0.7764218,0.8305109,0.8871466,0.9467818,
         1.00999,1.077516,1.150349,1.229859,1.318011,1.417797,1.534121,1.67594,
         1.862732,2.153875
     };
-    static double d[31] = {
+    static float d[31] = {
         0.0,0.0,0.0,0.0,0.0,0.2636843,0.2425085,0.2255674,0.2116342,0.1999243,
         0.1899108,0.1812252,0.1736014,0.1668419,0.1607967,0.1553497,0.1504094,
         0.1459026,0.14177,0.1379632,0.1344418,0.1311722,0.128126,0.1252791,
         0.1226109,0.1201036,0.1177417,0.1155119,0.1134023,0.1114027,0.1095039
     };
-    static double t[31] = {
+    static float t[31] = {
         7.673828E-4,2.30687E-3,3.860618E-3,5.438454E-3,7.0507E-3,8.708396E-3,
         1.042357E-2,1.220953E-2,1.408125E-2,1.605579E-2,1.81529E-2,2.039573E-2,
         2.281177E-2,2.543407E-2,2.830296E-2,3.146822E-2,3.499233E-2,3.895483E-2,
         4.345878E-2,4.864035E-2,5.468334E-2,6.184222E-2,7.047983E-2,8.113195E-2,
         9.462444E-2,0.1123001,0.136498,0.1716886,0.2276241,0.330498,0.5847031
     };
-    static double h[31] = {
+    static float h[31] = {
         3.920617E-2,3.932705E-2,3.951E-2,3.975703E-2,4.007093E-2,4.045533E-2,
         4.091481E-2,4.145507E-2,4.208311E-2,4.280748E-2,4.363863E-2,4.458932E-2,
         4.567523E-2,4.691571E-2,4.833487E-2,4.996298E-2,5.183859E-2,5.401138E-2,
@@ -748,7 +748,7 @@ double snorm()    /*was snorm(void) -- JKP*/
         8.781922E-2,9.930398E-2,0.11556,0.1404344,0.1836142,0.2790016,0.7010474
     };
     static long i;
-    static double snorm,u,s,ustar,aa,w,y,tt;
+    static float snorm,u,s,ustar,aa,w,y,tt;
     u = rnd();   /* was ranf--JKP*/
     s = 0.0;
     if(u > 0.5) {
@@ -766,7 +766,7 @@ double snorm()    /*was snorm(void) -- JKP*/
     /*
                                     START CENTER
     */
-    ustar = u-(double)i;
+    ustar = u-(float)i;
     aa = *(a+i-1);
 S40:
     if(ustar <= *(t+i-1)) {
@@ -841,7 +841,7 @@ S160:
 
 /*
 **********************************************************************
-     double RExpon(double av)
+     float RExpon(float av)
                     GENerate EXPonential random deviate
                               Function
      Generates a single random deviate from an exponential
@@ -859,9 +859,9 @@ S160:
                Comm. ACM, 15,10 (Oct. 1972), 873 - 882.
 **********************************************************************
 */
-double RExpon(double av)
+float RExpon(float av)
 {
-    static double RExpon;
+    static float RExpon;
 
     RExpon = sexpo()*av;
     return RExpon;
@@ -894,14 +894,14 @@ double RExpon(double av)
      Q(N) = SUM(ALOG(2.0)**K/K!)    K=1,..,N ,      THE HIGHEST N
      (HERE 8) IS DETERMINED BY Q(N)=1.0 WITHIN STANDARD PRECISION
 */
-double sexpo(void)
+float sexpo(void)
 {
-    static double q[8] = {
+    static float q[8] = {
         0.6931472,0.9333737,0.9888778,0.9984959,0.9998293,0.9999833,0.9999986,1.0
     };
     static long i;
-    static double sexpo,a,u,ustar,umin;
-    static double *q1 = q;
+    static float sexpo,a,u,ustar,umin;
+    static float *q1 = q;
     a = 0.0;
     u = rnd();  /* was ranf--JKP */
     goto S30;
@@ -936,7 +936,7 @@ S70:
 }
 
 /*------------------------------------*/
-double fsign( double num, double sign )
+float fsign( float num, float sign )
 /* Transfers sign of argument sign to argument num */
 {
     if ( ( sign>0.0f && num<0.0f ) || ( sign<0.0f && num>0.0f ) ) {
@@ -947,12 +947,12 @@ double fsign( double num, double sign )
 }
 
 /*------------------------------------*/
-double genexp(double av)
+float genexp(float av)
 {
     return RExpon(av);
 }
 /*------------------------------------*/
-long ignpoi(double mean)
+long ignpoi(float mean)
 {
     return RPoisson(mean);
 }
@@ -962,12 +962,12 @@ long ignuin(int low, int high)
     return RandomInteger(low,high);
 }
 /*-------------------------------------*/
-double genunf(double low, double high)
+float genunf(float low, float high)
 {
     return RandomReal(low,high);
 }
 /*-------------------------------------*/
-long Binomial(int n, double p)
+long Binomial(int n, float p)
 /*returns a binomial random number, for the number of successes in n trials
   with prob of sucess p.  There's probably a qicker algorithm than this, but I
   can't see how to write the cumulative prob in a simple form*/
@@ -983,7 +983,7 @@ long Binomial(int n, double p)
 
 }
 /*-------------------------------------*/
-long Binomial1(int n, double p)
+long Binomial1(int n, float p)
 /*returns a binomial random number, for the number of successes in n
 trials with prob of sucess p.  There's probably a qicker algorithm
 than this, but I can't see how to write the cumulative prob in a
@@ -991,11 +991,11 @@ simple form.  This more complicated algorithm, which involves summing
 the probabilities appears to be substantially slower than the
 simple-minded approach, above.*/
 {
-    double cum = 0.0;
+    float cum = 0.0;
     int up,down;
-    /*  double upvalue,downvalue; */
-    double rv;
-    /*  double q = 1 - p; */
+    /*  float upvalue,downvalue; */
+    float rv;
+    /*  float q = 1 - p; */
 
     if (p<=0.0) {
         return 0;    /*trivial cases*/
@@ -1032,12 +1032,12 @@ simple-minded approach, above.*/
                     p);  /*in case of reaching no result...possibly due to underflow(?)*/
 }
 /*-------------------------------------*/
-double BinoProb(int n, double p,int i)
+float BinoProb(int n, float p,int i)
 /*returns the prob of i successes in n trials with prob of sucess p.*/
 {
 
-    double logsum = 0.0;
-    double runningtotal = 1.0;
+    float logsum = 0.0;
+    float runningtotal = 1.0;
     int j;
 
     if (i>(n-i)) { /*figure out the n-choose-i part*/
@@ -1080,7 +1080,7 @@ double BinoProb(int n, double p,int i)
 
 
 
-double numToRange(double low, double high, double num)
+float numToRange(float low, float high, float num)
 {
     /* Takes a number in [0,1) -> [low,high) */
     return (low + num * (high - low) );
@@ -1091,18 +1091,18 @@ double numToRange(double low, double high, double num)
 /* gamma random generator from Ripley, 1987, P230 */
 
 
-double RGammaDisc(double n,double lambda,RndDiscState *randState)
+float RGammaDisc(float n,float lambda,RndDiscState *randState)
 {
 
-    double aa;
-    double w;
+    float aa;
+    float w;
     /*  int i; */
 
-    double x=0.0;
+    float x=0.0;
     if(n<1) {
-        const double E=2.71828182;
-        const double b=(n+E)/E;
-        double p=0.0;
+        const float E=2.71828182;
+        const float b=(n+E)/E;
+        float p=0.0;
 one:
         p=b*rndDisc(randState);
         if(p>1) {
@@ -1124,8 +1124,8 @@ three:
 
         /* exponential random variable, from Ripley, 1987, P230  */
     {
-        double a=0.0;
-        double u,u0,ustar;
+        float a=0.0;
+        float u,u0,ustar;
 ten:
         u=rndDisc(randState);
         u0=u;
@@ -1143,14 +1143,14 @@ twenty:
 thirty:
         return (a+u0)/lambda;
     } else {
-        double static nprev=0.0;
-        double static c1=0.0;
-        double static c2=0.0;
-        double static c3=0.0;
-        double static c4=0.0;
-        double static c5=0.0;
-        double u1;
-        double u2;
+        float static nprev=0.0;
+        float static c1=0.0;
+        float static c2=0.0;
+        float static c3=0.0;
+        float static c4=0.0;
+        float static c5=0.0;
+        float u1;
+        float u2;
         if(n!=nprev) {
             c1=n-1.0;
             aa=1.0/c1;
@@ -1190,16 +1190,16 @@ six:
 
 /*
  * Dirichlet random generator
- * a and b are arrays of length k, containing doubles.
+ * a and b are arrays of length k, containing floats.
  * a is the array of parameters
  * b is the output array, where b ~ Dirichlet(a)
  */
 
-void RDirichletDisc(const double * a, const int k, double * b, int offset,
+void RDirichletDisc(const float * a, const int k, float * b, int offset,
                     RndDiscState *randState)
 {
     int i;
-    double sum=0.0;
+    float sum=0.0;
     for(i=0; i<k; i++) {
         b[i+offset]=RGammaDisc(a[i],1,randState);
         sum += b[i+offset];
@@ -1211,9 +1211,9 @@ void RDirichletDisc(const double * a, const int k, double * b, int offset,
 
 
 /* Melissa's version, adapted from an algorithm on wikipedia.  January 08 */
-double LogRGammaDisc(double n, double lambda, RndDiscState *randState)
+float LogRGammaDisc(float n, float lambda, RndDiscState *randState)
 {
-    double v0, v[3], E=2.71828182, em, logem, lognm;
+    float v0, v[3], E=2.71828182, em, logem, lognm;
     int i;
     if (lambda!=1.0) {
         printf("lambda=%e!\n", lambda);
@@ -1245,12 +1245,12 @@ double LogRGammaDisc(double n, double lambda, RndDiscState *randState)
 
 /*O(k)*/
 void
-LogRDirichletDisc (const double *a, const int k, double *b,
+LogRDirichletDisc (const float *a, const int k, float *b,
                    RndDiscState *randState)
 {
     int i;
-    double sum = 0.0;
-    double sum2;
+    float sum = 0.0;
+    float sum2;
     for (i = 0; i < k; i++) {
         b[i] = RGammaDisc (a[i], 1,randState);
         sum += b[i];
@@ -1261,7 +1261,7 @@ LogRDirichletDisc (const double *a, const int k, double *b,
        Ensures that P and logP remain defined in this rare event */
     if(sum<UNDERFLO) {
         for(i=0; i<k; i++) {
-            b[i] = 1.0/(double)(k);
+            b[i] = 1.0/(float)(k);
         }
     } else {
         sum2=log(sum);

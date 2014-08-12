@@ -269,7 +269,7 @@ void setKernelArgs(CLDict *clDict)
     setKernelArg(clDict,mapReduceLogDiffsKernel,GENOCL,3);
     setKernelArg(clDict,mapReduceLogDiffsKernel,LOGDIFFSCL,4);
     setKernelArg(clDict,mapReduceLogDiffsKernel,REDUCERESULTSCL,5);
-    setKernelArgExplicit(clDict,mapReduceLogDiffsKernel,sizeof(double)*NUMLOCI,NULL,6);
+    setKernelArgExplicit(clDict,mapReduceLogDiffsKernel,sizeof(float)*NUMLOCI,NULL,6);
 
     /* RDirichlet sample */
     setKernelArg(clDict,RDirichletSampleKernel,ALPHACL,0);
@@ -310,7 +310,7 @@ void setKernelArgs(CLDict *clDict)
     setKernelArg(clDict,UpdateFstKernel,NORMSCL,4);
     setKernelArg(clDict,UpdateFstKernel,RANDGENSCL,5);
     setKernelArg(clDict,UpdateFstKernel,REDUCERESULTSCL,6);
-    setKernelArgExplicit(clDict,UpdateFstKernel,sizeof(double)*NUMLOCI,NULL,7);
+    setKernelArgExplicit(clDict,UpdateFstKernel,sizeof(float)*NUMLOCI,NULL,7);
 
     /* gpu normals */
     setKernelArg(clDict,PopNormals,NORMSCL,1);
@@ -323,7 +323,7 @@ void setKernelArgs(CLDict *clDict)
     setKernelArg(clDict,UpdateAlphaKernel,NORMSCL,3);
     setKernelArg(clDict,UpdateAlphaKernel,REDUCERESULTSCL,4);
     setKernelArg(clDict,UpdateAlphaKernel,RANDGENSCL,5);
-    setKernelArgExplicit(clDict,UpdateAlphaKernel,sizeof(double)*NUMINDS,NULL,6);
+    setKernelArgExplicit(clDict,UpdateAlphaKernel,sizeof(float)*NUMINDS,NULL,6);
     /* Arg 7 set when calculated in structure.c */
 
     setKernelArg(clDict,NonIndUpdateEpsilonKernel,PCL,0);
@@ -361,7 +361,7 @@ void setKernelArgs(CLDict *clDict)
     setKernelArg(clDict,MapReduceLogLikeKernel,GENOCL,2);
     setKernelArg(clDict,MapReduceLogLikeKernel,LOGLIKESCL,3);
     setKernelArg(clDict,MapReduceLogLikeKernel,REDUCERESULTSCL,4);
-    setKernelArgExplicit(clDict,MapReduceLogLikeKernel,sizeof(double)*NUMLOCI,NULL,5);
+    setKernelArgExplicit(clDict,MapReduceLogLikeKernel,sizeof(float)*NUMLOCI,NULL,5);
 
     setKernelArg(clDict,CalcLikeKernel,LOGLIKESCL,0);
     setKernelArg(clDict,CalcLikeKernel,INDLIKECL,1);
@@ -370,7 +370,7 @@ void setKernelArgs(CLDict *clDict)
     setKernelArgExplicit(clDict,CalcLikeKernel,sizeof(int),&flag,3);
     setKernelArg(clDict,CalcLikeKernel,LIKECL,4);
     setKernelArg(clDict,CalcLikeKernel,REDUCERESULTSCL,5);
-    setKernelArgExplicit(clDict,CalcLikeKernel,sizeof(double)*NUMINDS,NULL,6);
+    setKernelArgExplicit(clDict,CalcLikeKernel,sizeof(float)*NUMINDS,NULL,6);
 
 }
 
@@ -571,21 +571,21 @@ void createCLBuffer(CLDict *clDict, enum BUFFER buffer, size_t size, cl_mem_flag
 
 void createCLBuffers(CLDict *clDict)
 {
-    createCLBuffer(clDict,QCL,sizeof(double)*QSIZE,CL_MEM_READ_WRITE);
-    createCLBuffer(clDict,QSUMCL,sizeof(double)*QSIZE,CL_MEM_WRITE_ONLY);
-    createCLBuffer(clDict,PCL,sizeof(double)*PSIZE,CL_MEM_READ_WRITE);
-    createCLBuffer(clDict,PSUMCL,sizeof(double)*PSIZE,CL_MEM_WRITE_ONLY);
+    createCLBuffer(clDict,QCL,sizeof(float)*QSIZE,CL_MEM_READ_WRITE);
+    createCLBuffer(clDict,QSUMCL,sizeof(float)*QSIZE,CL_MEM_WRITE_ONLY);
+    createCLBuffer(clDict,PCL,sizeof(float)*PSIZE,CL_MEM_READ_WRITE);
+    createCLBuffer(clDict,PSUMCL,sizeof(float)*PSIZE,CL_MEM_WRITE_ONLY);
 
     if (FREQSCORR) {
-        createCLBuffer(clDict,FSTCL,sizeof(double)*MAXPOPS,CL_MEM_READ_WRITE);
-        createCLBuffer(clDict,FSTSUMCL,sizeof(double)*MAXPOPS,CL_MEM_WRITE_ONLY);
-        createCLBuffer(clDict,NORMSCL,sizeof(double)*MAXPOPS,CL_MEM_READ_WRITE);
-        createCLBuffer(clDict,EPSILONCL,sizeof(double)*NUMLOCI*MAXALLELES,CL_MEM_READ_WRITE);
-        createCLBuffer(clDict,EPSILONSUMCL,sizeof(double)*NUMLOCI*MAXALLELES,CL_MEM_WRITE_ONLY);
+        createCLBuffer(clDict,FSTCL,sizeof(float)*MAXPOPS,CL_MEM_READ_WRITE);
+        createCLBuffer(clDict,FSTSUMCL,sizeof(float)*MAXPOPS,CL_MEM_WRITE_ONLY);
+        createCLBuffer(clDict,NORMSCL,sizeof(float)*MAXPOPS,CL_MEM_READ_WRITE);
+        createCLBuffer(clDict,EPSILONCL,sizeof(float)*NUMLOCI*MAXALLELES,CL_MEM_READ_WRITE);
+        createCLBuffer(clDict,EPSILONSUMCL,sizeof(float)*NUMLOCI*MAXALLELES,CL_MEM_WRITE_ONLY);
     }
 
-    createCLBuffer(clDict,LAMBDACL,sizeof(double)*MAXPOPS,CL_MEM_READ_WRITE);
-    createCLBuffer(clDict,LAMBDASUMCL,sizeof(double)*MAXPOPS,CL_MEM_WRITE_ONLY);
+    createCLBuffer(clDict,LAMBDACL,sizeof(float)*MAXPOPS,CL_MEM_READ_WRITE);
+    createCLBuffer(clDict,LAMBDASUMCL,sizeof(float)*MAXPOPS,CL_MEM_WRITE_ONLY);
 
     createCLBuffer(clDict,ZCL,sizeof(int)*ZSIZE,CL_MEM_READ_WRITE);
     createCLBuffer(clDict,GENOCL,sizeof(int)*GENOSIZE,CL_MEM_READ_WRITE);
@@ -606,26 +606,26 @@ void createCLBuffers(CLDict *clDict)
 
     createCLBuffer(clDict,NUMLOCIPOPSCL,sizeof(int)*NUMINDS*MAXPOPS,CL_MEM_READ_WRITE);
 
-    createCLBuffer(clDict,LOGDIFFSCL,sizeof(double)*NUMINDS,CL_MEM_READ_WRITE);
+    createCLBuffer(clDict,LOGDIFFSCL,sizeof(float)*NUMINDS,CL_MEM_READ_WRITE);
 
-    createCLBuffer(clDict,REDUCERESULTSCL,sizeof(double)*MAXGROUPS*NUMINDS*NUMLOCI,CL_MEM_READ_WRITE);
+    createCLBuffer(clDict,REDUCERESULTSCL,sizeof(float)*MAXGROUPS*NUMINDS*NUMLOCI,CL_MEM_READ_WRITE);
 
-    /*createCLBuffer(clDict,LOGTERMSCL,sizeof(double)*NUMINDS*NUMLOCI,CL_MEM_READ_WRITE);*/
-    createCLBuffer(clDict,ALPHACL,sizeof(double)*MAXPOPS,CL_MEM_READ_WRITE);
-    createCLBuffer(clDict,ALPHASUMCL,sizeof(double)*MAXPOPS,CL_MEM_WRITE_ONLY);
+    /*createCLBuffer(clDict,LOGTERMSCL,sizeof(float)*NUMINDS*NUMLOCI,CL_MEM_READ_WRITE);*/
+    createCLBuffer(clDict,ALPHACL,sizeof(float)*MAXPOPS,CL_MEM_READ_WRITE);
+    createCLBuffer(clDict,ALPHASUMCL,sizeof(float)*MAXPOPS,CL_MEM_WRITE_ONLY);
 
-    createCLBuffer(clDict,TESTQCL,sizeof(double)*QSIZE,CL_MEM_READ_WRITE);
-    createCLBuffer(clDict,RANDCL,sizeof(double)*RANDSIZE,CL_MEM_READ_WRITE);
+    createCLBuffer(clDict,TESTQCL,sizeof(float)*QSIZE,CL_MEM_READ_WRITE);
+    createCLBuffer(clDict,RANDCL,sizeof(float)*RANDSIZE,CL_MEM_READ_WRITE);
     createCLBuffer(clDict,RANDGENSCL,sizeof(unsigned int)*NUMRANDGENS*2,CL_MEM_READ_WRITE);
     createCLBuffer(clDict,ERRORCL,sizeof(int)*2,CL_MEM_READ_WRITE);
 
-    createCLBuffer(clDict,LOGLIKESCL,sizeof(double)*NUMINDS,CL_MEM_READ_WRITE);
-    createCLBuffer(clDict,INDLIKECL,sizeof(double)*NUMINDS,CL_MEM_READ_WRITE);
-    createCLBuffer(clDict,SUMINDLIKECL,sizeof(double)*NUMINDS,CL_MEM_READ_WRITE);
+    createCLBuffer(clDict,LOGLIKESCL,sizeof(float)*NUMINDS,CL_MEM_READ_WRITE);
+    createCLBuffer(clDict,INDLIKECL,sizeof(float)*NUMINDS,CL_MEM_READ_WRITE);
+    createCLBuffer(clDict,SUMINDLIKECL,sizeof(float)*NUMINDS,CL_MEM_READ_WRITE);
 
-    createCLBuffer(clDict,LIKECL,sizeof(double),CL_MEM_READ_WRITE);
-    createCLBuffer(clDict,SUMLIKESCL,sizeof(double),CL_MEM_WRITE_ONLY);
-    createCLBuffer(clDict,SUMSQLIKESCL,sizeof(double),CL_MEM_WRITE_ONLY);
+    createCLBuffer(clDict,LIKECL,sizeof(float),CL_MEM_READ_WRITE);
+    createCLBuffer(clDict,SUMLIKESCL,sizeof(float),CL_MEM_WRITE_ONLY);
+    createCLBuffer(clDict,SUMSQLIKESCL,sizeof(float),CL_MEM_WRITE_ONLY);
 
     createCLBuffer(clDict,ANCESTDISTCL,sizeof(int)*NUMINDS*MAXPOPS*NUMBOXES,CL_MEM_WRITE_ONLY);
 }
@@ -771,7 +771,7 @@ int dimLoc(int * dims, int * dimMaxs, int numDims)
 /*
  * Copies the entire last dimension over into localarr
  */
-void copyToLocal( double * globalArr, double *localArr,
+void copyToLocal( float * globalArr, float *localArr,
                   int * dims, int * dimMaxs, int numDims)
 {
     int i;

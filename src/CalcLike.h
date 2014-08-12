@@ -1,15 +1,15 @@
 #include "KernelDefs.h"
-extern double CalcLikeInd(int *Geno, int *PreGeno, double *Q, double *P,
+extern float CalcLikeInd(int *Geno, int *PreGeno, float *Q, float *P,
                    int ind, int *Recessive);
 
-extern double CalcLikeIndDiff(int *Geno, int *PreGeno, double *QPlus, double *QMinus,
-                       double *P,
+extern float CalcLikeIndDiff(int *Geno, int *PreGeno, float *QPlus, float *QMinus,
+                       float *P,
                        int ind, int *Recessive);
 
-extern double CalcLikeIndDiffCL(int *Geno,  double *TestQ, double *Q,
-                       double *P, int ind);
-extern double CalcLikeIndCL(int *Geno, double *Q, double *P, int ind);
-extern double CalcLike (int *Geno, int *PreGeno, double *Q, double *P, int *Recessive,
-                 double *sumindlike, double *indlike_norm);
-extern void CalcLogdiffsCL(CLDict *clDict,int *Geno,double *TestQ, double *Q, double *P, double *logdiffs);
+extern float CalcLikeIndDiffCL(int *Geno,  float *TestQ, float *Q,
+                       float *P, int ind);
+extern float CalcLikeIndCL(int *Geno, float *Q, float *P, int ind);
+extern float CalcLike (int *Geno, int *PreGeno, float *Q, float *P, int *Recessive,
+                 float *sumindlike, float *indlike_norm);
+extern void CalcLogdiffsCL(CLDict *clDict,int *Geno,float *TestQ, float *Q, float *P, float *logdiffs);
 

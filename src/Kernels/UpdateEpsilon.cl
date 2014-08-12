@@ -1,21 +1,21 @@
 __kernel void NonIndUpdateEpsilon(
-        __global double *P,
-        __global double *Epsilon,
-        __global double *Fst,
+        __global float *P,
+        __global float *Epsilon,
+        __global float *Fst,
         __global int *NumAlleles,
         __global uint *randGens,
-        __global double *lambdas,
-        const double invsqrtnuminds)
+        __global float *lambdas,
+        const float invsqrtnuminds)
 {
 
     int loc = get_global_id(0);
     int allele1,allele2;
     int eps1,eps2;
     int pop;
-    double diff;
-    double sum;
-    double lambda = lambdas[0];
-    double rand;
+    float diff;
+    float sum;
+    float lambda = lambdas[0];
+    float rand;
     RndDiscState randState[1];
 
     while (loc < NUMLOCI){
@@ -35,7 +35,7 @@ __kernel void NonIndUpdateEpsilon(
                 //TODO: Evaluate whether we should reduce here.
                 sum=0.0;
                 for (pop=0; pop<MAXPOPS; pop++) { /*compute likelihood ratio*/
-                    double frac = (1.0-Fst[pop])/Fst[pop];
+                    float frac = (1.0-Fst[pop])/Fst[pop];
                     sum += lgamma(frac*eps1);
                     sum += lgamma(frac*eps2);
                     sum -= lgamma(frac*(eps1+diff));
@@ -46,10 +46,10 @@ __kernel void NonIndUpdateEpsilon(
                 }
                 if (lambda != 1.0) {              /*compute prior ratio*/
                     /* as it is in code */
-                    /*double ratio = (eps1 + diff)* (eps2 - diff)/(eps1)/(eps2)*/
+                    /*float ratio = (eps1 + diff)* (eps2 - diff)/(eps1)/(eps2)*/
                     /*sum += log(pow(ratio, lambda-1.0));*/
                     /* as it probably should be ? */
-                    double ratio = (eps1 + diff)* (eps2 - diff)/(eps1*eps2);
+                    float ratio = (eps1 + diff)* (eps2 - diff)/(eps1*eps2);
                     sum += (lambda-1.0)*log(ratio);
                 }
 

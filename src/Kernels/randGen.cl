@@ -25,8 +25,8 @@ void saveRandGen(__global uint *randGens, int randGen,mwc64x_state_t rng){
 
 }
 
-double uintToUnit(uint rndint){
-   return (double) rndint / MAXRANDVAL;
+float uintToUnit(uint rndint){
+   return (float) rndint / MAXRANDVAL;
 }
 
 
@@ -40,13 +40,13 @@ __kernel void InitRandGens( __global uint *randGens, const int baseOffset)
 
 /*#if DEBUGCOMPARE
 typedef struct RndDiscState {
-    __global double *randomArr;
+    __global float *randomArr;
     int randomValsTaken;
     int baseOffset;
 } RndDiscState;
 
 
-void initRndDiscState(RndDiscState *state,__global double * randomArr, int offset)
+void initRndDiscState(RndDiscState *state,__global float * randomArr, int offset)
 {
     state->randomArr = randomArr;
     state->maxrandom = maxrandom;
@@ -54,9 +54,9 @@ void initRndDiscState(RndDiscState *state,__global double * randomArr, int offse
     state->randomValsTaken = 0;
 }
 
-double rndDisc(RndDiscState * state)
+float rndDisc(RndDiscState * state)
 {
-    double val;
+    float val;
     val = state->randomArr[state->baseOffset + state->randomValsTaken];
     state->randomValsTaken++;
     return val;
@@ -75,9 +75,9 @@ void initRndDiscState(RndDiscState *state, __global uint * randGens, int id)
     state->rng = getRandGen(randGens,id);
 }
 
-double rndDisc(RndDiscState * state)
+float rndDisc(RndDiscState * state)
 {
-    double val = uintToUnit(MWC64X_NextUint(&(state->rng)));
+    float val = uintToUnit(MWC64X_NextUint(&(state->rng)));
     return val;
 }
 
@@ -87,12 +87,12 @@ uint rndUInt(RndDiscState * state)
     return val;
 }
 
-double2 BoxMuller(RndDiscState *state)
+float2 BoxMuller(RndDiscState *state)
 {
-  double u0=rndDisc(state), u1=rndDisc(state);
-  double r=sqrt(-2*log(u0));
-  double theta=2*PI*u1;
-  return (double2) (r*sin(theta),r*cos(theta));
+  float u0=rndDisc(state), u1=rndDisc(state);
+  float r=sqrt(-2*log(u0));
+  float theta=2*PI*u1;
+  return (float2) (r*sin(theta),r*cos(theta));
 }
 
 float2 BoxMullerF(RndDiscState *state)

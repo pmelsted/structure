@@ -9,7 +9,7 @@
 
 
 /*-----------------------------------------*/
-double AlphaPriorDiff (double newalpha, double oldalpha)
+float AlphaPriorDiff (float newalpha, float oldalpha)
 {
     /*returns log diff in priors for the alpha, assuming a gamma prior on alpha
       See notes 7/29/99 */
@@ -18,17 +18,17 @@ double AlphaPriorDiff (double newalpha, double oldalpha)
 }
 
 /*-----------------------------------------*/
-double LogProbQDiff (double *Q, double oldalpha, double newalpha,
-                     struct IND *Individual,double sumalphas,
+float LogProbQDiff (float *Q, float oldalpha, float newalpha,
+                     struct IND *Individual,float sumalphas,
                      int pop,int numredpops)
 {
     /*return log prob of q given alpha [for single alpha in all populations].
       See notes 5/13/99 */
-    double sum;
+    float sum;
     int ind, redpop;
     /*this is the number of individuals without pop. info */
     int numinds = 0;
-    double logterm = 0.0;
+    float logterm = 0.0;
     int multiple = numredpops - pop;
 
     sum = 0.0;
@@ -59,13 +59,13 @@ double LogProbQDiff (double *Q, double oldalpha, double newalpha,
 }
 
 /*-----------------------------------------*/
-double LogProbQTerm (double *Q, struct IND *Individual, int pop,int numredpops)
+float LogProbQTerm (float *Q, struct IND *Individual, int pop,int numredpops)
 {
     /*return log prob of q given alpha [for single alpha in all populations].
       See notes 5/13/99 */
     int ind, redpop;
     /*this is the number of individuals without pop. info */
-    double logterm = 0.0;
+    float logterm = 0.0;
 
 
     for (ind = 0; ind < NUMINDS; ind++) {
@@ -81,7 +81,7 @@ double LogProbQTerm (double *Q, struct IND *Individual, int pop,int numredpops)
 
 
 /*-----------------------------------------*/
-double LogProbQonepop (double *Q, double alpha, double alphasum,
+float LogProbQonepop (float *Q, float alpha, float alphasum,
                        struct IND *Individual,int pop)
 {
     /*
@@ -91,11 +91,11 @@ double LogProbQonepop (double *Q, double alpha, double alphasum,
      * relevant product in the q's
      */
 
-    double sum;
+    float sum;
     int ind;
     /*this is the number of individuals without pop. info */
     int numinds = 0;
-    double logterm;
+    float logterm;
 
     sum = 0.0;
     logterm = 0.0;
@@ -116,10 +116,10 @@ double LogProbQonepop (double *Q, double alpha, double alphasum,
 }
 
 /* returns log Pr(Q|LocPrior) for a subset of individuals at a location */
-double LogProbQ_LocPrior_loc(double *Q, double *Alpha, struct IND *Individual,
+float LogProbQ_LocPrior_loc(float *Q, float *Alpha, struct IND *Individual,
                              int loc)
 {
-    double sumalpha=0.0, sumgammaalpha=0.0, like=0.0;
+    float sumalpha=0.0, sumgammaalpha=0.0, like=0.0;
     int ind, pop, numind=0;
 
     for (ind=0; ind<NUMINDS; ind++) {
@@ -136,20 +136,20 @@ double LogProbQ_LocPrior_loc(double *Q, double *Alpha, struct IND *Individual,
         sumalpha += Alpha[pop];
         sumgammaalpha += mylgamma(Alpha[pop]);
     }
-    like += (mylgamma(sumalpha) - sumgammaalpha)*(double)numind;
+    like += (mylgamma(sumalpha) - sumgammaalpha)*(float)numind;
 
     return like;
 }
 
-double LogProbQ (double *Q, double onealpha, struct IND *Individual)
+float LogProbQ (float *Q, float onealpha, struct IND *Individual)
 {
   /*return log prob of q given alpha [for single alpha in all populations].
     See notes 5/13/99 */
-  double sum;
-  double runningtotal;
+  float sum;
+  float runningtotal;
   int ind, pop;
   int numinds = 0;              /*this is the number of individuals without pop. info */
-  double sqrtunder = sqrt (UNDERFLO);
+  float sqrtunder = sqrt (UNDERFLO);
 
   sum = 0.0;
 
@@ -186,19 +186,19 @@ double LogProbQ (double *Q, double onealpha, struct IND *Individual)
 }
 
 
-void UpdateAlpha (double *Q, double *Alpha, struct IND *Individual, int rep)
+void UpdateAlpha (float *Q, float *Alpha, struct IND *Individual, int rep)
 {
   /* Produce new *Alpha using metropolis step.  There are two cases
      here: either there is the same alpha for all populations, or we do a
      separate Metropolis update for the alpha for each population.*/
 
-  double newalpha;
-  /*  double logoldprob;
-   *  double lognewprob; */
-  double unifrv;
-  double threshold;
-  double logprobdiff = 0;
-  double sumalphas;
+  float newalpha;
+  /*  float logoldprob;
+   *  float lognewprob; */
+  float unifrv;
+  float threshold;
+  float logprobdiff = 0;
+  float sumalphas;
   int pop, numalphas,i;
 
   if (!((NOADMIX) && ((rep >= ADMBURNIN) || (rep > BURNIN)))) {
@@ -254,10 +254,10 @@ void UpdateAlpha (double *Q, double *Alpha, struct IND *Individual, int rep)
 
 
 /* updates Alpha under LocPrior model */
-void UpdateAlphaLocPrior(double *Q, double *Alpha, double *LocPrior,
+void UpdateAlphaLocPrior(float *Q, float *Alpha, float *LocPrior,
                          struct IND *Individual)
 {
-    double diff, newalpha, oldalpha, lprobQ, globalpha, new_lprobQ;
+    float diff, newalpha, oldalpha, lprobQ, globalpha, new_lprobQ;
     int pop, loc, pos;
 
     /* first update global alpha */
@@ -304,7 +304,7 @@ void UpdateAlphaLocPrior(double *Q, double *Alpha, double *LocPrior,
     }
 }
 
-void UpdateAlphaCL (CLDict *clDict,double *Q, double *Alpha, struct IND *Individual, int rep, int POPFLAGINDS)
+void UpdateAlphaCL (CLDict *clDict,float *Q, float *Alpha, struct IND *Individual, int rep, int POPFLAGINDS)
 {
     /*
      * Produce new *Alpha using metropolis step.  There are two cases
@@ -312,18 +312,18 @@ void UpdateAlphaCL (CLDict *clDict,double *Q, double *Alpha, struct IND *Individ
      * separate Metropolis update for the alpha for each population.
      */
 
-    /*double newalpha;*/
-    /*double logprobdiff = 0;*/
+    /*float newalpha;*/
+    /*float logprobdiff = 0;*/
     /*int pop, i;*/
     int numalphas;
     int numredpops;
     /*int redpop;*/
     size_t global[2];
-    /*double alphasum;*/
-    /*double oldalpha;*/
-    /*double logterm;*/
-    /*double sumalphas;*/
-    /*double sum;*/
+    /*float alphasum;*/
+    /*float oldalpha;*/
+    /*float logterm;*/
+    /*float sumalphas;*/
+    /*float sum;*/
     /*int multiple;*/
 
     if (!((NOADMIX) && ((rep >= ADMBURNIN) || (rep > BURNIN)))) {
@@ -337,7 +337,7 @@ void UpdateAlphaCL (CLDict *clDict,double *Q, double *Alpha, struct IND *Individ
         }
 
         setKernelArg(clDict,PopNormals,ALPHACL,0);
-        setKernelArgExplicit(clDict,PopNormals,sizeof(double),&ALPHAPROPSD,3);
+        setKernelArgExplicit(clDict,PopNormals,sizeof(float),&ALPHAPROPSD,3);
         setKernelArgExplicit(clDict,PopNormals,sizeof(int),&numalphas,4);
         runTask(clDict,PopNormals,"PopNormals Alpha");
 
@@ -388,6 +388,6 @@ void UpdateAlphaCL (CLDict *clDict,double *Q, double *Alpha, struct IND *Individ
                 }
             }
         }
-        writeBuffer(clDict,Alpha,sizeof(double) * MAXPOPS,ALPHACL,"Alpha");*/
+        writeBuffer(clDict,Alpha,sizeof(float) * MAXPOPS,ALPHACL,"Alpha");*/
     }
 }

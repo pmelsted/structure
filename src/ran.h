@@ -1,30 +1,30 @@
 #include "randGen.h"
 extern void Randomize(int RANDOMIZE, int *seed);
-extern double RandomReal(double low, double high);
+extern float RandomReal(float low, float high);
 extern int RandomInteger(int low, int high);
-extern double rnd();
-extern double RGamma(double n,double lambda);
-extern void RDirichlet(const double * a, const int k, double * b);
-extern long RPoisson(double mu);
-extern double RExpon(double av);
-extern double RNormal(double mu,double sd) ;
-extern double fsign( double num, double sign );
-extern double sexpo(void);
-extern double snorm();
-extern double genexp(double av);
-extern long ignpoi(double mean);
+extern float rnd();
+extern float RGamma(float n,float lambda);
+extern void RDirichlet(const float * a, const int k, float * b);
+extern long RPoisson(float mu);
+extern float RExpon(float av);
+extern float RNormal(float mu,float sd) ;
+extern float fsign( float num, float sign );
+extern float sexpo(void);
+extern float snorm();
+extern float genexp(float av);
+extern long ignpoi(float mean);
 extern long ignuin(int low, int high);
-extern double genunf(double low, double high);
-extern long   Binomial(int n, double p);
-extern long   Binomial1(int n, double p);
-extern double BinoProb(int n, double p,int i);
-extern void LogRDirichlet (const double *a, const int k, double *b,double *c);
-extern double numToRange(double low, double high, double num);
-extern double rndDisc(RndDiscState *randState);
-extern double RGammaDisc(double n,double lambda,RndDiscState *randState);
-extern void RDirichletDisc(const double * a, const int k, double * b, int offset,
+extern float genunf(float low, float high);
+extern long   Binomial(int n, float p);
+extern long   Binomial1(int n, float p);
+extern float BinoProb(int n, float p,int i);
+extern void LogRDirichlet (const float *a, const int k, float *b,float *c);
+extern float numToRange(float low, float high, float num);
+extern float rndDisc(RndDiscState *randState);
+extern float RGammaDisc(float n,float lambda,RndDiscState *randState);
+extern void RDirichletDisc(const float * a, const int k, float * b, int offset,
                            RndDiscState *randState);
-extern double LogRGammaDisc(double n, double lambda, RndDiscState *randState);
-extern void LogRDirichletDisc (const double *a, const int k, double *b,
+extern float LogRGammaDisc(float n, float lambda, RndDiscState *randState);
+extern void LogRDirichletDisc (const float *a, const int k, float *b,
                                 RndDiscState *randState);
 

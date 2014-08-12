@@ -22,9 +22,9 @@ LGammaDistProb                     Probability of a draw from a Gamma distributi
 FindAveLogs                        Estimated average of a series of log numbers.
 RandomOrder                        Return a list of integers from 0 to L-1 in
                                         random order.
-double Factorial(int n)            Return n!, as a double
+float Factorial(int n)            Return n!, as a float
 
-double ChiSq(int *list1,int len1,int *list2,int len2,int mincount,int missing,int *df)
+float ChiSq(int *list1,int len1,int *list2,int len2,int mincount,int missing,int *df)
        This function takes two lists of integers (allele scores),
 and computes a chi^sq for the equality of frequencies.  list1 and
 list2 are the two lists, of length len1, and len2, respectively.
@@ -32,24 +32,24 @@ Missing data are marked by the value "missing".  Classes with fewer
 than "mincount" observations are pooled.  The function returns the
 chisq value, and a pointer to the resulting degrees of freedom (df).
 
-extern double LDirichletProb(double prior[],double post[],int length)
-extern double Square(double x);
-extern double SampleVar(double sum,double sumsq,double numreps);
-extern int PickAnOption(int total,double sum,double Probs[]);
-extern double FindAveLogs(double *logmax,double *sum, double lognext,int rep);
+extern float LDirichletProb(float prior[],float post[],int length)
+extern float Square(float x);
+extern float SampleVar(float sum,float sumsq,float numreps);
+extern int PickAnOption(int total,float sum,float Probs[]);
+extern float FindAveLogs(float *logmax,float *sum, float lognext,int rep);
 extern void RandomOrder(int list[],int length);
-extern double Factorial(int n);
+extern float Factorial(int n);
 */
 
-#define NUMUNDERFLOW 1e-200           /*maximum resolution of doubles*/
+#define NUMUNDERFLOW 1e-200           /*maximum resolution of floats*/
 
 /*---------------------------------*/
-double Square(double x)
+float Square(float x)
 {
     return x*x;
 }
 /*---------------------------------*/
-double SampleVar(double sumsq, double sum, long num)
+float SampleVar(float sumsq, float sum, long num)
 /*returns the value of the sample variance, computed using the sum of
 x_i^2 (sumsq), the sum of x_i (sum), and the sample size (num)*/
 {
@@ -62,13 +62,13 @@ x_i^2 (sumsq), the sum of x_i (sum), and the sample size (num)*/
 }
 
 /*---------------------------------*/
-double SD(double sumsq, double sum, long num)
+float SD(float sumsq, float sum, long num)
 {
     /*returns the value of the square root of the sample variance,
     computed using the sum of x_i^2 (sumsq), the sum of x_i (sum),
     and the sample size (num)*/
 
-    double var;
+    float var;
 
     var = SampleVar(sumsq,sum,num);
     /*printf("var: %1.3f\n",var);*/
@@ -77,7 +77,7 @@ double SD(double sumsq, double sum, long num)
 
 }
 /*---------------------------------*/
-int PickAnOption(int total,double sum,double Probs[])
+int PickAnOption(int total,float sum,float Probs[])
 {
     /*Returns a random number between 0 and n-1, according to a list of
       probabilities.  The function takes a (possibly) unnormalized
@@ -86,8 +86,8 @@ int PickAnOption(int total,double sum,double Probs[])
       probabilities.  This comes up in the Gibbs sampler context.*/
 
     int option;
-    double random;
-    double sumsofar = 0.0;
+    float random;
+    float sumsofar = 0.0;
 
     random = RandomReal(0,sum);     /*Get uniform random real in this range*/
     for (option=0; option<total; option++) { /*Figure out which popn this is*/
@@ -102,7 +102,7 @@ int PickAnOption(int total,double sum,double Probs[])
 }
 
 
-int PickAnOptionDiscrete(int total,double sum,double Probs[],
+int PickAnOptionDiscrete(int total,float sum,float Probs[],
                          RndDiscState *randState)
 {
     /*Returns a random number between 0 and n-1, according to a list of
@@ -112,8 +112,8 @@ int PickAnOptionDiscrete(int total,double sum,double Probs[],
       probabilities.  This comes up in the Gibbs sampler context.*/
 
     int option;
-    double random;
-    double sumsofar = 0.0;
+    float random;
+    float sumsofar = 0.0;
 
     random = numToRange(0,sum,
                         rndDisc(randState));     /*Get uniform random real in this range*/
@@ -130,12 +130,12 @@ int PickAnOptionDiscrete(int total,double sum,double Probs[],
 
 
 /*---------------------------------*/
-double LDirichletProb(double prior[],double post[],int length)
+float LDirichletProb(float prior[],float post[],int length)
 /*returns the log probability of a vector "post" of length "length",
   given a Dirichlet process with prior "prior". */
 {
-    double sumprior = 0.0;
-    double logsum;
+    float sumprior = 0.0;
+    float logsum;
     int i;
 
     for (i=0; i<length; i++) {
@@ -150,7 +150,7 @@ double LDirichletProb(double prior[],double post[],int length)
     return logsum;
 }
 /*---------------------------------*/
-double LGammaDistProb(double alpha,double beta, double y)
+float LGammaDistProb(float alpha,float beta, float y)
 /*
  * returns the log probability of a gamma-distributed random
  * variable "y", with parameters alpha and beta, where the mean
@@ -158,7 +158,7 @@ double LGammaDistProb(double alpha,double beta, double y)
  */
 {
 
-    double logsum;
+    float logsum;
 
     logsum = -1*mylgamma(alpha) - alpha*log(beta) + (alpha-1)*log(y) - y/beta;
 
@@ -166,7 +166,7 @@ double LGammaDistProb(double alpha,double beta, double y)
 
 }
 /*----------------------------------*/
-double FindAveLogs(double *logmax,double *sum, double lognext,int rep)
+float FindAveLogs(float *logmax,float *sum, float lognext,int rep)
 /*This function is for use in estimating the mean of a set of really
 large or small numbers, where it is necessary to use logs to avoid
 numerical problems.  This function returns the log of the current
@@ -224,10 +224,10 @@ void RandomOrder(int list[],int length)
 
 }
 /*----------------------------------*/
-double Factorial(int n)
-/*return n!, as a double*/
+float Factorial(int n)
+/*return n!, as a float*/
 {
-    double product = 1;
+    float product = 1;
     int i;
     if (n < 0) {
         printf("WARNING: trying to compute %d! \n", n);
@@ -240,7 +240,7 @@ double Factorial(int n)
     return product;
 }
 /*------------------------------------------------------------*/
-double ChiSq(int *list1,int len1,int *list2,int len2,int mincount,int missing,
+float ChiSq(int *list1,int len1,int *list2,int len2,int mincount,int missing,
              int *df)
 /*This function takes two lists of integers (allele scores), and
 computes a chi^sq for the equality of frequencies.  list1 and list2
@@ -257,11 +257,11 @@ value, and a pointer to the resulting degrees of freedom (df).*/
     int i,allele;
     int data;
     int min1,min2,min3,all1,all2;
-    double chisq = 0.0;
+    float chisq = 0.0;
     int x1,x2;
-    /*  double xbar; */
+    /*  float xbar; */
     int t1, t2; /*total allele counts*/
-    double e1, e2; /*exp allele counts*/
+    float e1, e2; /*exp allele counts*/
 
     alleles = calloc(len1+len2,sizeof(int));
     count1 = calloc(len1+len2,sizeof(int));
@@ -365,12 +365,12 @@ value, and a pointer to the resulting degrees of freedom (df).*/
     for (allele=0; allele<numalleles; allele++) {
         x1 = count1[allele];
         x2 = count2[allele];
-        e1 = ((double) (x1+x2)*t1/(t1+t2));
-        e2 = ((double) (x1+x2)*t2/(t1+t2));
+        e1 = ((float) (x1+x2)*t1/(t1+t2));
+        e2 = ((float) (x1+x2)*t2/(t1+t2));
         /*printf("O-E=%d--%1.3f   O-E=%d--%1.3f\n",x1,e1,x2,e2);  */
 
-        chisq += ((double) (x1 - e1)*(x1 - e1)/e1);
-        chisq += ((double) (x2 - e2)*(x2 - e2)/e2);
+        chisq += ((float) (x1 - e1)*(x1 - e1)/e1);
+        chisq += ((float) (x2 - e2)*(x2 - e2)/e2);
 
     }
 
@@ -379,11 +379,11 @@ value, and a pointer to the resulting degrees of freedom (df).*/
 }
 /*----------------------------------------------------*/
 
-double mylgamma(double z)
+float mylgamma(float z)
 {
     /* LGAMMA function
 
-       double_value = lgamma(<double_value > 0.>)
+       float_value = lgamma(<float_value > 0.>)
 
        returns the natural log of the gamma function
 
@@ -403,15 +403,15 @@ double mylgamma(double z)
     Tested against Mathematica's Log[Gamma[x]]
     */
 
-    double a[9] = { 0.9999999999995183, 676.5203681218835,
+    float a[9] = { 0.9999999999995183, 676.5203681218835,
                     -1259.139216722289, 771.3234287757674, -176.6150291498386,
                     12.50734324009056, -0.1385710331296526, 9.934937113930748e-6,
                     1.659470187408462e-7
                   };
-    double lnsqrt2pi = 0.9189385332046727;
-    double result;
+    float lnsqrt2pi = 0.9189385332046727;
+    float result;
     long j;
-    double tmp;
+    float tmp;
     if (z <= 0.) {
         fprintf(stderr,"lgamma function failed with wrong input (%f)\n",z);
         assert(0);

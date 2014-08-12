@@ -1,8 +1,8 @@
-extern void UpdateP (double *P,  double *Epsilon, double *Fst,
-                     int *NumAlleles, int *Geno, int *Z, double *lambda, struct IND *Individual,
-                     double * randomArr);
-extern void UpdatePCL (CLDict *clDict,double *P,  double *Epsilon,
-                       double *Fst,
-                       int *NumAlleles, int *Geno, int *Z, double *lambda, struct IND *Individual,
-                       double * randomArr);
+extern void UpdateP (float *P,  float *Epsilon, float *Fst,
+                     int *NumAlleles, int *Geno, int *Z, float *lambda, struct IND *Individual,
+                     float * randomArr);
+extern void UpdatePCL (CLDict *clDict,float *P,  float *Epsilon,
+                       float *Fst,
+                       int *NumAlleles, int *Geno, int *Z, float *lambda, struct IND *Individual,
+                       float * randomArr);
 

@@ -7,8 +7,8 @@
 #include "../Kernels.h"
 
 /*------------------------------------------*/
-void UpdateGeno (int *PreGeno, int *Geno, double *P, int *Z,
-                 int *Recessive, int *NumAlleles, double *Q)
+void UpdateGeno (int *PreGeno, int *Geno, float *P, int *Z,
+                 int *Recessive, int *NumAlleles, float *Q)
 /*
  * this function updates the imputed genotypes when the genotypes are
  * ambiguous due to recessive markers or inbreeding.
@@ -18,15 +18,15 @@ void UpdateGeno (int *PreGeno, int *Geno, double *P, int *Z,
     int ind, loc, allele, line, dom, toggle,rejectioncount,allelecount,
         notmissingcount;
     int *AlleleUsed=NULL, *AllelePresent=NULL;
-    double *AlleleProbs, Sum;
+    float *AlleleProbs, Sum;
     static int RejectionThreshold = 1000000;
     /*  int pop;
-     *  double temp, Sum1, Sum2; */
+     *  float temp, Sum1, Sum2; */
 
     if (LINES == 2) {
-        AlleleProbs = calloc (4, sizeof (double));
+        AlleleProbs = calloc (4, sizeof (float));
     } else {
-        AlleleProbs = calloc (MAXALLELES, sizeof (double));
+        AlleleProbs = calloc (MAXALLELES, sizeof (float));
         AlleleUsed = calloc (MAXALLELES, sizeof (int));
         AllelePresent = calloc (MAXALLELES, sizeof (int));
     }

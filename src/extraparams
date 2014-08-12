@@ -4,7 +4,7 @@ PROGRAM RUNS.  ATTRIBUTES OF THE DATAFILE AS WELL AS K AND RUNLENGTH ARE
 SPECIFIED IN mainparams.
 
 "(int)" means that this takes an integer value.
-"(d)"   means that this is a double (ie, a Real number such as 3.14).
+"(d)"   means that this is a float (ie, a Real number such as 3.14).
 "(B)"   means that this variable is Boolean 
         (ie insert 1 for True, and 0 for False).
 

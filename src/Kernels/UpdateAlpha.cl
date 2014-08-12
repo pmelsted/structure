@@ -1,4 +1,4 @@
-double AlphaPriorDiff (double newalpha, double oldalpha)
+float AlphaPriorDiff (float newalpha, float oldalpha)
 {
     /*returns log diff in priors for the alpha, assuming a gamma prior on alpha
       See notes 7/29/99 */
@@ -8,13 +8,13 @@ double AlphaPriorDiff (double newalpha, double oldalpha)
 
 
 __kernel void UpdateAlpha(
-       __global double *Q,
-       __global double *Alpha,
+       __global float *Q,
+       __global float *Alpha,
        __global int *popflags,
-       __global double *norms,
-       __global double *results,
+       __global float *norms,
+       __global float *results,
        __global uint *randGens,
-       __local double *scratch,
+       __local float *scratch,
        const int POPFLAGINDS)
 {
     int alpha = get_global_id(1);
@@ -24,20 +24,20 @@ __kernel void UpdateAlpha(
             int redpop;
             int numredpops = MAXPOPS;
 
-            double newalpha = norms[alpha];
-            double oldalpha = Alpha[alpha];
-            double alphasum =0.0;
+            float newalpha = norms[alpha];
+            float oldalpha = Alpha[alpha];
+            float alphasum =0.0;
 
             if ((newalpha > 0) && ((newalpha < ALPHAMAX) || (!(UNIFPRIORALPHA)) ) ) {
                 if (POPALPHAS){ numredpops = alpha +1; }
                 //TODO: Evaluate underflow safe vs nonsafe
-                double sum = 1.0;
-                double total = 0.0;
+                float sum = 1.0;
+                float total = 0.0;
                 while( ind < NUMINDS){
                     if (!((USEPOPINFO) && (popflags[ind]))) {
                         //Safe version (similar to in code)
                         //Watching out for underflow
-                        /* double elem = 1.0; */
+                        /* float elem = 1.0; */
                         /* for(redpop = alpha; redpop < numredpops; redpop++){ */
                         /*     elem *= Q[QPos (ind, redpop)]; */
                         /* } */
@@ -52,7 +52,7 @@ __kernel void UpdateAlpha(
                         /*     sum = 1.0; */
                         /* } */
                         //Might underflow?
-                        double elem = 0.0;
+                        float elem = 0.0;
                         for(redpop = alpha; redpop < numredpops; redpop++){
                             elem += log(Q[QPos (ind, redpop)]);
                         }
@@ -99,8 +99,8 @@ __kernel void UpdateAlpha(
                     for (int i=0; i<MAXPOPS; i++)  {
                         alphasum += Alpha[i];
                     }
-                    double logprobdiff = 0.0;
-                    double logterm = 0.0;
+                    float logprobdiff = 0.0;
+                    float logterm = 0.0;
                     if (!(UNIFPRIORALPHA)) logprobdiff = AlphaPriorDiff (newalpha, oldalpha);
 
                     for(int id =0; id < numgroups; id++){
@@ -109,11 +109,11 @@ __kernel void UpdateAlpha(
                     }
 
                     int multiple = numredpops - alpha;
-                    double lpsum = 0.0;
+                    float lpsum = 0.0;
                     lpsum -= (oldalpha - 1.0) * logterm;
                     lpsum += (newalpha - 1.0) * logterm;
 
-                    double sumalphas = alphasum;
+                    float sumalphas = alphasum;
                     lpsum -= (lgamma (alphasum) - multiple * lgamma ( oldalpha)) * POPFLAGINDS;
 
                     if (POPALPHAS){

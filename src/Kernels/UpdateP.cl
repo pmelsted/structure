@@ -41,24 +41,24 @@ __kernel void GetNumFromPops (
 }
 
 __kernel void UpdateP (
-    __global double* P
+    __global float* P
     , __global int* NumAlleles
     , __global int* NumAFromPops
     , __global uint* randGens
     , __global int* error
     #if FREQSCORR
-    , __global double *Epsilon
-    , __global double *Fst
+    , __global float *Epsilon
+    , __global float *Fst
     #else
-    , __global double* lambda
+    , __global float* lambda
     #endif
 )
 {
     int loc = get_global_id(0);
     int numalleles = NumAlleles[loc];
-    double Parameters[MAXALLELES];
+    float Parameters[MAXALLELES];
     RndDiscState randState[1];
-    double param;
+    float param;
     int allele;
 
     while (loc < NUMLOCI){

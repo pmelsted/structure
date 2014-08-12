@@ -170,7 +170,7 @@ InitializeZ (int *Geno, struct IND *Individual, int *Z)
 
 /*---------------------------------------*/
 void
-InitFreqPriors (double *Epsilon, double *Fst, int *Geno, int *NumAlleles)
+InitFreqPriors (float *Epsilon, float *Fst, int *Geno, int *NumAlleles)
 {
     int ind, line, loc, allele,pop;
     int value;
@@ -219,11 +219,11 @@ InitFreqPriors (double *Epsilon, double *Fst, int *Geno, int *NumAlleles)
              * for recessive model etc */
             for (allele = 0; allele < NumAlleles[loc]; allele++) {
                 Epsilon[EpsPos (loc, allele)] =
-                    (((double) LAMBDA +
-                      (double) Count[allele]) / ((double) NumAlleles[loc] *
-                                                 (double) LAMBDA +
-                                                 (double) total));
-                /* ((double) Count[allele] / total); */
+                    (((float) LAMBDA +
+                      (float) Count[allele]) / ((float) NumAlleles[loc] *
+                                                 (float) LAMBDA +
+                                                 (float) total));
+                /* ((float) Count[allele] / total); */
             }
             /*printf("\n"); */
         }
@@ -241,8 +241,8 @@ InitFreqPriors (double *Epsilon, double *Fst, int *Geno, int *NumAlleles)
 
 /*---------------------------------------*/
 void
-InitializeSums (double *PSum, double *QSum,  double *FstSum,
-                int *NumAlleles, int *AncestDist, double *UsePopProbs,double *SumEpsilon)
+InitializeSums (float *PSum, float *QSum,  float *FstSum,
+                int *NumAlleles, int *AncestDist, float *UsePopProbs,float *SumEpsilon)
 /*initialize arrays which store sums of parameters */
 {
     int loc, pop, allele, ind, box, gen;
@@ -297,7 +297,7 @@ InitializeSums (double *PSum, double *QSum,  double *FstSum,
 
 /*-----------------------------------------------------*/
 void
-InitializeR (double *R, double *sumR, double *varR)
+InitializeR (float *R, float *sumR, float *varR)
 {
     int ind;
     for (ind = 0; ind < NUMINDS; ind++) {
@@ -328,17 +328,17 @@ void InitializeGeno (int *Geno, int *PreGeno)
 /*---------------------------------------*/
 void Initialization (int *Geno, int *PreGeno,
                      struct IND *Individual, int *Translation,
-                     int *NumAlleles, int *Z, int *Z1, double *Epsilon,
-                     double *SumEpsilon,
-                     double *Fst,double *PSum, double *Q, double *QSum,
-                     double *FstSum,
-                     int *AncestDist, double *UsePopProbs, double *Alpha,
-                     double *sumAlpha, double *sumR, double *varR,
-                     double *sumlikes, double *sumsqlikes,
-                     int *savefreq, double *R, double *lambda, double *sumlambda,
-                     double *Phase, int *Recessive, double *LocPrior,
-                     double *sumLocPrior, int LocPriorLen,
-                     double *sumIndLikes, double *indlike_norm, CLDict *clDict)
+                     int *NumAlleles, int *Z, int *Z1, float *Epsilon,
+                     float *SumEpsilon,
+                     float *Fst,float *PSum, float *Q, float *QSum,
+                     float *FstSum,
+                     int *AncestDist, float *UsePopProbs, float *Alpha,
+                     float *sumAlpha, float *sumR, float *varR,
+                     float *sumlikes, float *sumsqlikes,
+                     int *savefreq, float *R, float *lambda, float *sumlambda,
+                     float *Phase, int *Recessive, float *LocPrior,
+                     float *sumLocPrior, int LocPriorLen,
+                     float *sumIndLikes, float *indlike_norm, CLDict *clDict)
 
 /*
  * This function is in charge of initializing the data arrays and other
@@ -366,7 +366,7 @@ void Initialization (int *Geno, int *PreGeno,
         }
         for (i=0; i<LocPriorLen; i++) {
             sumLocPrior[i]=0.0;
-            LocPrior[i] = 1.0/(double)MAXPOPS;
+            LocPrior[i] = 1.0/(float)MAXPOPS;
         }
         LocPrior[0] = LOCPRIORINIT;
     }

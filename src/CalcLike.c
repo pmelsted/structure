@@ -5,8 +5,8 @@
 #include "Kernels.h"
 
 /*-----------------------------------------*/
-double
-CalcLikeIndRecessive(int *Geno, int *PreGeno, double *AncVector, double *P,
+float
+CalcLikeIndRecessive(int *Geno, int *PreGeno, float *AncVector, float *P,
                      int ind, int *Recessive)
 {
     /*returns log(likelihood) of Data for one individual:  log[ P(Data|p,q) ].
@@ -18,9 +18,9 @@ CalcLikeIndRecessive(int *Geno, int *PreGeno, double *AncVector, double *P,
       Notice use of AncVector (Q for current individual only), not full Q)
     */
 
-    double runningtotal = 1;
-    double loglike = 0;
-    double term, sum1, sum2;
+    float runningtotal = 1;
+    float loglike = 0;
+    float term, sum1, sum2;
     int allele1, allele2;
     int loc, pop;
     /*  int line; */
@@ -72,7 +72,7 @@ CalcLikeIndRecessive(int *Geno, int *PreGeno, double *AncVector, double *P,
 }
 
 /*-----------------------------------------*/
-double CalcLikeInd (int *Geno, int *PreGeno, double *AncVector, double *P,
+float CalcLikeInd (int *Geno, int *PreGeno, float *AncVector, float *P,
                     int ind, int *Recessive)
 {
     /*returns log(likelihood) of Data for one individual:  log[ P(Data|p,q) ]
@@ -91,12 +91,12 @@ double CalcLikeInd (int *Geno, int *PreGeno, double *AncVector, double *P,
        Notice use of AncVector (Q for current individual only), not full Q)
     */
 
-    double runningtotal = 1;
-    double loglike = 0;
-    double term;
+    float runningtotal = 1;
+    float loglike = 0;
+    float term;
     int allele;
     int line, loc, pop;
-    double sqrtunder = sqrt (UNDERFLO);
+    float sqrtunder = sqrt (UNDERFLO);
 
     if (LINES==2 && RECESSIVEALLELES) {
         loglike = CalcLikeIndRecessive(Geno, PreGeno, AncVector, P, ind, Recessive);
@@ -133,11 +133,11 @@ double CalcLikeInd (int *Geno, int *PreGeno, double *AncVector, double *P,
 }
 
 
-double CalcLikeIndDiffCL (int *Geno,  double *TestQ, double *Q, double *P, int ind)
+float CalcLikeIndDiffCL (int *Geno,  float *TestQ, float *Q, float *P, int ind)
 {
 
-    double logdiff;
-    double termPlus, termMinus,logPlus = 0.0,logMinus = 0.0;
+    float logdiff;
+    float termPlus, termMinus,logPlus = 0.0,logMinus = 0.0;
     int allele;
     int line, loc, pop;
 
@@ -160,11 +160,11 @@ double CalcLikeIndDiffCL (int *Geno,  double *TestQ, double *Q, double *P, int i
     return logdiff;
 }
 
-double CalcLikeIndCL (int *Geno, double *Q, double *P, int ind)
+float CalcLikeIndCL (int *Geno, float *Q, float *P, int ind)
 {
 
-    double term;
-    double logterm = 0.0;
+    float term;
+    float logterm = 0.0;
     int allele;
     int line, loc, pop;
 
@@ -183,8 +183,8 @@ double CalcLikeIndCL (int *Geno, double *Q, double *P, int ind)
     return logterm;
 }
 
-void reduceLogdiffsCL(double *logterms, double *logdiffs){
-    double logterm;
+void reduceLogdiffsCL(float *logterms, float *logdiffs){
+    float logterm;
     int ind, loc;
     for (ind =0; ind < NUMINDS; ind++){
         logterm = 0.0;
@@ -195,25 +195,25 @@ void reduceLogdiffsCL(double *logterms, double *logdiffs){
     }
 }
 
-void CalcLogdiffsCL(CLDict *clDict,int *Geno,double *TestQ, double *Q, double *P, double *logdiffs)
+void CalcLogdiffsCL(CLDict *clDict,int *Geno,float *TestQ, float *Q, float *P, float *logdiffs)
 {
 
-    double termP,termM;
-    double logterm;
+    float termP,termM;
+    float logterm;
     int allele;
     int line, loc, pop,ind;
-    double * logdiffsnoncl;
-    /*double *logterms, *lgtcl;*/
+    float * logdiffsnoncl;
+    /*float *logterms, *lgtcl;*/
     size_t global[2];
     global[0] = NUMLOCI;
     global[1] = NUMINDS;
 
-    /*logterms = calloc(NUMINDS*NUMLOCI,sizeof(double));*/
-    /*lgtcl = calloc(NUMINDS*NUMLOCI,sizeof(double));
-    logdiffsnoncl = calloc(NUMINDS,sizeof(double));*/
+    /*logterms = calloc(NUMINDS*NUMLOCI,sizeof(float));*/
+    /*lgtcl = calloc(NUMINDS*NUMLOCI,sizeof(float));
+    logdiffsnoncl = calloc(NUMINDS,sizeof(float));*/
 
     if(DEBUGCOMPARE){
-        logdiffsnoncl = calloc(NUMINDS,sizeof(double));
+        logdiffsnoncl = calloc(NUMINDS,sizeof(float));
         for (ind =0; ind < NUMINDS; ind++){
             logterm = 0.0;
             for (loc = 0; loc < NUMLOCI; loc++) {
@@ -236,27 +236,27 @@ void CalcLogdiffsCL(CLDict *clDict,int *Geno,double *TestQ, double *Q, double *P
 
 
     /* Already up to date on GPU */
-    /*writeBuffer(clDict,Q,sizeof(double) * QSIZE,QCL,"Q");*/
-    /*writeBuffer(clDict,TestQ,sizeof(double) * QSIZE,TESTQCL,"TestQ");*/
+    /*writeBuffer(clDict,Q,sizeof(float) * QSIZE,QCL,"Q");*/
+    /*writeBuffer(clDict,TestQ,sizeof(float) * QSIZE,TESTQCL,"TestQ");*/
     /*
-    writeBuffer(clDict,P,sizeof(double) * PSIZE,PCL,"P");
+    writeBuffer(clDict,P,sizeof(float) * PSIZE,PCL,"P");
     writeBuffer(clDict,Geno,sizeof(int) * GENOSIZE,GENOCL,"GENO");
     */
 
 
     /*runKernel(clDict,mapLogDiffsKernel,2,global,"mapLogDiffs");
-    readBuffer(clDict,logterms,sizeof(double) * NUMINDS*NUMLOCI,LOGTERMSCL,"Logterms");
-    [>readBuffer(clDict,logdiffs,sizeof(double) * NUMINDS,LOGDIFFSCL,"Logdiffs");<]
+    readBuffer(clDict,logterms,sizeof(float) * NUMINDS*NUMLOCI,LOGTERMSCL,"Logterms");
+    [>readBuffer(clDict,logdiffs,sizeof(float) * NUMINDS,LOGDIFFSCL,"Logdiffs");<]
     reduceLogdiffsCL(logterms,logdiffs);*/
 
     runKernel(clDict,mapReduceLogDiffsKernel,2,global,"reduceLogDiffs");
     if (DEBUGCOMPARE){
-        readBuffer(clDict,logdiffs,sizeof(double) * NUMINDS,LOGDIFFSCL,"Logdiffs");
+        readBuffer(clDict,logdiffs,sizeof(float) * NUMINDS,LOGDIFFSCL,"Logdiffs");
     }
 
 
     /*runKernel(clDict,mapReduceLogDiffsKernel,2,global,"mapReduceLogDiffs");*/
-    /*readBuffer(clDict,logdiffsnoncl,sizeof(double) * NUMINDS,LOGDIFFSCL,"Logdiffs");*/
+    /*readBuffer(clDict,logdiffsnoncl,sizeof(float) * NUMINDS,LOGDIFFSCL,"Logdiffs");*/
 
 
 
@@ -278,8 +278,8 @@ void CalcLogdiffsCL(CLDict *clDict,int *Geno,double *TestQ, double *Q, double *P
 
 
 
-double CalcLikeIndDiff (int *Geno, int *PreGeno, double *AncVectorPlus,
-                        double *AncVectorMinus, double *P, int ind, int *Recessive)
+float CalcLikeIndDiff (int *Geno, int *PreGeno, float *AncVectorPlus,
+                        float *AncVectorMinus, float *P, int ind, int *Recessive)
 {
     /*returns log(likelihood) of Data for one individual:  log[ P(Data|p,q) ]
       See notes 19 March 99 */
@@ -297,12 +297,12 @@ double CalcLikeIndDiff (int *Geno, int *PreGeno, double *AncVectorPlus,
        Notice use of AncVector (Q for current individual only), not full Q)
     */
 
-    /*double runningtotalPlus = 1, runningtotalMinus =1;*/
-    double logdiff = 0;
-    double termPlus, termMinus,logPlus = 0.0,logMinus = 0.0;
+    /*float runningtotalPlus = 1, runningtotalMinus =1;*/
+    float logdiff = 0;
+    float termPlus, termMinus,logPlus = 0.0,logMinus = 0.0;
     int allele;
     int line, loc, pop;
-    /*double sqrtunder = sqrt (UNDERFLO);*/
+    /*float sqrtunder = sqrt (UNDERFLO);*/
 
     for (line = 0; line < LINES; line++) {
         for (loc = 0; loc < NUMLOCI; loc++) {
@@ -345,8 +345,8 @@ double CalcLikeIndDiff (int *Geno, int *PreGeno, double *AncVectorPlus,
 }
 /*-----------------------------------------*/
 
-double CalcLikeRecessive(int *Geno, int *PreGeno, double *Q, double *P,
-                         int *Recessive, double *sumindlike, double *indlike_norm)
+float CalcLikeRecessive(int *Geno, int *PreGeno, float *Q, float *P,
+                         int *Recessive, float *sumindlike, float *indlike_norm)
 /* calculate log likelihood for recessive model.  Only coded for diploids!
  *
  * note code overlap with CalcLikeInd, CalcLikeIndRecessive, CalcLike;
@@ -360,10 +360,10 @@ double CalcLikeRecessive(int *Geno, int *PreGeno, double *Q, double *P,
 {
 
 
-    double loglike = 0;
+    float loglike = 0;
     int ind, pop;
-    double *AncVector = malloc(MAXPOPS*sizeof(double));
-    double indlike;
+    float *AncVector = malloc(MAXPOPS*sizeof(float));
+    float indlike;
     if (AncVector==NULL) {
         printf("Error allocating Ancvetor in CalcLikeRecessive: out of memory?\n");
         exit(-1);
@@ -384,8 +384,8 @@ double CalcLikeRecessive(int *Geno, int *PreGeno, double *Q, double *P,
     return loglike;
 }
 /*-----------------------------------------*/
-double CalcLike (int *Geno, int *PreGeno, double *Q, double *P, int *Recessive,
-                 double *sumindlike, double *indlike_norm)
+float CalcLike (int *Geno, int *PreGeno, float *Q, float *P, int *Recessive,
+                 float *sumindlike, float *indlike_norm)
 {
     /*returns log(likelihood) of Data:  log[ P(Data|p,q) ]
       See notes 19 March 99 */
@@ -395,14 +395,14 @@ double CalcLike (int *Geno, int *PreGeno, double *Q, double *P, int *Recessive,
     /*Melissa modified 7/12/07 so it calls CalcLikeInd rather than repeats
       the same code.  This helps with DIC calculation...*/
 
-    double loglike = 0, indlike, *AncVector;
+    float loglike = 0, indlike, *AncVector;
     int ind, pop;
 
     if (LINES == 2 && RECESSIVEALLELES) {
         loglike = CalcLikeRecessive(Geno, PreGeno, Q, P, Recessive, sumindlike,
                                     indlike_norm);
     } else {
-        AncVector = malloc(MAXPOPS*sizeof(double));
+        AncVector = malloc(MAXPOPS*sizeof(float));
         if (AncVector==NULL) {
             printf("Error allocating Ancvetor in CalcLikeRecessive: out of memory?\n");
             exit(-1);

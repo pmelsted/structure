@@ -3,7 +3,7 @@
     cost of the algorithm while keeping the work complexity O(n) and the step complexity O(log n).
     (Brent's Theorem optimization)
 */
-__kernel void reduce(__global double *g_idata, __global double *g_odata, unsigned int n, __local volatile double *sdata)
+__kernel void reduce(__global float *g_idata, __global float *g_odata, unsigned int n, __local volatile float *sdata)
 {
     // perform first level of reduction,
     // reading from global memory, writing to shared memory
@@ -52,16 +52,16 @@ __kernel void reduce(__global double *g_idata, __global double *g_odata, unsigne
 
 
 
-double mapLogDiffsFunc(__global double *Q, __global double *TestQ,
-                       __global double *P, __global int *Geno,
+float mapLogDiffsFunc(__global float *Q, __global float *TestQ,
+                       __global float *P, __global int *Geno,
                        int ind, int loc)
 {
     int allele, line, pop;
-    double termP;
-    double termM;
+    float termP;
+    float termM;
     if (ind < NUMINDS && loc < NUMLOCI){
-        double runningtotalP = 1.0, runningtotalM = 1.0;
-        double logtermP = 0.0, logtermM = 0.0;
+        float runningtotalP = 1.0, runningtotalM = 1.0;
+        float logtermP = 0.0, logtermM = 0.0;
         for (line = 0; line < LINES; line++) {
             allele = Geno[GenPos (ind, line, loc)];
             if (allele != MISSING) {
@@ -108,22 +108,22 @@ double mapLogDiffsFunc(__global double *Q, __global double *TestQ,
 
 
 
-__kernel void mapReduceLogDiffs(__global double *Q,
-                                __global double *TestQ,
-                                __global double *P,
+__kernel void mapReduceLogDiffs(__global float *Q,
+                                __global float *TestQ,
+                                __global float *P,
                                 __global int *Geno,
-                                __global double *logdiffs,
-                                __global double *results,
-                                __local  double *scratch)
+                                __global float *logdiffs,
+                                __global float *results,
+                                __local  float *scratch)
 {
     int loc = get_global_id(0);
     int ind = get_global_id(1);
     int numgroups = get_num_groups(0);
     /* idempotent */
-    double logdiff = 0.0;
+    float logdiff = 0.0;
     /* Map and partial reduce */
     while( loc < NUMLOCI){
-        double elem = mapLogDiffsFunc(Q,TestQ,P,Geno,ind,loc);
+        float elem = mapLogDiffsFunc(Q,TestQ,P,Geno,ind,loc);
         logdiff += elem;
         loc += get_global_size(0);
     }
@@ -163,14 +163,14 @@ __kernel void mapReduceLogDiffs(__global double *Q,
 }
 
 /* copy of logdiffs, but calc only one item */
-double mapLogLikeFunc(__global double *Q, __global double *P,
+float mapLogLikeFunc(__global float *Q, __global float *P,
                        __global int *Geno, int ind, int loc)
 {
     int allele, line, pop;
-    double term;
+    float term;
     if (ind < NUMINDS && loc < NUMLOCI){
-        double runningtotal = 1.0;
-        double logterm = 0.0;
+        float runningtotal = 1.0;
+        float logterm = 0.0;
         for (line = 0; line < LINES; line++) {
             allele = Geno[GenPos (ind, line, loc)];
             if (allele != MISSING) {
@@ -201,23 +201,23 @@ double mapLogLikeFunc(__global double *Q, __global double *P,
     return 0.0;
 }
 
-__kernel void mapReduceLogLike(__global double *Q,
-                                __global double *P,
+__kernel void mapReduceLogLike(__global float *Q,
+                                __global float *P,
                                 __global int *Geno,
-                                __global double *loglikes,
-                                __global double *results,
-                                __local  double *scratch)
+                                __global float *loglikes,
+                                __global float *results,
+                                __local  float *scratch)
 {
     int ind = get_global_id(1);
     int loc = get_global_id(0);
     int numgroups = get_num_groups(0);
     /* idempotent */
-    double logterm = 0.0;
+    float logterm = 0.0;
     /* Map and partial reduce */
     /* clear results buffer */
     if (ind < NUMINDS && loc < NUMLOCI){
         while( loc < NUMLOCI){
-            double elem = mapLogLikeFunc(Q,P,Geno,ind,loc);
+            float elem = mapLogLikeFunc(Q,P,Geno,ind,loc);
             logterm += elem;
             loc += get_global_size(0);
         }
@@ -259,23 +259,23 @@ __kernel void mapReduceLogLike(__global double *Q,
 }
 
 __kernel void CalcLike(
-        __global double *loglikes,
-        __global double *indlike_norm,
-        __global double *sumindlike,
+        __global float *loglikes,
+        __global float *indlike_norm,
+        __global float *sumindlike,
         const int usesumindlike, /* this is true after burnin */
-        __global double *loglike,
-        __global double *results,
-        __local  double *scratch
+        __global float *loglike,
+        __global float *results,
+        __local  float *scratch
         )
 {
     int ind = get_global_id(0);
 
-    double logterm = 0.0;
+    float logterm = 0.0;
     int numgroups = get_num_groups(0);
 
     /* Map and partial reduce */
     while( ind < NUMINDS){
-        double elem = loglikes[ind];
+        float elem = loglikes[ind];
         if (usesumindlike) {
             if (indlike_norm[ind]==0.0) {
                 indlike_norm[ind] = elem;

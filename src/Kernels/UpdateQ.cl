@@ -1,10 +1,10 @@
 #include "Kernels/calcLike.cl"
 
 __kernel void MetroAcceptTest(
-        __global double *TestQ,
-        __global double *Q,
+        __global float *TestQ,
+        __global float *Q,
         __global uint *randGens,
-        __global double *logdiffs,
+        __global float *logdiffs,
         __global int *popflags)
 {
     int ind = get_global_id(0);
@@ -61,10 +61,10 @@ __kernel void GetNumLociPops(
 }
 
 __kernel void UpdQDirichlet(
-        __global double *Alpha,
+        __global float *Alpha,
         __global int *NumLociPops,
         __global uint *randGens,
-        __global double *Q,
+        __global float *Q,
         __global int *popflags)
 {
     int ind = get_global_id(0);
@@ -73,12 +73,12 @@ __kernel void UpdQDirichlet(
     if (!((USEPOPINFO) && (popflags[ind]))) {
         while (ind < NUMINDS){
             initRndDiscState(randState,randGens,ind);
-            double GammaSample[MAXPOPS];
+            float GammaSample[MAXPOPS];
 
             int i = 0;
-            double sum = 0.0;
+            float sum = 0.0;
             int offset = ind*MAXPOPS;
-            double param;
+            float param;
             for(i = 0; i < MAXPOPS; i++){
                 param = Alpha[i]+NumLociPops[i+offset];
                 GammaSample[i] = RGammaDisc(param,1,randState);

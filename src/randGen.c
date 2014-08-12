@@ -5,7 +5,7 @@
 #include "Kernels.h"
 #include "ran.h"
 
-void initRndDiscState(RndDiscState *state, double * randomArr, int maxrandom)
+void initRndDiscState(RndDiscState *state, float * randomArr, int maxrandom)
 {
     state->randomArr = randomArr;
     state->maxrandom = maxrandom;
@@ -20,9 +20,9 @@ void rndDiscStateReset(RndDiscState *state, int baseOffset)
 }
 
 
-double rndDisc(RndDiscState * state)
+float rndDisc(RndDiscState * state)
 {
-    double val;
+    float val;
 
     val = state->randomArr[state->baseOffset + state->randomValsTaken];
     state->randomValsTaken++;
@@ -35,22 +35,22 @@ double rndDisc(RndDiscState * state)
     return val;
 }
 
-void FillArrayWithRandomCL(CLDict *clDict,double *randomArr, int numrands){
+void FillArrayWithRandomCL(CLDict *clDict,float *randomArr, int numrands){
     size_t global[1];
     global[0] = numrands;
     setKernelArgExplicit(clDict,FillArrayWRandomKernel,sizeof(int),&numrands,2);
     runKernel(clDict,FillArrayWRandomKernel,1,global,"FillArrayWRandom");
-    /*readBuffer(clDict,randomArr, sizeof(double) * numrands,RANDCL,*/
+    /*readBuffer(clDict,randomArr, sizeof(float) * numrands,RANDCL,*/
                 /*"randomArr");*/
 }
 
-void FillArrayWithRandom(double *random, int n)
+void FillArrayWithRandom(float *random, int n)
 {
     /*Fills an array with floating random numbers in [0,1)*/
     int i;
-    double d;
+    float d;
     for(i = 0; i < n; i++) {
-        d = (double) rand() / ((double) RAND_MAX + 1);
+        d = (float) rand() / ((float) RAND_MAX + 1);
         random[i] = d;
     }
 }
