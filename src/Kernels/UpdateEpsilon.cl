@@ -61,5 +61,6 @@ __kernel void NonIndUpdateEpsilon(
             saveRndDiscState(randState);
         }
         loc += get_global_size(0);
+        barrier(CLK_GLOBAL_MEM_FENCE);
     }
 }

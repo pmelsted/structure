@@ -159,11 +159,11 @@ UpdateEpsilon(double *P,double *Epsilon, double *Fst,
     /*here we choose between two different updates that we believe have different mixing
       properties, especially for small lambda. The independence update uses a
       Dirichlet prior independent of current epsilon while the update below uses a small normal jump */
-    if (rnd()<0.5) {
-        IndependenceUpdateEpsilon(P,Epsilon, Fst,NumAlleles, lambda);
-    } else {
+    /* if (rnd()<0.5) { */
+    /*     IndependenceUpdateEpsilon(P,Epsilon, Fst,NumAlleles, lambda); */
+    /* } else { */
         NonIndependenceUpdateEpsilon(P,Epsilon, Fst,NumAlleles, lambda);
-    }
+    /* } */
 }
 
 void NonIndependenceUpdateEpsilonCL(CLDict *clDict,double *P, double *Epsilon,

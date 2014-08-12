@@ -82,6 +82,14 @@ int RandomInteger(int low, int high,RndDiscState *randState)
     return (int) random + low;
 }
 
+/* int RandomInteger(int low, int high,RndDiscState *randState) */
+/* { */
+/*     int k; */
+/*     double d = rndDisc(randState); */
+
+/*     k = (int) (d * (high - low + 1)); */
+/*     return (low + k); */
+/* } */
 
 
 int AlphaPos(int loc, int pop)

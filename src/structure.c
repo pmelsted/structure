@@ -578,14 +578,14 @@ int main (int argc, char *argv[])
             UpdateAlphaLocPrior(Q, Alpha, LocPrior, Individual);
         } else if (INFERALPHA) {
 
-            /* UpdateAlphaCL (clDict,Q, Alpha, Individual, rep,POPFLAGINDS); */
+            UpdateAlphaCL (clDict,Q, Alpha, Individual, rep,POPFLAGINDS);
 
-            readBuffer(clDict,Q, sizeof(double) * QSIZE,QCL, "Q");
-            readBuffer(clDict,Alpha, sizeof(double) * MAXPOPS,ALPHACL, "alpha");
+            /* readBuffer(clDict,Q, sizeof(double) * QSIZE,QCL, "Q"); */
+            /* readBuffer(clDict,Alpha, sizeof(double) * MAXPOPS,ALPHACL, "alpha"); */
 
-            UpdateAlpha(Q, Alpha, Individual, rep);
+            /* UpdateAlpha(Q, Alpha, Individual, rep); */
 
-            writeBuffer(clDict,Alpha, sizeof(double) * MAXPOPS,ALPHACL, "alpha");
+            /* writeBuffer(clDict,Alpha, sizeof(double) * MAXPOPS,ALPHACL, "alpha"); */
         }
 
         if (INFERLAMBDA) {
@@ -599,21 +599,21 @@ int main (int argc, char *argv[])
         }
 
         if (FREQSCORR) {
-            /* UpdateEpsilonCL(clDict,P,Epsilon,Fst,NumAlleles,lambda[0]); */
+            UpdateEpsilonCL(clDict,P,Epsilon,Fst,NumAlleles,lambda[0]);
 
-            /* UpdateFstCL (clDict,Epsilon, Fst, P, NumAlleles); */
+            UpdateFstCL (clDict,Epsilon, Fst, P, NumAlleles);
 
-            readBuffer(clDict,P, sizeof(double) * PSIZE,PCL, "P");
-            readBuffer(clDict,Fst,sizeof(double) * MAXPOPS,FSTCL,"FST");
-            readBuffer(clDict,Epsilon,sizeof(double) * NUMLOCI*MAXALLELES,EPSILONCL,"eps");
-            readBuffer(clDict,NumAlleles,sizeof(int) * NUMLOCI,NUMALLELESCL,"NumAlleles");
+            /* readBuffer(clDict,P, sizeof(double) * PSIZE,PCL, "P"); */
+            /* readBuffer(clDict,Fst,sizeof(double) * MAXPOPS,FSTCL,"FST"); */
+            /* readBuffer(clDict,Epsilon,sizeof(double) * NUMLOCI*MAXALLELES,EPSILONCL,"eps"); */
+            /* readBuffer(clDict,NumAlleles,sizeof(int) * NUMLOCI,NUMALLELESCL,"NumAlleles"); */
 
-            UpdateEpsilon(P,Epsilon,Fst,NumAlleles,lambda[0]);
+            /* UpdateEpsilon(P,Epsilon,Fst,NumAlleles,lambda[0]); */
 
-            UpdateFst (Epsilon, Fst, P, NumAlleles);
+            /* UpdateFst (Epsilon, Fst, P, NumAlleles); */
 
-            writeBuffer(clDict,Epsilon,sizeof(double) * NUMLOCI*MAXALLELES,EPSILONCL,"eps");
-            writeBuffer(clDict,Fst,sizeof(double) * MAXPOPS,FSTCL,"FST");
+            /* writeBuffer(clDict,Epsilon,sizeof(double) * NUMLOCI*MAXALLELES,EPSILONCL,"eps"); */
+            /* writeBuffer(clDict,Fst,sizeof(double) * MAXPOPS,FSTCL,"FST"); */
         }
 
 
