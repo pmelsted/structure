@@ -77,6 +77,9 @@ int PickAnOptionDiscrete(int total, float sum, float Probs [],
 
 int RandomInteger(int low, int high,RndDiscState *randState)
 {
+    if (high == low){
+        return high;
+    }
     int range = high-low;
     uint random = rndUInt(randState) % range;
     return (int) random + low;

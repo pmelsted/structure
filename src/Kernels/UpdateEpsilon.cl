@@ -22,11 +22,9 @@ __kernel void NonIndUpdateEpsilon(
         if (NumAlleles[loc] > 1){
             initRndDiscState(randState,randGens,loc);
 
-            allele1 = RandomInteger(0,NumAlleles[loc],randState);
-            allele2 = RandomInteger(0,NumAlleles[loc]-1,randState);
-            if (allele2 >= allele1){
-                allele2 += 1;
-            }
+            allele1 = RandomInteger(0,NumAlleles[loc]-1,randState);
+            allele2 = RandomInteger(0,NumAlleles[loc]-2,randState);
+
             eps1 = Epsilon[EpsPos(loc,allele1)];
             eps2 = Epsilon[EpsPos(loc,allele2)];
             diff = numToRange(0,invsqrtnuminds,rndDisc(randState));
