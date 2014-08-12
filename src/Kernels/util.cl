@@ -63,7 +63,7 @@ int PickAnOptionDiscrete(int total, float sum, float Probs [],
 {
     int option;
     float random;
-    float sumsofar =  0.0;
+    float sumsofar =  0.0f;
 
     random = numToRange(0,sum, rndDisc(randState));
     for (option=0; option < total; ++option) {
@@ -106,10 +106,10 @@ int AlphaPos(int loc, int pop)
 
 /* Returns gamma(f,1), where 0 < f < 1 */
 float RGammaDiscFloat(float n,RndDiscState *randState){
-    float x=0.0;
-    float E=2.71828182;
+    float x=0.0f;
+    float E=2.71828182f;
     float b=(n+E)/E;
-    float p=0.0;
+    float p=0.0f;
     while(1){
         p=b*rndDisc(randState);
         if(p>1) {
@@ -131,7 +131,7 @@ float RGammaDiscFloat(float n,RndDiscState *randState){
 
 /* Returns gamma(1,1) */
 float RGammaDiscOne(RndDiscState *randState){
-    float a=0.0;
+    float a=0.0f;
     float u,u0,ustar;
     u=rndDisc(randState);
     u0=u;
@@ -169,17 +169,17 @@ float RGammaDiscInt(int n,RndDiscState *randState){
  *  which can be found online at http://luc.devroye.org/rnbookindex.html
  */
 float RGammaCheng(float a,RndDiscState *randState){
-    float b = a - log(4.0);
-    float c = a + sqrt(2.0*a-1.0);
+    float b = a - log(4.0f);
+    float c = a + sqrt(2.0f*a-1.0f);
     float U,V,X,Y,Z,R;
     while (1){
         U = rndDisc(randState);
         V = rndDisc(randState);
-        Y = a*log(V/(1.0-V));
+        Y = a*log(V/(1.0f-V));
         X = a*exp(V);
         Z = U*(V*V);
         R = b + c*Y - X;
-        if( (R >= (9.0/2.0)*Z - (1+log(9.0/2.0))) ||   ( R >= log(Z)) ){
+        if( (R >= (9.0f/2.0f)*Z - (1+log(9.0f/2.0f))) ||   ( R >= log(Z)) ){
             break;
         }
     }
@@ -197,7 +197,7 @@ float RGammaCheng(float a,RndDiscState *randState){
 
 float RGammaBest(float a,RndDiscState *randState){
     float b = a -1;
-    float c = 3*a - 0.75;
+    float c = 3*a - 0.75f;
     float U,V,W,Y,X,Z;
     while (1){
         U = rndDisc(randState);
