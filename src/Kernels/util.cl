@@ -75,24 +75,24 @@ int PickAnOptionDiscrete(int total, float sum, float Probs [],
     return option;
 }
 
-int RandomInteger(int low, int high,RndDiscState *randState)
-{
-    if (high == low){
-        return high;
-    }
-    int range = high-low;
-    uint random = rndUInt(randState) % range;
-    return (int) random + low;
-}
-
 /* int RandomInteger(int low, int high,RndDiscState *randState) */
 /* { */
-/*     int k; */
-/*     float d = rndDisc(randState); */
-
-/*     k = (int) (d * (high - low + 1)); */
-/*     return (low + k); */
+/*     if (high == low){ */
+/*         return low; */
+/*     } */
+/*     int range = high-low; */
+/*     uint random = rndUInt(randState) % range; */
+/*     return (int) random + low; */
 /* } */
+
+int RandomInteger(int low, int high,RndDiscState *randState)
+{
+    int k;
+    float d = rndDisc(randState);
+
+    k = (int) (d * (high - low + 1));
+    return (low + k);
+}
 
 
 int AlphaPos(int loc, int pop)
