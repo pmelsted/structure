@@ -37,28 +37,28 @@ __kernel void UpdateAlpha(
                     if (!((USEPOPINFO) && (popflags[ind]))) {
                         //Safe version (similar to in code)
                         //Watching out for underflow
-                        /* float elem = 1.0; */
-                        /* for(redpop = alpha; redpop < numredpops; redpop++){ */
-                        /*     elem *= Q[QPos (ind, redpop)]; */
-                        /* } */
+                        float elem = 1.0;
+                        for(redpop = alpha; redpop < numredpops; redpop++){
+                            elem *= Q[QPos (ind, redpop)];
+                        }
 
-                        /* if (elem > SQUNDERFLO){ */
-                        /*     sum *= elem; */
-                        /* } else { */
-                        /*     sum *= SQUNDERFLO; */
-                        /* } */
-                        /* if(sum < SQUNDERFLO){ */
-                        /*     total += log(sum); */
-                        /*     sum = 1.0; */
-                        /* } */
+                        if (elem > SQUNDERFLO){
+                            sum *= elem;
+                        } else {
+                            sum *= SQUNDERFLO;
+                        }
+                        if(sum < SQUNDERFLO){
+                            total += log(sum);
+                            sum = 1.0;
+                        }
                         //Might underflow?
-                        float elem = 0.0;
+                      /*float elem = 0.0;
                         for(redpop = alpha; redpop < numredpops; redpop++){
                             elem += log(Q[QPos (ind, redpop)]);
                         }
 
                         total += elem;
-
+                      */
                         ind += get_global_size(0);
                     }
                 }
@@ -109,20 +109,21 @@ __kernel void UpdateAlpha(
                     }
 
                     int multiple = numredpops - alpha;
-                    float lpsum = 0.0;
-                    lpsum -= (oldalpha - 1.0) * logterm;
-                    lpsum += (newalpha - 1.0) * logterm;
+                    float lpsum = (newalpha - oldalpha) * logterm;
+                    /*lpsum -= (oldalpha - 1.0) * logterm;
+                      lpsum += (newalpha - 1.0) * logterm;*/
 
                     float sumalphas = alphasum;
-                    lpsum -= (lgamma (alphasum) - multiple * lgamma ( oldalpha)) * POPFLAGINDS;
-
                     if (POPALPHAS){
                         sumalphas += newalpha - oldalpha;
                     } else {
                         sumalphas = MAXPOPS*newalpha;
                     }
 
-                    lpsum += (lgamma (sumalphas) - multiple * lgamma ( newalpha)) * POPFLAGINDS;
+                    lpsum += ((lgamma(sumalphas) - lgamma(alphasum)) - multiple*(lgamma(newalpha) - lgamma(oldalpha))) * POPFLAGINDS;
+                    
+                    /*lpsum -= (lgamma (alphasum) - multiple * lgamma ( oldalpha)) * POPFLAGINDS;
+                      lpsum += (lgamma (sumalphas) - multiple * lgamma ( newalpha)) * POPFLAGINDS;*/
                     logprobdiff += lpsum;
 
                     if (rndDisc(randState) < exp(logprobdiff)) {   /*accept new f */
